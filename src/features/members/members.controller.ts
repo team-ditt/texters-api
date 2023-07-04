@@ -1,4 +1,14 @@
-import {Controller, Get, HttpCode, HttpException, HttpStatus, Param} from "@nestjs/common";
+import {AuthGuard} from "@/features/common";
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Param,
+  Request,
+  UseGuards,
+} from "@nestjs/common";
 import {MembersService} from "./members.service";
 
 @Controller("members")
@@ -11,5 +21,11 @@ export class MembersController {
     const isExist = await this.membersService.isExist({penName});
     if (isExist) throw new HttpException("Pen name already exists.", HttpStatus.CONFLICT);
     return;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  public getProfile(@Request() req) {
+    return this.membersService.findOne({id: req.user.id});
   }
 }
