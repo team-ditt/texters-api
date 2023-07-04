@@ -4,7 +4,8 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
-import {lastValueFrom, map} from "rxjs";
+import {AxiosError} from "axios";
+import {catchError, lastValueFrom, map} from "rxjs";
 import {Repository} from "typeorm";
 import {Auth} from "./model/auth.entity";
 import {OauthProvider} from "./model/oauth-provider.enum";
@@ -69,10 +70,45 @@ export class AuthService {
   }
 
   private async signInWithNaver(authorizationCode: string): Promise<string> {
-    // 네이버 SDK 통신 후 액세스토큰 발급
-    // return 추출한 email
-    // FIXME: 더미데이터 이메일 대신 실제 SDK 연결
-    return "example@google.com";
+    const clientId = this.configService.get<string>("OAUTH_NAVER_CLIENT_ID");
+    const clientSecret = this.configService.get<string>("OAUTH_NAVER_CLIENT_SECRET");
+
+    // 1. 인증코드로 액세스토큰 발급
+    const {access_token: accessToken} = await lastValueFrom(
+      this.httpService
+        .get("https://nid.naver.com/oauth2.0/token", {
+          params: {
+            grant_type: "authorization_code",
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: this.configService.get<string>("CLIENT_URL") + "/login/oauth/naver",
+            code: authorizationCode,
+          },
+          headers: {
+            "X_Naver-Client-Id": clientId,
+            "X-Naver-Client-Secret": clientSecret,
+          },
+        })
+        .pipe(
+          catchError((error: AxiosError) => {
+            console.log(error);
+            throw new HttpException(error, HttpStatus.UNAUTHORIZED);
+          }),
+          map(res => res.data),
+        ),
+    );
+    // 2. 발급된 액세스토큰으로 회원번호 조회
+    const {response} = await lastValueFrom(
+      this.httpService
+        .get("https://openapi.naver.com/v1/nid/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .pipe(map(res => res.data)),
+    );
+
+    return `NAVER-${response.id}`;
   }
 
   private async signInWithGoogle(authorizationCode: string): Promise<string> {
