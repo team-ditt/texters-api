@@ -1,6 +1,6 @@
 import {Member, MembersService} from "@/features/members";
 import {HttpService} from "@nestjs/axios";
-import {Injectable} from "@nestjs/common";
+import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -96,7 +96,10 @@ export class AuthService {
   }
 
   public async signUp(oauthId: string, penName: string) {
+    if (await this.membersService.isExist({oauthId}))
+      throw new HttpException("Member already exists.", HttpStatus.CONFLICT);
+
     const member = await this.membersService.create(oauthId, penName);
-    return this.issueAuthTokens(member);
+    return {responseType: "signIn", tokens: this.issueAuthTokens(member)};
   }
 }
