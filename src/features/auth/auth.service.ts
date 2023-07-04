@@ -4,8 +4,8 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
-import {AxiosError} from "axios";
-import {catchError, lastValueFrom, map} from "rxjs";
+import {google} from "googleapis";
+import {lastValueFrom, map} from "rxjs";
 import {Repository} from "typeorm";
 import {Auth} from "./model/auth.entity";
 import {OauthProvider} from "./model/oauth-provider.enum";
@@ -35,7 +35,7 @@ export class AuthService {
       case OauthProvider.NAVER:
         return this.signInWithNaver(authorizationCode);
       case OauthProvider.GOOGLE:
-        return this.signInWithNaver(authorizationCode);
+        return this.signInWithGoogle(authorizationCode);
     }
   }
 
@@ -89,13 +89,7 @@ export class AuthService {
             "X-Naver-Client-Secret": clientSecret,
           },
         })
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error);
-            throw new HttpException(error, HttpStatus.UNAUTHORIZED);
-          }),
-          map(res => res.data),
-        ),
+        .pipe(map(res => res.data)),
     );
     // 2. 발급된 액세스토큰으로 회원번호 조회
     const {response} = await lastValueFrom(
@@ -112,10 +106,18 @@ export class AuthService {
   }
 
   private async signInWithGoogle(authorizationCode: string): Promise<string> {
-    // 구글 SDK 통신 후 액세스토큰 발급
-    // return 추출한 email
-    // FIXME: 더미데이터 이메일 대신 실제 SDK 연결
-    return "example@google.com";
+    const clientId = this.configService.get<string>("OAUTH_GOOGLE_CLIENT_ID");
+    const clientSecret = this.configService.get<string>("OAUTH_GOOGLE_CLIENT_SECRET");
+    const redirectUri = this.configService.get<string>("CLIENT_URL") + "/login/oauth/google";
+    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+
+    // 1. 인증코드로 ID 토큰 발급
+    const {tokens} = await oauth2Client.getToken(authorizationCode);
+
+    // 2. ID 토큰에서 이메일 추출
+    const payload = this.jwtService.decode(tokens.id_token);
+
+    return `GOOGLE-${payload["email"]}`;
   }
 
   private issueAuthTokens(member: Member) {
