@@ -4,6 +4,7 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
+import {createHash} from "crypto";
 import {google} from "googleapis";
 import {lastValueFrom, map} from "rxjs";
 import {Repository} from "typeorm";
@@ -66,7 +67,7 @@ export class AuthService {
         .pipe(map(res => res.data)),
     );
 
-    return `KAKAO-${id}`;
+    return this.hashOauthId(`KAKAO-${id}`);
   }
 
   private async signInWithNaver(authorizationCode: string): Promise<string> {
@@ -102,7 +103,7 @@ export class AuthService {
         .pipe(map(res => res.data)),
     );
 
-    return `NAVER-${response.id}`;
+    return this.hashOauthId(`NAVER-${response.id}`);
   }
 
   private async signInWithGoogle(authorizationCode: string): Promise<string> {
@@ -117,7 +118,11 @@ export class AuthService {
     // 2. ID 토큰에서 이메일 추출
     const payload = this.jwtService.decode(tokens.id_token);
 
-    return `GOOGLE-${payload["email"]}`;
+    return this.hashOauthId(`GOOGLE-${payload["email"]}`);
+  }
+
+  private hashOauthId(oauthId: string): string {
+    return createHash("sha256").update(oauthId).digest("hex");
   }
 
   private issueAuthTokens(member: Member) {
