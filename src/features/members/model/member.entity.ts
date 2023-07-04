@@ -7,7 +7,7 @@ export class Member {
   public id: number;
 
   @Column()
-  public email: string;
+  public oauthId: string;
 
   @Column()
   public penName: string;
@@ -21,13 +21,13 @@ export class Member {
   @UpdateDateColumn({type: "timestamptz"})
   public modifiedAt: Date;
 
-  constructor(email: string, penName: string) {
-    this.email = email;
+  constructor(oauthId: string, penName: string) {
+    this.oauthId = oauthId;
     this.penName = penName;
     this.role = "ROLE_USER";
   }
 
-  static of(email: string, penName: string) {
-    return new Member(email, penName);
+  static of(oauthId: string, penName: string) {
+    return new Member(oauthId, penName);
   }
 }

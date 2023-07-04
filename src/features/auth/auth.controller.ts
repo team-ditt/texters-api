@@ -1,6 +1,6 @@
-import {SignInDto} from "@/features/auth/model/sign-in.dto";
 import {Body, Controller, HttpCode, HttpStatus, Post} from "@nestjs/common";
 import {AuthService} from "./auth.service";
+import {SignInDto} from "./model/sign-in.dto";
 import {SignUpDto} from "./model/sign-up.dto";
 
 @Controller("auth")
@@ -16,6 +16,6 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @Post("sign-up")
   public signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto.registerToken, signUpDto.email, signUpDto.penName);
+    return this.authService.signUp(signUpDto.oauthId, signUpDto.penName);
   }
 }

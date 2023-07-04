@@ -1,4 +1,5 @@
 import {MembersModule} from "@/features/members";
+import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
@@ -18,6 +19,7 @@ import {Auth} from "./model/auth.entity";
         signOptions: {expiresIn: "30m"},
       }),
     }),
+    HttpModule,
     TypeOrmModule.forFeature([Auth]),
     MembersModule,
   ],
