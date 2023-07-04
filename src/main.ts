@@ -1,6 +1,7 @@
 import {ValidationPipe} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {NestFactory} from "@nestjs/core";
+import * as cookieParser from "cookie-parser";
 import {AppModule} from "./app.module";
 
 async function bootstrap() {
@@ -9,6 +10,7 @@ async function bootstrap() {
   const PORT = configService.get<string>("PORT");
 
   app.setGlobalPrefix("api/v1");
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({transform: true}));
   await app.listen(parseInt(PORT) || 3000);
 }

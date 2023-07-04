@@ -1,6 +1,11 @@
 import {Member, MembersService} from "@/features/members";
 import {HttpService} from "@nestjs/axios";
-import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -21,12 +26,11 @@ export class AuthService {
     @InjectRepository(Auth) private authRepository: Repository<Auth>,
   ) {}
 
-  public async signIn(provider: OauthProvider, authorizationCode: string) {
+  public async signInOrThrow(provider: OauthProvider, authorizationCode: string) {
     const oauthId = await this.signInWithOauth(provider, authorizationCode);
     const member = await this.membersService.findOne({oauthId});
-    return member
-      ? {responseType: "signIn", tokens: this.issueAuthTokens(member)}
-      : {responseType: "signUp", oauthId};
+    if (!member) throw new NotFoundException({oauthId});
+    return this.issueAuthTokens(member);
   }
 
   private async signInWithOauth(provider: OauthProvider, authorizationCode: string) {
@@ -126,10 +130,9 @@ export class AuthService {
   }
 
   private issueAuthTokens(member: Member) {
-    const accessToken = this.jwtService.sign({
-      member: {id: member.id, role: member.role, penName: member.penName},
-    });
-    const refreshToken = this.jwtService.sign({}, {expiresIn: "1d"});
+    const payload = {id: member.id, role: member.role, penName: member.penName};
+    const accessToken = this.jwtService.sign({member: payload});
+    const refreshToken = this.jwtService.sign({member: payload}, {expiresIn: "1d"});
     this.saveRefreshToken(member.id, refreshToken);
     return {accessToken, refreshToken};
   }
@@ -140,9 +143,18 @@ export class AuthService {
 
   public async signUp(oauthId: string, penName: string) {
     if (await this.membersService.isExist({oauthId}))
-      throw new HttpException("Member already exists.", HttpStatus.CONFLICT);
+      throw new ConflictException("Member already exists.");
 
     const member = await this.membersService.create(oauthId, penName);
-    return {responseType: "signIn", tokens: this.issueAuthTokens(member)};
+    return this.issueAuthTokens(member);
+  }
+
+  public async reissueAuthTokens(memberId: number, refreshToken: string) {
+    const auth = await this.authRepository.findOne({where: {id: memberId}});
+
+    if (auth.refreshToken !== refreshToken)
+      throw new UnauthorizedException("Invalid Refresh Token.");
+    const member = await this.membersService.findOne({id: memberId});
+    return this.issueAuthTokens(member);
   }
 }
