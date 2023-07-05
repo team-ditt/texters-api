@@ -21,7 +21,6 @@ export class MembersController {
   public async isUniquePenName(@Param("penName") penName: string) {
     const isExist = await this.membersService.isExist({penName});
     if (isExist) throw new ConflictException("Pen name already exists.");
-    return;
   }
 
   @UseGuards(AuthGuard)
