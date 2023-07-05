@@ -1,5 +1,6 @@
 import {AppController} from "@/app.controller";
 import {AppService} from "@/app.service";
+import {AuthModule} from "@/features/auth";
 import {MembersModule} from "@/features/members";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
@@ -23,6 +24,7 @@ import {DataSource} from "typeorm";
         synchronize: true,
       }),
     }),
+    AuthModule,
     MembersModule,
   ],
   controllers: [AppController],

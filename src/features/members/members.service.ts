@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
-import {Member} from "./member.entity";
+import {FindOptionsWhere, Repository} from "typeorm";
+import {Member} from "./model/member.entity";
 
 @Injectable()
 export class MembersService {
@@ -10,7 +10,15 @@ export class MembersService {
     private membersRepository: Repository<Member>,
   ) {}
 
-  findOne(id: number): Promise<Member | null> {
-    return this.membersRepository.findOneBy({id});
+  public findOne(where: FindOptionsWhere<Member>) {
+    return this.membersRepository.findOne({where});
+  }
+
+  public create(email: string, penName: string) {
+    return this.membersRepository.save(Member.of(email, penName));
+  }
+
+  public isExist(where: FindOptionsWhere<Member>) {
+    return this.membersRepository.exist({where});
   }
 }
