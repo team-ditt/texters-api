@@ -1,4 +1,4 @@
-import {RefreshGuard} from "@/features/common";
+import {AuthGuard, RefreshGuard} from "@/features/common";
 import {
   Body,
   Controller,
@@ -51,6 +51,16 @@ export class AuthController {
     );
     this.setAuthCookies(res, accessToken, refreshToken);
     res.send(accessToken);
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post("sign-out")
+  public async signOut(@Req() req: Request, @Res() res: Response) {
+    await this.authService.signOut(req["member"].id);
+    res.clearCookie("Authorization");
+    res.clearCookie("RefreshToken");
+    res.send();
   }
 
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {

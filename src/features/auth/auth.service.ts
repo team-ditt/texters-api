@@ -157,4 +157,8 @@ export class AuthService {
     const member = await this.membersService.findOne({id: memberId});
     return this.issueAuthTokens(member);
   }
+
+  public async signOut(memberId: number) {
+    await this.authRepository.delete({id: memberId});
+  }
 }
