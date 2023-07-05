@@ -21,7 +21,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post("sign-in")
-  public async signIn(@Body() signInDto: SignInDto, @Res({passthrough: true}) res: Response) {
+  public async signIn(@Body() signInDto: SignInDto, @Res() res: Response) {
     const {accessToken, refreshToken} = await this.authService.signInOrThrow(
       signInDto.provider,
       signInDto.authorizationCode,
@@ -32,7 +32,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post("sign-up")
-  public async signUp(@Body() signUpDto: SignUpDto, @Res({passthrough: true}) res: Response) {
+  public async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response) {
     const {accessToken, refreshToken} = await this.authService.signUp(
       signUpDto.oauthId,
       signUpDto.penName,
