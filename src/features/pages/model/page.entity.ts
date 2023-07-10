@@ -1,4 +1,5 @@
 import {Book} from "@/features/books/model/book.entity";
+import {Choice} from "@/features/choices/model/choice.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -43,6 +45,12 @@ export class Page {
   @ManyToOne(() => Lane, lane => lane.pages)
   @JoinColumn({name: "laneId"})
   lane: Lane;
+
+  @OneToMany(() => Choice, choice => choice.sourcePage)
+  choices: Choice[];
+
+  @OneToMany(() => Choice, choice => choice.destinationPage)
+  sourceChoices: Choice[];
 
   constructor(bookId: number, laneId: number, title: string, order: number) {
     this.bookId = bookId;

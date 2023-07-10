@@ -73,6 +73,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.NOT_FOUND,
     message: "페이지를 찾을 수 없습니다.",
   },
+  TOO_MANY_CHOICES: {
+    code: 1011,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "분기점은 페이지당 최대 5개까지 만들 수 있습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

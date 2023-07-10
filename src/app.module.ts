@@ -8,6 +8,7 @@ import {PagesModule} from "@/features/pages/pages.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {ChoicesModule} from "./features/choices/choices.module";
 
 function featureModules() {
   const productionModules = [
@@ -17,6 +18,7 @@ function featureModules() {
     BooksModule,
     LanesModule,
     PagesModule,
+    ChoicesModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"

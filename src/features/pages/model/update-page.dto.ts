@@ -8,6 +8,6 @@ export class UpdatePageDto {
 
   @IsOptional()
   @IsString()
-  @Length(1, 1000)
+  @Length(1, 20000)
   content: string;
 }
