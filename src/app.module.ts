@@ -1,9 +1,20 @@
 import {AuthModule} from "@/features/auth/auth.module";
+import {BackdoorModule} from "@/features/backdoor/backdoor.module";
+import {BooksModule} from "@/features/books/books.module";
+import {FilesModule} from "@/features/files/files.module";
 import {MembersModule} from "@/features/members/members.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
+
+function featureModules() {
+  const productionModules = [AuthModule, MembersModule, FilesModule, BooksModule];
+  const developmentModules = [BackdoorModule];
+  return process.env.NODE_ENV === "PRODUCTION"
+    ? productionModules
+    : [...productionModules, ...developmentModules];
+}
 
 @Module({
   imports: [
@@ -22,8 +33,7 @@ import {DataSource} from "typeorm";
         synchronize: true,
       }),
     }),
-    AuthModule,
-    MembersModule,
+    ...featureModules(),
   ],
 })
 export class AppModule {
