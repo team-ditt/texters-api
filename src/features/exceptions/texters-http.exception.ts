@@ -1,6 +1,6 @@
 import {EXCEPTIONS, TextersExceptionKey} from "@/features/exceptions/exceptions";
 import {HttpException} from "@nestjs/common";
-import {mergeRight} from "rambda";
+import {mergeRight} from "ramda";
 
 export class TextersHttpException extends HttpException {
   constructor(key: TextersExceptionKey, data?: object) {

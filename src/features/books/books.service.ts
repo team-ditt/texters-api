@@ -6,7 +6,7 @@ import {TextersHttpException} from "@/features/exceptions/texters-http.exception
 import {FilesService} from "@/features/files/files.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {omit} from "rambda";
+import * as R from "ramda";
 import {Repository} from "typeorm";
 
 @Injectable()
@@ -45,7 +45,7 @@ export class BooksService {
   async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.booksRepository.findOne({where: {id}});
 
-    Object.assign(book, omit(["coverImageId"], updateBookDto));
+    Object.assign(book, R.omit(["coverImageId"], updateBookDto));
     book.coverImage = await this.findCoverImage(updateBookDto.coverImageId);
 
     await this.booksRepository.save(book);
