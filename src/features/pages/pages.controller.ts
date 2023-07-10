@@ -1,8 +1,18 @@
 import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
+import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
-import {Body, Controller, HttpCode, HttpStatus, Param, Post, UseGuards} from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 
 @Controller()
 export class PagesController {
@@ -16,6 +26,17 @@ export class PagesController {
     @Param("laneId") laneId: number,
     @Body() createPageDto: CreatePageDto,
   ) {
-    return this.pagesService.create(bookId, laneId, createPageDto.title);
+    return this.pagesService.createPage(bookId, laneId, createPageDto.title);
+  }
+
+  @Patch("books/:bookId/lanes/:laneId/pages/:pageId")
+  @UseGuards(AuthGuard, BookAuthorGuard)
+  updatePage(
+    @Param("bookId") bookId: number,
+    @Param("laneId") laneId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageDto: UpdatePageDto,
+  ) {
+    return this.pagesService.updatePage(bookId, laneId, pageId, updatePageDto);
   }
 }

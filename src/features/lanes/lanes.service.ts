@@ -16,7 +16,7 @@ export class LanesService {
     return await this.lanesRepository.save(Lane.of(bookId, 0));
   }
 
-  async create(bookId: number, order: number) {
+  async createLane(bookId: number, order: number) {
     if (order === 0) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
     const lanes = await this.lanesRepository.find({where: {bookId}, order: {order: "ASC"}});
@@ -38,7 +38,7 @@ export class LanesService {
     await Promise.all(lanes.map(async lane => this.lanesRepository.save(lane)));
   }
 
-  async delete(bookId: number, laneId: number) {
+  async deleteLane(bookId: number, laneId: number) {
     const lanes = await this.lanesRepository.find({where: {bookId}, order: {order: "ASC"}});
     const index = lanes.findIndex(lane => lane.id === laneId);
     if (index === -1) throw new TextersHttpException("LANE_NOT_FOUND");

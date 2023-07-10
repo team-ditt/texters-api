@@ -21,13 +21,13 @@ export class LanesController {
   @UseGuards(AuthGuard, BookAuthorGuard)
   @HttpCode(HttpStatus.CREATED)
   createLane(@Param("bookId") bookId: number, @Body() createLaneDto: CreateLaneDto) {
-    return this.lanesService.create(bookId, createLaneDto.order);
+    return this.lanesService.createLane(bookId, createLaneDto.order);
   }
 
   @Delete("books/:bookId/lanes/:laneId")
   @UseGuards(AuthGuard, BookAuthorGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteLane(@Param("bookId") bookId: number, @Param("laneId") laneId: number) {
-    return this.lanesService.delete(bookId, laneId);
+    return this.lanesService.deleteLane(bookId, laneId);
   }
 }

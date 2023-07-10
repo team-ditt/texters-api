@@ -68,6 +68,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "하위 페이지가 있는 레인은 삭제할 수 없습니다.",
   },
+  PAGE_NOT_FOUND: {
+    code: 1010,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "페이지를 찾을 수 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
