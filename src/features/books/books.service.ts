@@ -4,6 +4,8 @@ import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
+import {LanesService} from "@/features/lanes/lanes.service";
+import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as R from "ramda";
@@ -13,20 +15,24 @@ import {Repository} from "typeorm";
 export class BooksService {
   constructor(
     private readonly filesService: FilesService,
+    private readonly lanesService: LanesService,
+    private readonly pagesService: PagesService,
     @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
     @InjectRepository(BookFilteredView)
     private readonly filteredBooksRepository: Repository<BookFilteredView>,
   ) {}
 
-  async saveBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
+  async createBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
     const {title, description, coverImageId} = createBookDto;
 
     const book = Book.of(title, description);
     book.authorId = authorId;
     book.coverImage = await this.findCoverImage(coverImageId);
 
-    const {id} = await this.booksRepository.save(book);
-    return await this.readBook(id);
+    const {id: bookId} = await this.booksRepository.save(book);
+    const {id: laneId} = await this.lanesService.createIntroLane(bookId);
+    await this.pagesService.createIntroPage(bookId, laneId);
+    return await this.readBook(bookId);
   }
 
   private async findCoverImage(uuid: string | undefined) {

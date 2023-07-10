@@ -1,5 +1,6 @@
 import {Book} from "@/features/books/model/book.entity";
-import {Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Page} from "@/features/pages/model/page.entity";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
 export class Lane {
@@ -15,6 +16,9 @@ export class Lane {
   @ManyToOne(() => Book, book => book.lanes)
   @JoinColumn({name: "bookId"})
   book: Book;
+
+  @OneToMany(() => Page, page => page.lane)
+  pages: Page[];
 
   constructor(bookId: number, order: number) {
     this.bookId = bookId;

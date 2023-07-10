@@ -1,9 +1,9 @@
 import {SharedModule} from "@/features/shared/shared.module";
 import {Module} from "@nestjs/common";
-import {LanesController} from "./lanes.controller";
+import {PagesController} from "./pages.controller";
 
 @Module({
   imports: [SharedModule],
-  controllers: [LanesController],
+  controllers: [PagesController],
 })
-export class LanesModule {}
+export class PagesModule {}

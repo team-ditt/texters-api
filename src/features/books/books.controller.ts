@@ -29,7 +29,7 @@ export class BooksController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async saveBook(@Req() req: Request, @Body() createBookDto: CreateBookDto) {
-    const book = await this.booksService.saveBook(req["member"].id, createBookDto);
+    const book = await this.booksService.createBook(req["member"].id, createBookDto);
     return this.bookMapper.toResponse(book);
   }
 

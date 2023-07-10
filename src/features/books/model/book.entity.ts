@@ -1,6 +1,7 @@
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
+import {Page} from "@/features/pages/model/page.entity";
 import {
   Column,
   CreateDateColumn,
@@ -48,6 +49,9 @@ export class Book {
 
   @OneToMany(() => Lane, lane => lane.book)
   lanes: Lane[];
+
+  @OneToMany(() => Page, page => page.book)
+  pages: Page[];
 
   constructor(title: string, description: string) {
     this.title = title;

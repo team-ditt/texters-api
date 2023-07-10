@@ -53,6 +53,21 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.NOT_FOUND,
     message: "레인을 찾을 수 없습니다.",
   },
+  TOO_MANY_PAGES: {
+    code: 1007,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지는 작품당 최대 100개까지 만들 수 있습니다.",
+  },
+  NO_EXPLICIT_INTRO_LANE_MODIFICATION: {
+    code: 1008,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 레인은 임의로 생성하거나 삭제할 수 없습니다.",
+  },
+  NOT_EMPTY_LANE: {
+    code: 1009,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "하위 페이지가 있는 레인은 삭제할 수 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
