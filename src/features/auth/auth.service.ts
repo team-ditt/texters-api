@@ -1,4 +1,7 @@
-import {Member, MembersService} from "@/features/members";
+import {Auth} from "@/features/auth/model/auth.entity";
+import {OauthProvider} from "@/features/auth/model/oauth-provider.enum";
+import {MembersService} from "@/features/members/members.service";
+import {Member} from "@/features/members/model/member.entity";
 import {HttpService} from "@nestjs/axios";
 import {
   ConflictException,
@@ -13,22 +16,20 @@ import {createHash} from "crypto";
 import {google} from "googleapis";
 import {lastValueFrom, map} from "rxjs";
 import {Repository} from "typeorm";
-import {Auth} from "./model/auth.entity";
-import {OauthProvider} from "./model/oauth-provider.enum";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private membersService: MembersService,
-    private jwtService: JwtService,
-    private httpService: HttpService,
-    private configService: ConfigService,
-    @InjectRepository(Auth) private authRepository: Repository<Auth>,
+    private readonly membersService: MembersService,
+    private readonly jwtService: JwtService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+    @InjectRepository(Auth) private readonly authRepository: Repository<Auth>,
   ) {}
 
-  public async signInOrThrow(provider: OauthProvider, authorizationCode: string) {
+  async signInOrThrow(provider: OauthProvider, authorizationCode: string) {
     const oauthId = await this.signInWithOauth(provider, authorizationCode);
-    const member = await this.membersService.findOne({oauthId});
+    const member = await this.membersService.findByOauthId(oauthId);
     if (!member) throw new NotFoundException({oauthId});
     return this.issueAuthTokens(member);
   }
@@ -141,7 +142,7 @@ export class AuthService {
     this.authRepository.save(Auth.of(id, refreshToken));
   }
 
-  public async signUp(oauthId: string, penName: string) {
+  async signUp(oauthId: string, penName: string) {
     if (await this.membersService.isExist({oauthId}))
       throw new ConflictException("Member already exists.");
 
@@ -149,16 +150,16 @@ export class AuthService {
     return this.issueAuthTokens(member);
   }
 
-  public async reissueAuthTokens(memberId: number, refreshToken: string) {
+  async reissueAuthTokens(memberId: number, refreshToken: string) {
     const auth = await this.authRepository.findOne({where: {id: memberId}});
 
     if (auth.refreshToken !== refreshToken)
       throw new UnauthorizedException("Invalid Refresh Token.");
-    const member = await this.membersService.findOne({id: memberId});
+    const member = await this.membersService.findById(memberId);
     return this.issueAuthTokens(member);
   }
 
-  public async signOut(memberId: number) {
+  async signOut(memberId: number) {
     await this.authRepository.delete({id: memberId});
   }
 }

@@ -1,25 +1,37 @@
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
-import {MemberRole} from "./member-role.type";
+import {Book} from "@/features/books/model/book.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
+
+export type MemberRole = "ROLE_USER" | "ROLE_ADMIN";
 
 @Entity()
 export class Member {
   @PrimaryGeneratedColumn()
-  public id: number;
+  id: number;
 
   @Column()
-  public oauthId: string;
+  oauthId: string;
 
   @Column()
-  public penName: string;
+  penName: string;
 
   @Column()
-  public role: MemberRole;
+  role: MemberRole;
 
   @CreateDateColumn({type: "timestamptz"})
-  public createdAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({type: "timestamptz"})
-  public modifiedAt: Date;
+  modifiedAt: Date;
+
+  @OneToMany(() => Book, book => book.author)
+  books: Book[];
 
   constructor(oauthId: string, penName: string) {
     this.oauthId = oauthId;

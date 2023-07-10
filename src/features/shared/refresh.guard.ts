@@ -1,12 +1,11 @@
 import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
-import {Observable} from "rxjs";
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
-  public canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const refreshToken = request.cookies.RefreshToken;
     if (!refreshToken) throw new UnauthorizedException();

@@ -1,12 +1,12 @@
-import {MembersModule} from "@/features/members";
+import {AuthController} from "@/features/auth/auth.controller";
+import {AuthService} from "@/features/auth/auth.service";
+import {Auth} from "@/features/auth/model/auth.entity";
+import {MembersModule} from "@/features/members/members.module";
 import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {AuthController} from "./auth.controller";
-import {AuthService} from "./auth.service";
-import {Auth} from "./model/auth.entity";
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import {Auth} from "./model/auth.entity";
     TypeOrmModule.forFeature([Auth]),
     MembersModule,
   ],
-  providers: [AuthService],
   controllers: [AuthController],
+  providers: [AuthService],
 })
 export class AuthModule {}
