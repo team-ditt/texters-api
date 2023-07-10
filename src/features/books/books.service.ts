@@ -2,8 +2,9 @@ import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {omit} from "rambda";
 import {Repository} from "typeorm";
@@ -37,13 +38,13 @@ export class BooksService {
       where: {id},
       relations: ["author", "coverImage"],
     });
-    if (!book) throw new BadRequestException("Wrong book id provided");
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book;
   }
 
   async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new BadRequestException("Wrong book id provided");
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, omit(["coverImageId"], updateBookDto));
     book.coverImage = await this.findCoverImage(updateBookDto.coverImageId);
@@ -54,7 +55,7 @@ export class BooksService {
 
   async deleteBook(id: number): Promise<void> {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new BadRequestException("Wrong book id provided");
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     book.status = "DELETED";
     await this.booksRepository.save(book);

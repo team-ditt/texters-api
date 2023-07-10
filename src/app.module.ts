@@ -6,7 +6,6 @@ import {MembersModule} from "@/features/members/members.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {DataSource} from "typeorm";
 
 function featureModules() {
   const productionModules = [AuthModule, MembersModule, FilesModule, BooksModule];
@@ -37,5 +36,5 @@ function featureModules() {
   ],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor() {}
 }

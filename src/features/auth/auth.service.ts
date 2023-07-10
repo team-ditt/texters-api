@@ -1,14 +1,10 @@
 import {Auth} from "@/features/auth/model/auth.entity";
 import {OauthProvider} from "@/features/auth/model/oauth-provider.enum";
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {MembersService} from "@/features/members/members.service";
 import {Member} from "@/features/members/model/member.entity";
 import {HttpService} from "@nestjs/axios";
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -30,7 +26,7 @@ export class AuthService {
   async signInOrThrow(provider: OauthProvider, authorizationCode: string) {
     const oauthId = await this.signInWithOauth(provider, authorizationCode);
     const member = await this.membersService.findByOauthId(oauthId);
-    if (!member) throw new NotFoundException({oauthId});
+    if (!member) throw new TextersHttpException("NOT_REGISTERED", {oauthId});
     return this.issueAuthTokens(member);
   }
 
@@ -144,7 +140,7 @@ export class AuthService {
 
   async signUp(oauthId: string, penName: string) {
     if (await this.membersService.isExist({oauthId}))
-      throw new ConflictException("Member already exists.");
+      throw new TextersHttpException("ALREADY_REGISTERED");
 
     const member = await this.membersService.create(oauthId, penName);
     return this.issueAuthTokens(member);
@@ -153,8 +149,7 @@ export class AuthService {
   async reissueAuthTokens(memberId: number, refreshToken: string) {
     const auth = await this.authRepository.findOne({where: {id: memberId}});
 
-    if (auth.refreshToken !== refreshToken)
-      throw new UnauthorizedException("Invalid Refresh Token.");
+    if (auth.refreshToken !== refreshToken) throw new TextersHttpException("INVALID_AUTH_TOKEN");
     const member = await this.membersService.findById(memberId);
     return this.issueAuthTokens(member);
   }

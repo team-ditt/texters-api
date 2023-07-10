@@ -1,6 +1,7 @@
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {File} from "@/features/files/model/file.entity";
 import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
-import {Injectable, InternalServerErrorException} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as sharp from "sharp";
@@ -34,7 +35,7 @@ export class FilesService {
       await this.tryUploadBufferToS3Bucket(`${directory}/${uuid}.${extension}`, buffer);
     } catch {
       await this.filesRepository.delete(uuid);
-      throw new InternalServerErrorException("Failed to upload image file");
+      throw new TextersHttpException("FAILED_UPLOAD_TO_AWS");
     }
     return {coverImageId: uuid};
   }
@@ -58,12 +59,7 @@ export class FilesService {
       Key: key,
       Body: buffer,
     });
-    try {
-      await this.s3.send(command);
-    } catch (e) {
-      console.error(e);
-      throw new InternalServerErrorException();
-    }
+    await this.s3.send(command);
   }
 
   async findOne(where: FindOptionsWhere<File>) {
