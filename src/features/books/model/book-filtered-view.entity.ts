@@ -1,10 +1,12 @@
 import {Book} from "@/features/books/model/book.entity";
 import {File} from "@/features/files/model/file.entity";
+import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
 import {
   DataSource,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   ViewColumn,
@@ -47,4 +49,7 @@ export class BookFilteredView {
   @OneToOne(() => File, file => file.book, {nullable: true})
   @JoinColumn({name: "coverImageId"})
   coverImage: File;
+
+  @OneToMany(() => Lane, lane => lane.book)
+  lanes: Lane[];
 }

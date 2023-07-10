@@ -1,4 +1,5 @@
 import {File} from "@/features/files/model/file.entity";
+import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -43,6 +45,9 @@ export class Book {
   @OneToOne(() => File, file => file.book, {nullable: true})
   @JoinColumn({name: "coverImageId"})
   coverImage: File;
+
+  @OneToMany(() => Lane, lane => lane.book)
+  lanes: Lane[];
 
   constructor(title: string, description: string) {
     this.title = title;

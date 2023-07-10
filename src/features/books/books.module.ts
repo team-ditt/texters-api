@@ -10,7 +10,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Book, BookFilteredView]), MembersModule, FilesModule],
-  exports: [BookMapper],
+  exports: [BookMapper, BooksService],
   controllers: [BooksController],
   providers: [BooksService, BookMapper],
 })

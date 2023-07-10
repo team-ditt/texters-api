@@ -48,6 +48,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "올바르지 않은 order 값입니다.",
   },
+  LANE_NOT_FOUND: {
+    code: 1006,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "레인을 찾을 수 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
