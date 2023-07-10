@@ -38,6 +38,16 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "누락되거나 잘못된 항목이 있습니다.",
   },
+  NOT_AUTHOR: {
+    code: 1007,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "로그인 사용자와 작품의 작가가 일치하지 않습니다.",
+  },
+  ORDER_INDEX_OUT_OF_BOUND: {
+    code: 1008,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "올바르지 않은 order 값입니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

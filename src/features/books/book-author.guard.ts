@@ -1,4 +1,5 @@
 import {BooksService} from "@/features/books/books.service";
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 
 @Injectable()
@@ -10,6 +11,8 @@ export class BookAuthorGuard implements CanActivate {
     const bookId = parseInt(request.params.bookId);
     const memberId = request.member.id;
 
-    return await this.bookService.isAuthor(memberId, bookId);
+    const isAuthor = await this.bookService.isAuthor(memberId, bookId);
+    if (!isAuthor) throw new TextersHttpException("NOT_AUTHOR");
+    return true;
   }
 }

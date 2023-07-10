@@ -44,7 +44,6 @@ export class BooksService {
 
   async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, omit(["coverImageId"], updateBookDto));
     book.coverImage = await this.findCoverImage(updateBookDto.coverImageId);
@@ -55,7 +54,6 @@ export class BooksService {
 
   async deleteBook(id: number): Promise<void> {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     book.status = "DELETED";
     await this.booksRepository.save(book);
@@ -63,6 +61,7 @@ export class BooksService {
 
   async isAuthor(memberId: number, bookId: number): Promise<boolean> {
     const book = await this.booksRepository.findOne({where: {id: bookId}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
 }
