@@ -1,12 +1,12 @@
+import {OauthProvider} from "@/features/auth/model/oauth-provider.enum";
 import {IsEnum, IsNotEmpty, IsString} from "class-validator";
-import {OauthProvider} from "./oauth-provider.enum";
 
 export class SignInDto {
+  @IsNotEmpty()
   @IsEnum(OauthProvider)
-  @IsNotEmpty()
-  public provider: OauthProvider;
+  provider: OauthProvider;
 
-  @IsString()
   @IsNotEmpty()
-  public authorizationCode: string;
+  @IsString()
+  authorizationCode: string;
 }

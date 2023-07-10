@@ -1,4 +1,8 @@
-import {AuthGuard, RefreshGuard} from "@/features/common";
+import {AuthService} from "@/features/auth/auth.service";
+import {SignInDto} from "@/features/auth/model/sign-in.dto";
+import {SignUpDto} from "@/features/auth/model/sign-up.dto";
+import {AuthGuard} from "@/features/shared/auth.guard";
+import {RefreshGuard} from "@/features/shared/refresh.guard";
 import {
   Body,
   Controller,
@@ -11,17 +15,13 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {Request, Response} from "express";
-import {AuthService} from "./auth.service";
-import {SignInDto} from "./model/sign-in.dto";
-import {SignUpDto} from "./model/sign-up.dto";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Post("sign-in")
-  public async signIn(@Body() signInDto: SignInDto, @Res() res: Response) {
+  async signIn(@Body() signInDto: SignInDto, @Res() res: Response) {
     const {accessToken, refreshToken} = await this.authService.signInOrThrow(
       signInDto.provider,
       signInDto.authorizationCode,
@@ -30,9 +30,9 @@ export class AuthController {
     res.send(accessToken);
   }
 
-  @HttpCode(HttpStatus.CREATED)
   @Post("sign-up")
-  public async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response) {
+  @HttpCode(HttpStatus.CREATED)
+  async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response) {
     const {accessToken, refreshToken} = await this.authService.signUp(
       signUpDto.oauthId,
       signUpDto.penName,
@@ -41,10 +41,9 @@ export class AuthController {
     res.send(accessToken);
   }
 
-  @UseGuards(RefreshGuard)
-  @HttpCode(HttpStatus.OK)
   @Get("token-refresh")
-  public async refreshAuthTokens(@Req() req: Request, @Res() res: Response) {
+  @UseGuards(RefreshGuard)
+  async refreshAuthTokens(@Req() req: Request, @Res() res: Response) {
     const {accessToken, refreshToken} = await this.authService.reissueAuthTokens(
       req["member"].id,
       req.cookies.RefreshToken,
@@ -53,10 +52,10 @@ export class AuthController {
     res.send(accessToken);
   }
 
+  @Post("sign-out")
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Post("sign-out")
-  public async signOut(@Req() req: Request, @Res() res: Response) {
+  async signOut(@Req() req: Request, @Res() res: Response) {
     await this.authService.signOut(req["member"].id);
     res.clearCookie("Authorization");
     res.clearCookie("RefreshToken");

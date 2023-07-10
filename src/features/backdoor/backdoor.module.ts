@@ -1,12 +1,9 @@
-import {AuthController} from "@/features/auth/auth.controller";
-import {AuthService} from "@/features/auth/auth.service";
-import {Auth} from "@/features/auth/model/auth.entity";
+import {BackdoorController} from "@/features/backdoor/backdoor.controller";
+import {BackdoorService} from "@/features/backdoor/backdoor.service";
 import {MembersModule} from "@/features/members/members.module";
-import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
-import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
@@ -16,14 +13,12 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
-        signOptions: {expiresIn: "30m"},
+        signOptions: {expiresIn: "1d"},
       }),
     }),
-    HttpModule,
-    TypeOrmModule.forFeature([Auth]),
     MembersModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [BackdoorController],
+  providers: [BackdoorService],
 })
-export class AuthModule {}
+export class BackdoorModule {}

@@ -1,13 +1,14 @@
+import {MemberMapper} from "@/features/members/member.mapper";
+import {MembersController} from "@/features/members/members.controller";
+import {MembersService} from "@/features/members/members.service";
+import {Member} from "@/features/members/model/member.entity";
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {MembersController} from "./members.controller";
-import {MembersService} from "./members.service";
-import {Member} from "./model/member.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Member])],
-  providers: [MembersService],
+  exports: [MembersService, MemberMapper],
   controllers: [MembersController],
-  exports: [MembersService],
+  providers: [MembersService, MemberMapper],
 })
 export class MembersModule {}

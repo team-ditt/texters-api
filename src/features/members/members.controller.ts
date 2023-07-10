@@ -1,32 +1,24 @@
-import {AuthGuard} from "@/features/common";
-import {
-  ConflictException,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Request,
-  UseGuards,
-} from "@nestjs/common";
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
+import {MembersService} from "@/features/members/members.service";
+import {AuthGuard} from "@/features/shared/auth.guard";
+import {Controller, Get, HttpCode, HttpStatus, Param, Request, UseGuards} from "@nestjs/common";
 import {Response} from "express";
-import {MembersService} from "./members.service";
 
 @Controller("members")
 export class MembersController {
-  constructor(private membersService: MembersService) {}
+  constructor(private readonly membersService: MembersService) {}
 
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Get("pen-name/:penName/unique")
-  public async isUniquePenName(@Param("penName") penName: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async isUniquePenName(@Param("penName") penName: string) {
     const isExist = await this.membersService.isExist({penName});
-    if (isExist) throw new ConflictException("Pen name already exists.");
+    if (isExist) throw new TextersHttpException("DUPLICATE_PEN_NAME");
   }
 
+  @Get("profile")
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Get("profile")
-  public getProfile(@Request() req: Response) {
-    return this.membersService.findOne({id: req["member"].id});
+  getProfile(@Request() req: Response) {
+    return this.membersService.findById(req["member"].id);
   }
 }

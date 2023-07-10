@@ -3,10 +3,10 @@ import {Column, Entity, PrimaryColumn} from "typeorm";
 @Entity()
 export class Auth {
   @PrimaryColumn()
-  public id: number;
+  id: number;
 
   @Column()
-  public refreshToken: string;
+  refreshToken: string;
 
   constructor(id: number, refreshToken: string) {
     this.id = id;
