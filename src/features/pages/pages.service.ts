@@ -20,12 +20,8 @@ export class PagesService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async hasAnyPages(laneId: number) {
-    return await this.pagesRepository.exist({where: {laneId}});
-  }
-
   async createIntroPage(bookId: number, laneId: number) {
-    const INTRO_PAGE_TITLE = "제목을 입력해 주세요";
+    const INTRO_PAGE_TITLE = "페이지 제목을 입력해 주세요";
     return await this.pagesRepository.save(Page.of(bookId, laneId, INTRO_PAGE_TITLE, 0));
   }
 
@@ -48,18 +44,18 @@ export class PagesService {
 
   async updatePageOrder(id: number, order: number) {
     const page = await this.pagesRepository.findOne({where: {id}});
-    const pages = await this.pagesRepository.find({
-      where: {laneId: page.laneId},
-      order: {order: "ASC"},
-    });
-    if (pages.length <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
-    pages.splice(page.order, 1);
-    pages.splice(order, 0, page);
-    pages.forEach((page, index) => (page.order = index));
+    const pagesInLane = await this.pagesRepository.count({where: {laneId: page.laneId}});
+    if (pagesInLane <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
-    await Promise.all(pages.map(async page => await this.pagesRepository.save(page)));
-    return page;
+    await this.reorder("decrease", page.laneId, page.order + 1);
+    await Promise.all([
+      this.reorder("increase", page.laneId, order),
+      this.updatePageLaneAndOrder(id, page.laneId, order),
+    ]);
+
+    return this.pagesRepository.findOne({where: {id}});
   }
 
   async updatePageLane(id: number, {laneId, order}: UpdatePageLaneDto) {
@@ -77,11 +73,46 @@ export class PagesService {
     if (targetLane.order >= (await this.calculateMinLaneOrderOfDestinationPages(id)))
       throw new TextersHttpException("BAD_SOURCE_PAGE_MOVE");
 
-    await this.reorderSourceLanePages(page.laneId, page.order);
-    await this.reorderDestinationLanePages(laneId, order);
-    await this._updatePageLane(id, laneId, order);
+    await Promise.all([
+      this.reorder("decrease", page.laneId, page.order + 1),
+      this.reorder("increase", laneId, order),
+      this.updatePageLaneAndOrder(id, laneId, order),
+    ]);
 
     return await this.pagesRepository.findOne({where: {id}});
+  }
+
+  async deletePageById(id: number) {
+    const page = await this.pagesRepository.findOne({where: {id}, relations: {lane: true}});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+
+    if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
+
+    await Promise.all([
+      this.choicesService.deleteChoicesByPageId(id),
+      this.choicesService.deleteDestinationsByPageId(id),
+      this.reorder("decrease", page.laneId, page.order),
+    ]);
+    await this.pagesRepository.remove(page);
+  }
+
+  async isAuthor(memberId: number, pageId: number) {
+    const page = await this.pagesRepository.findOne({
+      where: {id: pageId},
+      relations: {book: true},
+    });
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page.book.authorId === memberId;
+  }
+
+  async hasAnyPages(laneId: number) {
+    return await this.pagesRepository.exist({where: {laneId}});
+  }
+
+  async findLaneOrderById(id: number) {
+    const page = await this.pagesRepository.findOne({where: {id}, relations: {lane: true}});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page.lane.order;
   }
 
   private async calculateMaxLaneOrderOfSourcePages(pageId: number) {
@@ -108,62 +139,23 @@ export class PagesService {
     return min ?? Number.MAX_SAFE_INTEGER;
   }
 
-  private async reorderSourceLanePages(laneId: number, order: number) {
+  private async reorder(type: "increase" | "decrease", laneId: number, from: number) {
+    const setOrderQuery = () => (type === "increase" ? "order + 1" : "order - 1");
     await this.pagesRepository
       .createQueryBuilder()
       .update()
-      .set({
-        order: () => "order - 1",
-      })
+      .set({order: setOrderQuery})
       .where({laneId})
-      .andWhere("page.order > :order", {order})
+      .andWhere("page.order >= :from", {from})
       .execute();
   }
 
-  private async reorderDestinationLanePages(laneId: number, order: number) {
-    await this.pagesRepository
-      .createQueryBuilder()
-      .update()
-      .set({order: () => "order + 1"})
-      .where({laneId})
-      .andWhere("page.order >= :order", {order})
-      .execute();
-  }
-
-  private async _updatePageLane(id: number, laneId: number, order: number) {
+  private async updatePageLaneAndOrder(id: number, laneId: number, order: number) {
     await this.pagesRepository
       .createQueryBuilder()
       .update()
       .set({laneId, order})
       .where({id})
       .execute();
-  }
-
-  async deletePageById(id: number) {
-    const page = await this.pagesRepository.findOne({where: {id}, relations: {lane: true}});
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-
-    if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
-
-    await Promise.all([
-      this.choicesService.deleteChoicesByPageId(id),
-      this.choicesService.deleteDestinationsByPageId(id),
-    ]);
-    await this.pagesRepository.remove(page);
-  }
-
-  async isAuthor(memberId: number, pageId: number) {
-    const page = await this.pagesRepository.findOne({
-      where: {id: pageId},
-      relations: {book: true},
-    });
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-    return page.book.authorId === memberId;
-  }
-
-  async findLaneOrderById(id: number) {
-    const page = await this.pagesRepository.findOne({where: {id}, relations: {lane: true}});
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-    return page.lane.order;
   }
 }

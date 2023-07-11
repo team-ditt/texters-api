@@ -8,7 +8,6 @@ import {LanesService} from "@/features/lanes/lanes.service";
 import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import * as R from "ramda";
 import {Repository} from "typeorm";
 
 @Injectable()
@@ -27,19 +26,15 @@ export class BooksService {
 
     const book = Book.of(title, description);
     book.authorId = authorId;
-    book.coverImage = await this.findCoverImage(coverImageId);
+    book.coverImage = await this.filesService.findById(coverImageId);
 
     const {id: bookId} = await this.booksRepository.save(book);
     const {id: laneId} = await this.lanesService.createIntroLane(bookId);
     await this.pagesService.createIntroPage(bookId, laneId);
-    return await this.readBook(bookId);
+    return await this.readBookById(bookId);
   }
 
-  private async findCoverImage(uuid: string | undefined) {
-    return uuid ? await this.filesService.findOne({uuid}) : undefined;
-  }
-
-  async readBook(id: number): Promise<BookFilteredView> {
+  async readBookById(id: number): Promise<BookFilteredView> {
     const book = await this.filteredBooksRepository.findOne({
       where: {id},
       relations: {author: true, coverImage: true},
@@ -65,18 +60,19 @@ export class BooksService {
       .getOne();
   }
 
-  async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
+  async updateBookById(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.booksRepository.findOne({where: {id}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
-    Object.assign(book, R.omit(["coverImageId"], updateBookDto));
-    book.coverImage = await this.findCoverImage(updateBookDto.coverImageId);
-
+    Object.assign(book, updateBookDto);
     await this.booksRepository.save(book);
-    return await this.readBook(id);
+
+    return await this.readBookById(id);
   }
 
-  async deleteBook(id: number): Promise<void> {
+  async deleteBookById(id: number): Promise<void> {
     const book = await this.booksRepository.findOne({where: {id}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     book.status = "DELETED";
     await this.booksRepository.save(book);

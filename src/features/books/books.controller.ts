@@ -35,7 +35,7 @@ export class BooksController {
 
   @Get(":bookId")
   async readBook(@Param("bookId") bookId: number) {
-    const book = await this.booksService.readBook(bookId);
+    const book = await this.booksService.readBookById(bookId);
     return this.bookMapper.toResponse(book);
   }
 
@@ -49,7 +49,7 @@ export class BooksController {
   @Patch(":bookId")
   @UseGuards(AuthGuard, BookAuthorGuard)
   async updateBook(@Param("bookId") bookId: number, @Body() updateBookDto: UpdateBookDto) {
-    const book = await this.booksService.updateBook(bookId, updateBookDto);
+    const book = await this.booksService.updateBookById(bookId, updateBookDto);
     return this.bookMapper.toResponse(book);
   }
 
@@ -57,6 +57,6 @@ export class BooksController {
   @UseGuards(AuthGuard, BookAuthorGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBook(@Param("bookId") bookId: number) {
-    return await this.booksService.deleteBook(bookId);
+    return await this.booksService.deleteBookById(bookId);
   }
 }

@@ -5,7 +5,7 @@ import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as sharp from "sharp";
-import {FindOptionsWhere, Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class FilesService {
@@ -40,6 +40,10 @@ export class FilesService {
     return {coverImageId: uuid};
   }
 
+  async findById(uuid: string) {
+    return await this.filesRepository.findOne({where: {uuid}});
+  }
+
   private async refineImage(image: Express.Multer.File) {
     const targetWidth = 667;
     const targetHeight = 1000;
@@ -60,9 +64,5 @@ export class FilesService {
       Body: buffer,
     });
     await this.s3.send(command);
-  }
-
-  async findOne(where: FindOptionsWhere<File>) {
-    return await this.filesRepository.findOne({where});
   }
 }

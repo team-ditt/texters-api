@@ -23,39 +23,21 @@ export class LanesService {
     const lanes = await this.lanesRepository.find({where: {bookId}, order: {order: "ASC"}});
     if (lanes.length < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
-    const newLane = Lane.of(bookId, order);
-    lanes.splice(order, 0, newLane);
-    this.updateOrders(lanes);
-    await this.saveLanes(lanes);
-
-    return newLane;
-  }
-
-  private updateOrders(lanes: Lane[]) {
-    lanes.forEach((lane, index) => (lane.order = index));
-  }
-
-  private async saveLanes(lanes: Lane[]) {
-    await Promise.all(lanes.map(async lane => this.lanesRepository.save(lane)));
+    await this.reorder("increase", bookId, order);
+    return await this.lanesRepository.save(Lane.of(bookId, order));
   }
 
   async deleteLaneById(id: number) {
     const lane = await this.lanesRepository.findOne({where: {id}});
-    const lanes = await this.lanesRepository.find({
-      where: {bookId: lane.bookId},
-      order: {order: "ASC"},
-    });
-
     if (lane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
     const hasAnyPages = this.pagesService.hasAnyPages(lane.id);
     if (hasAnyPages) throw new TextersHttpException("NOT_EMPTY_LANE");
 
-    lanes.splice(lane.order, 1);
-    this.updateOrders(lanes);
-
-    await this.saveLanes(lanes);
-    await this.lanesRepository.remove(lane);
+    await Promise.all([
+      this.reorder("decrease", lane.bookId, lane.order + 1),
+      this.lanesRepository.remove(lane),
+    ]);
   }
 
   async isAuthor(memberId: number, laneId: number) {
@@ -69,5 +51,16 @@ export class LanesService {
 
   async findLaneWithPagesById(id: number) {
     return this.lanesRepository.findOne({where: {id}, relations: {pages: true}});
+  }
+
+  private async reorder(type: "increase" | "decrease", bookId: number, from: number) {
+    const setOrderQuery = () => (type === "increase" ? "order + 1" : "order - 1");
+    await this.lanesRepository
+      .createQueryBuilder()
+      .update()
+      .set({order: setOrderQuery})
+      .where({bookId})
+      .andWhere("lane.order >= :from", {from})
+      .execute();
   }
 }
