@@ -1,5 +1,6 @@
 import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
+import {UpdatePageOrderDto} from "@/features/pages/model/update-page-order.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {PageAuthorGuard} from "@/features/pages/page-author.guard";
 import {PagesService} from "@/features/pages/pages.service";
@@ -35,6 +36,12 @@ export class PagesController {
   @UseGuards(AuthGuard, PageAuthorGuard)
   updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
     return this.pagesService.updatePageById(pageId, updatePageDto);
+  }
+
+  @Patch("pages/:pageId/order")
+  @UseGuards(AuthGuard, PageAuthorGuard)
+  updatePageOrder(@Param("pageId") pageId: number, @Body() updatePageOrderDto: UpdatePageOrderDto) {
+    return this.pagesService.updatePageOrder(pageId, updatePageOrderDto.order);
   }
 
   @Delete("pages/:pageId")

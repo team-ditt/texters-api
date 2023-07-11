@@ -40,6 +40,21 @@ export class PagesService {
     return this.pagesRepository.save(page);
   }
 
+  async updatePageOrder(id: number, order: number) {
+    const page = await this.pagesRepository.findOne({where: {id}});
+    const pages = await this.pagesRepository.find({
+      where: {laneId: page.laneId},
+      order: {order: "ASC"},
+    });
+
+    pages.splice(page.order, 1);
+    pages.splice(order, 0, page);
+    pages.forEach((page, index) => (page.order = index));
+
+    await Promise.all(pages.map(async page => await this.pagesRepository.save(page)));
+    return page;
+  }
+
   async deletePageById(id: number) {
     const page = await this.pagesRepository.findOne({where: {id}, relations: ["lane"]});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
