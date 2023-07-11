@@ -62,4 +62,8 @@ export class Page {
   static of(bookId: number, laneId: number, title: string, order: number) {
     return new Page(bookId, laneId, title, order);
   }
+
+  isIntro() {
+    return this.lane.isIntro() && this.order === 0;
+  }
 }

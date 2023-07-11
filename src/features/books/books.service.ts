@@ -42,10 +42,27 @@ export class BooksService {
   async readBook(id: number): Promise<BookFilteredView> {
     const book = await this.filteredBooksRepository.findOne({
       where: {id},
-      relations: ["author", "coverImage"],
+      relations: {author: true, coverImage: true},
     });
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book;
+  }
+
+  async loadFlowChart(id: number) {
+    return await this.booksRepository
+      .createQueryBuilder("book")
+      .leftJoinAndSelect("book.author", "author")
+      .leftJoinAndSelect("book.coverImage", "coverImage")
+      .leftJoinAndSelect("book.lanes", "lane")
+      .leftJoinAndSelect("lane.pages", "page")
+      .leftJoinAndSelect("page.choices", "choice")
+      .where({id})
+      .orderBy({
+        "lane.order": "ASC",
+        "page.order": "ASC",
+        "choice.order": "ASC",
+      })
+      .getOne();
   }
 
   async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {

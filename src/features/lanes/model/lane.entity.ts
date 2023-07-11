@@ -28,4 +28,8 @@ export class Lane {
   static of(bookId: number, order: number) {
     return new Lane(bookId, order);
   }
+
+  isIntro() {
+    return this.order === 0;
+  }
 }

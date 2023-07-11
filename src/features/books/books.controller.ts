@@ -39,6 +39,13 @@ export class BooksController {
     return this.bookMapper.toResponse(book);
   }
 
+  @Get(":bookId/flow-chart")
+  @UseGuards(AuthGuard, BookAuthorGuard)
+  async loadFlowChart(@Param("bookId") bookId: number) {
+    const bookWithFlowChart = await this.booksService.loadFlowChart(bookId);
+    return this.bookMapper.toResponse(bookWithFlowChart);
+  }
+
   @Patch(":bookId")
   @UseGuards(AuthGuard, BookAuthorGuard)
   async updateBook(@Param("bookId") bookId: number, @Body() updateBookDto: UpdateBookDto) {

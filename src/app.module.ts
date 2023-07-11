@@ -8,6 +8,7 @@ import {PagesModule} from "@/features/pages/pages.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {DataSource} from "typeorm";
 import {ChoicesModule} from "./features/choices/choices.module";
 
 function featureModules() {
@@ -47,5 +48,5 @@ function featureModules() {
   ],
 })
 export class AppModule {
-  constructor() {}
+  constructor(private readonly dataSource: DataSource) {}
 }

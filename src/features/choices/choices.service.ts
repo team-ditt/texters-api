@@ -30,15 +30,15 @@ export class ChoicesService {
     return await this.choicesRepository.save(choice);
   }
 
-  async updateChoiceDestination(id: number, destinationPageId?: number | null) {
+  async updateChoiceDestination(id: number, destinationPageId: number | null) {
     const choice = await this.choicesRepository.findOne({
       where: {id},
-      relations: ["sourcePage", "sourcePage.lane"],
+      relations: {sourcePage: {lane: true}},
     });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     const destinationLaneOrder = await this.pagesService.findLaneOrderById(destinationPageId);
-    if (choice.sourcePage.lane.order < destinationLaneOrder)
+    if (destinationLaneOrder && choice.sourcePage.lane.order >= destinationLaneOrder)
       throw new TextersHttpException("BAD_CHOICE_DESTINATION");
 
     choice.destinationPageId = destinationPageId;
@@ -69,7 +69,7 @@ export class ChoicesService {
   async isAuthor(memberId: number, choiceId: number) {
     const choice = await this.choicesRepository.findOne({
       where: {id: choiceId},
-      relations: ["sourcePage", "page.book"],
+      relations: {sourcePage: {book: true}},
     });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
     return choice.sourcePage.book.authorId === memberId;

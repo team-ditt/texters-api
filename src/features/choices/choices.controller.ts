@@ -38,7 +38,7 @@ export class ChoicesController {
   @UseGuards(AuthGuard, ChoiceAuthorGuard)
   updateChoiceDestination(
     @Param("choiceId") choiceId: number,
-    updateChoiceDestinationDto: UpdateChoiceDestinationDto,
+    @Body() updateChoiceDestinationDto: UpdateChoiceDestinationDto,
   ) {
     return this.choicesService.updateChoiceDestination(
       choiceId,

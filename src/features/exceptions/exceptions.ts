@@ -76,12 +76,12 @@ export const EXCEPTIONS = {
   TOO_MANY_CHOICES: {
     code: 1011,
     statusCode: HttpStatus.BAD_REQUEST,
-    message: "분기점은 페이지당 최대 5개까지 만들 수 있습니다.",
+    message: "선택지는 페이지당 최대 5개까지 만들 수 있습니다.",
   },
   CHOICE_NOT_FOUND: {
     code: 1012,
     statusCode: HttpStatus.BAD_REQUEST,
-    message: "분기점을 찾을 수 없습니다.",
+    message: "선택지를 찾을 수 없습니다.",
   },
   NO_EXPLICIT_INTRO_PAGE_DELETION: {
     code: 1013,
@@ -91,7 +91,27 @@ export const EXCEPTIONS = {
   BAD_CHOICE_DESTINATION: {
     code: 1014,
     statusCode: HttpStatus.BAD_REQUEST,
-    message: "분기점은 오른쪽으로만 연결할 수 있습니다.",
+    message: "선택지는 오른쪽으로만 연결할 수 있습니다.",
+  },
+  NO_EXPLICIT_INTRO_PAGE_MOVE: {
+    code: 1015,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 페이지는 이동할 수 없습니다.",
+  },
+  NO_EXPLICIT_MOVE_TO_INTRO_LANE: {
+    code: 1016,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 레인으로 페이지를 이동시킬 수 없습니다.",
+  },
+  BAD_DESTINATION_PAGE_MOVE: {
+    code: 1017,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지에 연결된 앞선 선택지들보다 왼쪽으로 움직일 수 없습니다.",
+  },
+  BAD_SOURCE_PAGE_MOVE: {
+    code: 1018,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지에서 연결되는 선택지들보다 오른쪽으로 움직일 수 없습니다.",
   },
 };
 

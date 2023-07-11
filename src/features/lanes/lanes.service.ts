@@ -1,13 +1,14 @@
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {PagesService} from "@/features/pages/pages.service";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 @Injectable()
 export class LanesService {
   constructor(
+    @Inject(forwardRef(() => PagesService))
     private readonly pagesService: PagesService,
     @InjectRepository(Lane) private readonly lanesRepository: Repository<Lane>,
   ) {}
@@ -45,7 +46,7 @@ export class LanesService {
       order: {order: "ASC"},
     });
 
-    if (lane.order === 0) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
+    if (lane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
     const hasAnyPages = this.pagesService.hasAnyPages(lane.id);
     if (hasAnyPages) throw new TextersHttpException("NOT_EMPTY_LANE");
@@ -60,9 +61,13 @@ export class LanesService {
   async isAuthor(memberId: number, laneId: number) {
     const lane = await this.lanesRepository.findOne({
       where: {id: laneId},
-      relations: ["book"],
+      relations: {book: true},
     });
     if (!lane) throw new TextersHttpException("PAGE_NOT_FOUND");
     return lane.book.authorId === memberId;
+  }
+
+  async findLaneWithPagesById(id: number) {
+    return this.lanesRepository.findOne({where: {id}, relations: {pages: true}});
   }
 }
