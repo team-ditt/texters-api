@@ -17,20 +17,16 @@ export class ChoicesService {
     return await this.choicesRepository.save(choice);
   }
 
-  async updateChoice(pageId: number, choiceId: number, updateChoiceDto: UpdateChoiceDto) {
-    const choice = await this.choicesRepository.findOne({
-      where: {id: choiceId, sourcePageId: pageId},
-    });
+  async updateChoiceById(id: number, updateChoiceDto: UpdateChoiceDto) {
+    const choice = await this.choicesRepository.findOne({where: {id}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     Object.assign(choice, updateChoiceDto);
     return await this.choicesRepository.save(choice);
   }
 
-  async deleteChoice(pageId: number, choiceId: number) {
-    const choice = await this.choicesRepository.findOne({
-      where: {id: choiceId, sourcePageId: pageId},
-    });
+  async deleteChoiceById(id: number) {
+    const choice = await this.choicesRepository.findOne({where: {id}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
     await this.choicesRepository.remove(choice);
   }
@@ -48,5 +44,14 @@ export class ChoicesService {
         return this.choicesRepository.save(choice);
       }),
     );
+  }
+
+  async isAuthor(memberId: number, choiceId: number) {
+    const choice = await this.choicesRepository.findOne({
+      where: {id: choiceId},
+      relations: ["sourcePage", "page.book"],
+    });
+    if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
+    return choice.sourcePage.book.authorId === memberId;
   }
 }

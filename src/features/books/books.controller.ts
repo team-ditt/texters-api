@@ -33,9 +33,9 @@ export class BooksController {
     return this.bookMapper.toResponse(book);
   }
 
-  @Get(":id")
-  async readBook(@Param("id") id: number) {
-    const book = await this.booksService.readBook(id);
+  @Get(":bookId")
+  async readBook(@Param("bookId") bookId: number) {
+    const book = await this.booksService.readBook(bookId);
     return this.bookMapper.toResponse(book);
   }
 

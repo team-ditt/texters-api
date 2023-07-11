@@ -38,22 +38,31 @@ export class LanesService {
     await Promise.all(lanes.map(async lane => this.lanesRepository.save(lane)));
   }
 
-  async deleteLane(bookId: number, laneId: number) {
-    const lanes = await this.lanesRepository.find({where: {bookId}, order: {order: "ASC"}});
-    const index = lanes.findIndex(lane => lane.id === laneId);
-    if (index === -1) throw new TextersHttpException("LANE_NOT_FOUND");
+  async deleteLaneById(id: number) {
+    const lane = await this.lanesRepository.findOne({where: {id}});
+    const lanes = await this.lanesRepository.find({
+      where: {bookId: lane.bookId},
+      order: {order: "ASC"},
+    });
 
-    const targetLane = lanes[index];
-    if (targetLane.order === 0)
-      throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
+    if (lane.order === 0) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
-    const hasAnyPages = this.pagesService.hasAnyPages(targetLane.id);
+    const hasAnyPages = this.pagesService.hasAnyPages(lane.id);
     if (hasAnyPages) throw new TextersHttpException("NOT_EMPTY_LANE");
 
-    lanes.splice(index, 1);
+    lanes.splice(lane.order, 1);
     this.updateOrders(lanes);
 
     await this.saveLanes(lanes);
-    await this.lanesRepository.remove(targetLane);
+    await this.lanesRepository.remove(lane);
+  }
+
+  async isAuthor(memberId: number, laneId: number) {
+    const lane = await this.lanesRepository.findOne({
+      where: {id: laneId},
+      relations: ["book"],
+    });
+    if (!lane) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return lane.book.authorId === memberId;
   }
 }

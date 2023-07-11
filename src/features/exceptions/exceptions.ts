@@ -41,7 +41,7 @@ export const EXCEPTIONS = {
   NOT_AUTHOR: {
     code: 1007,
     statusCode: HttpStatus.FORBIDDEN,
-    message: "로그인 사용자와 작품의 작가가 일치하지 않습니다.",
+    message: "작가 본인이 아니면 작품을 수정할 수 없습니다.",
   },
   ORDER_INDEX_OUT_OF_BOUND: {
     code: 1008,

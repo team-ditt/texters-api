@@ -31,19 +31,15 @@ export class PagesService {
     return await this.pagesRepository.save(page);
   }
 
-  async updatePage(pageId: number, updatePageDto: UpdatePageDto) {
-    const page = await this.findPageById(pageId);
+  async updatePageById(id: number, updatePageDto: UpdatePageDto) {
+    const page = await this.pagesRepository.findOne({where: {id}});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+
     Object.assign(page, updatePageDto);
     return this.pagesRepository.save(page);
   }
 
-  async findPageById(id: number) {
-    const page = await this.pagesRepository.findOne({where: {id}});
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-    return page;
-  }
-
-  async deletePage(id: number) {
+  async deletePageById(id: number) {
     const page = await this.pagesRepository.findOne({where: {id}, relations: ["lane"]});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
@@ -55,5 +51,14 @@ export class PagesService {
       this.choicesService.deleteDestinationsByPageId(id),
     ]);
     await this.pagesRepository.remove(page);
+  }
+
+  async isAuthor(memberId: number, pageId: number) {
+    const page = await this.pagesRepository.findOne({
+      where: {id: pageId},
+      relations: ["book"],
+    });
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page.book.authorId === memberId;
   }
 }

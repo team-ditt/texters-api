@@ -1,6 +1,7 @@
 import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
+import {PageAuthorGuard} from "@/features/pages/page-author.guard";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {
@@ -30,16 +31,16 @@ export class PagesController {
     return this.pagesService.createPage(bookId, laneId, createPageDto.title);
   }
 
-  @Patch("books/:bookId/lanes/:laneId/pages/:pageId")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @Patch("pages/:pageId")
+  @UseGuards(AuthGuard, PageAuthorGuard)
   updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.updatePage(pageId, updatePageDto);
+    return this.pagesService.updatePageById(pageId, updatePageDto);
   }
 
-  @Delete("books/:bookId/lanes/:laneId/pages/:pageId")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @Delete("pages/:pageId")
+  @UseGuards(AuthGuard, PageAuthorGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deletePage(@Param("pageId") pageId: number) {
-    return this.pagesService.deletePage(pageId);
+    return this.pagesService.deletePageById(pageId);
   }
 }

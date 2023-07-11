@@ -1,4 +1,5 @@
 import {BookAuthorGuard} from "@/features/books/book-author.guard";
+import {LaneAuthorGuard} from "@/features/lanes/lane-author.guard";
 import {LanesService} from "@/features/lanes/lanes.service";
 import {CreateLaneDto} from "@/features/lanes/model/create-lane.dto";
 import {AuthGuard} from "@/features/shared/auth.guard";
@@ -24,10 +25,10 @@ export class LanesController {
     return this.lanesService.createLane(bookId, createLaneDto.order);
   }
 
-  @Delete("books/:bookId/lanes/:laneId")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @Delete("lanes/:laneId")
+  @UseGuards(AuthGuard, LaneAuthorGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteLane(@Param("bookId") bookId: number, @Param("laneId") laneId: number) {
-    return this.lanesService.deleteLane(bookId, laneId);
+  deleteLane(@Param("laneId") laneId: number) {
+    return this.lanesService.deleteLaneById(laneId);
   }
 }
