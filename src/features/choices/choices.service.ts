@@ -45,10 +45,30 @@ export class ChoicesService {
     return await this.choicesRepository.save(choice);
   }
 
+  async updateChoiceOrder(id: number, order: number) {
+    const choice = await this.choicesRepository.findOne({where: {id}});
+    if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
+
+    const choicesInPages = await this.choicesRepository.count({
+      where: {sourcePageId: choice.sourcePageId},
+    });
+    if (choicesInPages <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
+
+    await this.reorder("decrease", choice.sourcePageId, choice.order + 1);
+    await this.reorder("increase", choice.sourcePageId, order);
+    Object.assign(choice, {order});
+
+    return this.choicesRepository.save(choice);
+  }
+
   async deleteChoiceById(id: number) {
     const choice = await this.choicesRepository.findOne({where: {id}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
-    await this.choicesRepository.remove(choice);
+
+    await Promise.all([
+      this.reorder("decrease", choice.sourcePageId, choice.order + 1),
+      this.choicesRepository.remove(choice),
+    ]);
   }
 
   async deleteChoicesByPageId(sourcePageId: number) {
@@ -73,5 +93,16 @@ export class ChoicesService {
     });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
     return choice.sourcePage.book.authorId === memberId;
+  }
+
+  private async reorder(type: "increase" | "decrease", sourcePageId: number, from: number) {
+    const setOrderQuery = () => (type === "increase" ? "order + 1" : "order - 1");
+    await this.choicesRepository
+      .createQueryBuilder()
+      .update()
+      .set({order: setOrderQuery})
+      .where({sourcePageId})
+      .andWhere("choice.order >= :from", {from})
+      .execute();
   }
 }

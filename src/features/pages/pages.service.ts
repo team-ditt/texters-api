@@ -7,6 +7,7 @@ import {UpdatePageLaneDto} from "@/features/pages/model/update-page-lane.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import * as R from "ramda";
 import {DataSource, Repository} from "typeorm";
 
 @Injectable()
@@ -50,12 +51,10 @@ export class PagesService {
     if (pagesInLane <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("decrease", page.laneId, page.order + 1);
-    await Promise.all([
-      this.reorder("increase", page.laneId, order),
-      this.updatePageLaneAndOrder(id, page.laneId, order),
-    ]);
+    await this.reorder("increase", page.laneId, order);
+    Object.assign(page, {order});
 
-    return this.pagesRepository.findOne({where: {id}});
+    return this.pagesRepository.save(page);
   }
 
   async updatePageLane(id: number, {laneId, order}: UpdatePageLaneDto) {
@@ -76,10 +75,14 @@ export class PagesService {
     await Promise.all([
       this.reorder("decrease", page.laneId, page.order + 1),
       this.reorder("increase", laneId, order),
-      this.updatePageLaneAndOrder(id, laneId, order),
     ]);
+    const updatedPage = R.pipe(
+      R.omit(["lane"]),
+      R.assoc("laneId", laneId),
+      R.assoc("order", order),
+    )(page);
 
-    return await this.pagesRepository.findOne({where: {id}});
+    return await this.pagesRepository.save(updatedPage);
   }
 
   async deletePageById(id: number) {
@@ -147,15 +150,6 @@ export class PagesService {
       .set({order: setOrderQuery})
       .where({laneId})
       .andWhere("page.order >= :from", {from})
-      .execute();
-  }
-
-  private async updatePageLaneAndOrder(id: number, laneId: number, order: number) {
-    await this.pagesRepository
-      .createQueryBuilder()
-      .update()
-      .set({laneId, order})
-      .where({id})
       .execute();
   }
 }
