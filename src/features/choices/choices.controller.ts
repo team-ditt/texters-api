@@ -1,6 +1,7 @@
 import {ChoiceAuthorGuard} from "@/features/choices/choice-author.guard";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {CreateChoiceDto} from "@/features/choices/model/create-choice.dto";
+import {UpdateChoiceDestinationDto} from "@/features/choices/model/update-choice-destination.dto";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
 import {PageAuthorGuard} from "@/features/pages/page-author.guard";
 import {AuthGuard} from "@/features/shared/auth.guard";
@@ -31,6 +32,18 @@ export class ChoicesController {
   @UseGuards(AuthGuard, ChoiceAuthorGuard)
   updateChoice(@Param("choiceId") choiceId: number, @Body() updateChoiceDto: UpdateChoiceDto) {
     return this.choicesService.updateChoiceById(choiceId, updateChoiceDto);
+  }
+
+  @Patch("choices/:choiceId/destination")
+  @UseGuards(AuthGuard, ChoiceAuthorGuard)
+  updateChoiceDestination(
+    @Param("choiceId") choiceId: number,
+    updateChoiceDestinationDto: UpdateChoiceDestinationDto,
+  ) {
+    return this.choicesService.updateChoiceDestination(
+      choiceId,
+      updateChoiceDestinationDto.destinationPageId,
+    );
   }
 
   @Delete("choices/:choiceId")

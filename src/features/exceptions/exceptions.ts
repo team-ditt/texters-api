@@ -88,6 +88,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "인트로 페이지는 임의로 삭제할 수 없습니다.",
   },
+  BAD_CHOICE_DESTINATION: {
+    code: 1014,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "분기점은 오른쪽으로만 연결할 수 있습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

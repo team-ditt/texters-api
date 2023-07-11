@@ -1,13 +1,18 @@
 import {Choice} from "@/features/choices/model/choice.entity";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
-import {Injectable} from "@nestjs/common";
+import {PagesService} from "@/features/pages/pages.service";
+import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 @Injectable()
 export class ChoicesService {
-  constructor(@InjectRepository(Choice) private readonly choicesRepository: Repository<Choice>) {}
+  constructor(
+    @Inject(forwardRef(() => PagesService))
+    private readonly pagesService: PagesService,
+    @InjectRepository(Choice) private readonly choicesRepository: Repository<Choice>,
+  ) {}
 
   async createChoice(pageId: number, content: string) {
     const choicesInPage = await this.choicesRepository.count({where: {sourcePageId: pageId}});
@@ -22,6 +27,21 @@ export class ChoicesService {
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     Object.assign(choice, updateChoiceDto);
+    return await this.choicesRepository.save(choice);
+  }
+
+  async updateChoiceDestination(id: number, destinationPageId?: number | null) {
+    const choice = await this.choicesRepository.findOne({
+      where: {id},
+      relations: ["sourcePage", "sourcePage.lane"],
+    });
+    if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
+
+    const destinationLaneOrder = await this.pagesService.findLaneOrderById(destinationPageId);
+    if (choice.sourcePage.lane.order < destinationLaneOrder)
+      throw new TextersHttpException("BAD_CHOICE_DESTINATION");
+
+    choice.destinationPageId = destinationPageId;
     return await this.choicesRepository.save(choice);
   }
 

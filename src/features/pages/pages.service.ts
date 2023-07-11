@@ -2,13 +2,14 @@ import {ChoicesService} from "@/features/choices/choices.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Page} from "@/features/pages/model/page.entity";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 @Injectable()
 export class PagesService {
   constructor(
+    @Inject(forwardRef(() => ChoicesService))
     private readonly choicesService: ChoicesService,
     @InjectRepository(Page) private readonly pagesRepository: Repository<Page>,
   ) {}
@@ -60,5 +61,11 @@ export class PagesService {
     });
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
     return page.book.authorId === memberId;
+  }
+
+  async findLaneOrderById(id: number) {
+    const page = await this.pagesRepository.findOne({where: {id}, relations: ["lane"]});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page.lane.order;
   }
 }
