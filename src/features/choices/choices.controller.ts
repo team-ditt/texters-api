@@ -6,6 +6,7 @@ import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -33,5 +34,15 @@ export class ChoicesController {
     @Body() updateChoiceDto: UpdateChoiceDto,
   ) {
     return this.choicesService.updateChoice(pageId, choiceId, updateChoiceDto);
+  }
+
+  @Delete("books/:bookId/lanes/:laneId/pages/:pageId/choices/:choiceId")
+  @UseGuards(AuthGuard, BookAuthorGuard)
+  deleteChoice(
+    @Param("pageId") pageId: number,
+    @Param("choiceId") choiceId: number,
+    @Body() updateChoiceDto: UpdateChoiceDto,
+  ) {
+    return this.choicesService.deleteChoice(pageId, choiceId);
   }
 }

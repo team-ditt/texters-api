@@ -27,6 +27,14 @@ export class ChoicesService {
     return await this.choicesRepository.save(choice);
   }
 
+  async deleteChoice(pageId: number, choiceId: number) {
+    const choice = await this.choicesRepository.findOne({
+      where: {id: choiceId, sourcePageId: pageId},
+    });
+    if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
+    await this.choicesRepository.remove(choice);
+  }
+
   async deleteChoicesByPageId(sourcePageId: number) {
     const choices = await this.choicesRepository.find({where: {sourcePageId}});
     await Promise.all(choices.map(choice => this.choicesRepository.remove(choice)));
