@@ -78,6 +78,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "분기점은 페이지당 최대 5개까지 만들 수 있습니다.",
   },
+  CHOICE_NOT_FOUND: {
+    code: 1012,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "분기점을 찾을 수 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
