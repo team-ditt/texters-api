@@ -83,6 +83,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "분기점을 찾을 수 없습니다.",
   },
+  NO_EXPLICIT_INTRO_PAGE_DELETION: {
+    code: 1013,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 페이지는 임의로 삭제할 수 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

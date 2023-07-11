@@ -6,6 +6,7 @@ import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -31,12 +32,14 @@ export class PagesController {
 
   @Patch("books/:bookId/lanes/:laneId/pages/:pageId")
   @UseGuards(AuthGuard, BookAuthorGuard)
-  updatePage(
-    @Param("bookId") bookId: number,
-    @Param("laneId") laneId: number,
-    @Param("pageId") pageId: number,
-    @Body() updatePageDto: UpdatePageDto,
-  ) {
-    return this.pagesService.updatePage(bookId, laneId, pageId, updatePageDto);
+  updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
+    return this.pagesService.updatePage(pageId, updatePageDto);
+  }
+
+  @Delete("books/:bookId/lanes/:laneId/pages/:pageId")
+  @UseGuards(AuthGuard, BookAuthorGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deletePage(@Param("pageId") pageId: number) {
+    return this.pagesService.deletePage(pageId);
   }
 }

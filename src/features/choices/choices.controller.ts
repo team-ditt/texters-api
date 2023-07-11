@@ -22,7 +22,7 @@ export class ChoicesController {
   @UseGuards(AuthGuard, BookAuthorGuard)
   @HttpCode(HttpStatus.CREATED)
   createChoice(@Param("pageId") pageId: number, @Body() createChoiceDto: CreateChoiceDto) {
-    this.choicesService.createChoice(pageId, createChoiceDto.content);
+    return this.choicesService.createChoice(pageId, createChoiceDto.content);
   }
 
   @Patch("books/:bookId/lanes/:laneId/pages/:pageId/choices/:choiceId")
@@ -32,6 +32,6 @@ export class ChoicesController {
     @Param("choiceId") choiceId: number,
     @Body() updateChoiceDto: UpdateChoiceDto,
   ) {
-    this.choicesService.updateChoice(pageId, choiceId, updateChoiceDto);
+    return this.choicesService.updateChoice(pageId, choiceId, updateChoiceDto);
   }
 }

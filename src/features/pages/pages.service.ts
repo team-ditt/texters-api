@@ -1,3 +1,4 @@
+import {ChoicesService} from "@/features/choices/choices.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Page} from "@/features/pages/model/page.entity";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
@@ -7,7 +8,10 @@ import {Repository} from "typeorm";
 
 @Injectable()
 export class PagesService {
-  constructor(@InjectRepository(Page) private readonly pagesRepository: Repository<Page>) {}
+  constructor(
+    private readonly choicesService: ChoicesService,
+    @InjectRepository(Page) private readonly pagesRepository: Repository<Page>,
+  ) {}
 
   async hasAnyPages(laneId: number) {
     return await this.pagesRepository.exist({where: {laneId}});
@@ -27,11 +31,29 @@ export class PagesService {
     return await this.pagesRepository.save(page);
   }
 
-  async updatePage(bookId: number, laneId: number, pageId: number, updatePageDto: UpdatePageDto) {
-    const page = await this.pagesRepository.findOne({where: {id: pageId, bookId, laneId}});
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-
+  async updatePage(pageId: number, updatePageDto: UpdatePageDto) {
+    const page = await this.findPageById(pageId);
     Object.assign(page, updatePageDto);
     return this.pagesRepository.save(page);
+  }
+
+  async findPageById(id: number) {
+    const page = await this.pagesRepository.findOne({where: {id}});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page;
+  }
+
+  async deletePage(id: number) {
+    const page = await this.pagesRepository.findOne({where: {id}, relations: ["lane"]});
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+
+    const isIntroPage = page.lane.order === 0 && page.order === 0;
+    if (isIntroPage) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
+
+    await Promise.all([
+      this.choicesService.deleteChoicesByPageId(id),
+      this.choicesService.deleteDestinationsByPageId(id),
+    ]);
+    await this.pagesRepository.remove(page);
   }
 }

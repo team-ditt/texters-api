@@ -26,4 +26,19 @@ export class ChoicesService {
     Object.assign(choice, updateChoiceDto);
     return await this.choicesRepository.save(choice);
   }
+
+  async deleteChoicesByPageId(sourcePageId: number) {
+    const choices = await this.choicesRepository.find({where: {sourcePageId}});
+    await Promise.all(choices.map(choice => this.choicesRepository.remove(choice)));
+  }
+
+  async deleteDestinationsByPageId(destinationPageId: number) {
+    const choices = await this.choicesRepository.find({where: {destinationPageId}});
+    await Promise.all(
+      choices.map(choice => {
+        choice.destinationPageId = null;
+        return this.choicesRepository.save(choice);
+      }),
+    );
+  }
 }
