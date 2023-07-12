@@ -4,56 +4,73 @@ import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
+import {LanesService} from "@/features/lanes/lanes.service";
+import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {omit} from "rambda";
 import {Repository} from "typeorm";
 
 @Injectable()
 export class BooksService {
   constructor(
     private readonly filesService: FilesService,
+    private readonly lanesService: LanesService,
+    private readonly pagesService: PagesService,
     @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
     @InjectRepository(BookFilteredView)
     private readonly filteredBooksRepository: Repository<BookFilteredView>,
   ) {}
 
-  async saveBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
+  async createBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
     const {title, description, coverImageId} = createBookDto;
 
     const book = Book.of(title, description);
     book.authorId = authorId;
-    book.coverImage = await this.findCoverImage(coverImageId);
+    book.coverImage = await this.filesService.findById(coverImageId);
 
-    const {id} = await this.booksRepository.save(book);
-    return await this.readBook(id);
+    const {id: bookId} = await this.booksRepository.save(book);
+    const {id: laneId} = await this.lanesService.createIntroLane(bookId);
+    await this.pagesService.createIntroPage(bookId, laneId);
+    return await this.findBookById(bookId);
   }
 
-  private async findCoverImage(uuid: string | undefined) {
-    return uuid ? await this.filesService.findOne({uuid}) : undefined;
-  }
-
-  async readBook(id: number): Promise<BookFilteredView> {
+  async findBookById(id: number): Promise<BookFilteredView> {
     const book = await this.filteredBooksRepository.findOne({
       where: {id},
-      relations: ["author", "coverImage"],
+      relations: {author: true, coverImage: true},
     });
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book;
   }
 
-  async updateBook(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
+  async loadFlowChart(id: number) {
+    return await this.booksRepository
+      .createQueryBuilder("book")
+      .leftJoinAndSelect("book.author", "author")
+      .leftJoinAndSelect("book.coverImage", "coverImage")
+      .leftJoinAndSelect("book.lanes", "lane")
+      .leftJoinAndSelect("lane.pages", "page")
+      .leftJoinAndSelect("page.choices", "choice")
+      .where({id})
+      .orderBy({
+        "lane.order": "ASC",
+        "page.order": "ASC",
+        "choice.order": "ASC",
+      })
+      .getOne();
+  }
+
+  async updateBookById(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.booksRepository.findOne({where: {id}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
-    Object.assign(book, omit(["coverImageId"], updateBookDto));
-    book.coverImage = await this.findCoverImage(updateBookDto.coverImageId);
-
+    Object.assign(book, updateBookDto);
     await this.booksRepository.save(book);
-    return await this.readBook(id);
+
+    return await this.findBookById(id);
   }
 
-  async deleteBook(id: number): Promise<void> {
+  async deleteBookById(id: number): Promise<void> {
     const book = await this.booksRepository.findOne({where: {id}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
@@ -63,6 +80,7 @@ export class BooksService {
 
   async isAuthor(memberId: number, bookId: number): Promise<boolean> {
     const book = await this.booksRepository.findOne({where: {id: bookId}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
 }

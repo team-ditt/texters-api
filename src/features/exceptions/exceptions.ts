@@ -38,6 +38,86 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "누락되거나 잘못된 항목이 있습니다.",
   },
+  NOT_AUTHOR: {
+    code: 1007,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "작가 본인이 아니면 작품을 수정할 수 없습니다.",
+  },
+  ORDER_INDEX_OUT_OF_BOUND: {
+    code: 1008,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "올바르지 않은 order 값입니다.",
+  },
+  LANE_NOT_FOUND: {
+    code: 1006,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "레인을 찾을 수 없습니다.",
+  },
+  TOO_MANY_PAGES: {
+    code: 1007,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지는 작품당 최대 100개까지 만들 수 있습니다.",
+  },
+  NO_EXPLICIT_INTRO_LANE_MODIFICATION: {
+    code: 1008,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 레인은 임의로 생성하거나 삭제할 수 없습니다.",
+  },
+  NOT_EMPTY_LANE: {
+    code: 1009,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "하위 페이지가 있는 레인은 삭제할 수 없습니다.",
+  },
+  PAGE_NOT_FOUND: {
+    code: 1010,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "페이지를 찾을 수 없습니다.",
+  },
+  TOO_MANY_CHOICES: {
+    code: 1011,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "선택지는 페이지당 최대 5개까지 만들 수 있습니다.",
+  },
+  CHOICE_NOT_FOUND: {
+    code: 1012,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "선택지를 찾을 수 없습니다.",
+  },
+  NO_EXPLICIT_INTRO_PAGE_DELETION: {
+    code: 1013,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 페이지는 임의로 삭제할 수 없습니다.",
+  },
+  BAD_CHOICE_DESTINATION: {
+    code: 1014,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "선택지는 오른쪽으로만 연결할 수 있습니다.",
+  },
+  NO_EXPLICIT_INTRO_PAGE_MOVE: {
+    code: 1015,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 페이지는 이동할 수 없습니다.",
+  },
+  NO_EXPLICIT_MOVE_TO_INTRO_LANE: {
+    code: 1016,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "인트로 레인으로 페이지를 이동시킬 수 없습니다.",
+  },
+  BAD_DESTINATION_PAGE_MOVE: {
+    code: 1017,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지에 연결된 앞선 선택지들보다 왼쪽으로 움직일 수 없습니다.",
+  },
+  BAD_SOURCE_PAGE_MOVE: {
+    code: 1018,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지에서 연결되는 선택지들보다 오른쪽으로 움직일 수 없습니다.",
+  },
+  LOCKED_FLOW_CHART: {
+    code: 1019,
+    statusCode: HttpStatus.CONFLICT,
+    message: "다른 클라이언트에서 작품을 수정 중입니다. 새로고침해주세요.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
