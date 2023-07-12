@@ -31,10 +31,10 @@ export class BooksService {
     const {id: bookId} = await this.booksRepository.save(book);
     const {id: laneId} = await this.lanesService.createIntroLane(bookId);
     await this.pagesService.createIntroPage(bookId, laneId);
-    return await this.readBookById(bookId);
+    return await this.findBookById(bookId);
   }
 
-  async readBookById(id: number): Promise<BookFilteredView> {
+  async findBookById(id: number): Promise<BookFilteredView> {
     const book = await this.filteredBooksRepository.findOne({
       where: {id},
       relations: {author: true, coverImage: true},
@@ -67,7 +67,7 @@ export class BooksService {
     Object.assign(book, updateBookDto);
     await this.booksRepository.save(book);
 
-    return await this.readBookById(id);
+    return await this.findBookById(id);
   }
 
   async deleteBookById(id: number): Promise<void> {

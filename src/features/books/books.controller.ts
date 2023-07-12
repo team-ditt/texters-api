@@ -32,14 +32,14 @@ export class BooksController {
   @Post()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async saveBook(@Req() req: Request, @Body() createBookDto: CreateBookDto) {
+  async createBook(@Req() req: Request, @Body() createBookDto: CreateBookDto) {
     const book = await this.booksService.createBook(req["member"].id, createBookDto);
     return this.bookMapper.toResponse(book);
   }
 
   @Get(":bookId")
-  async readBook(@Param("bookId") bookId: number) {
-    const book = await this.booksService.readBookById(bookId);
+  async findBook(@Param("bookId") bookId: number) {
+    const book = await this.booksService.findBookById(bookId);
     return this.bookMapper.toResponse(book);
   }
 
