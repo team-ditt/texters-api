@@ -1,4 +1,5 @@
 import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
+import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
@@ -19,6 +20,8 @@ export class BooksService {
     @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
     @InjectRepository(BookFilteredView)
     private readonly filteredBooksRepository: Repository<BookFilteredView>,
+    @InjectRepository(BookViewed)
+    private readonly bookViewedRepository: Repository<BookViewed>,
   ) {}
 
   async createBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
@@ -82,5 +85,9 @@ export class BooksService {
     const book = await this.booksRepository.findOne({where: {id: bookId}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
+  }
+
+  logBookViewed(bookId: number) {
+    this.bookViewedRepository.save(BookViewed.of(bookId));
   }
 }

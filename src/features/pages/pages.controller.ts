@@ -9,6 +9,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -36,6 +37,11 @@ export class PagesController {
   @UseGuards(AuthGuard, FlowChartGuard)
   updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
     return this.pagesService.updatePageById(pageId, updatePageDto);
+  }
+
+  @Get("books/:bookId/intro-page")
+  findIntroPage(@Param("bookId") bookId: number) {
+    return this.pagesService.findIntroPage(bookId);
   }
 
   @Patch("books/:bookId/pages/:pageId/order")

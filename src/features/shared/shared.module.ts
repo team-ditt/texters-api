@@ -1,5 +1,6 @@
 import {BooksService} from "@/features/books/books.service";
 import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
+import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
@@ -16,7 +17,16 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([File, Book, BookFilteredView, Lane, Page, Choice, FlowChartLock]),
+    TypeOrmModule.forFeature([
+      File,
+      Book,
+      BookFilteredView,
+      BookViewed,
+      Lane,
+      Page,
+      Choice,
+      FlowChartLock,
+    ]),
   ],
   exports: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],
   providers: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],

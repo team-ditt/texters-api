@@ -1,3 +1,4 @@
+import {BooksService} from "@/features/books/books.service";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
@@ -13,6 +14,8 @@ import {DataSource, Repository} from "typeorm";
 @Injectable()
 export class PagesService {
   constructor(
+    @Inject(forwardRef(() => BooksService))
+    private readonly booksService: BooksService,
     @Inject(forwardRef(() => LanesService))
     private readonly lanesService: LanesService,
     @Inject(forwardRef(() => ChoicesService))
@@ -33,6 +36,18 @@ export class PagesService {
     const pagesInLane = await this.pagesRepository.count({where: {laneId}});
     const page = Page.of(bookId, laneId, title, pagesInLane);
     return await this.pagesRepository.save(page);
+  }
+
+  async findIntroPage(bookId: number) {
+    const introPage = await this.pagesRepository.findOne({
+      where: {bookId, lane: {order: 0}, order: 0},
+      relations: {lane: true, choices: true},
+      order: {choices: {order: "ASC"}},
+    });
+    if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
+
+    this.booksService.logBookViewed(bookId);
+    return R.omit(["lane"], introPage);
   }
 
   async updatePageById(id: number, updatePageDto: UpdatePageDto) {
