@@ -3,6 +3,7 @@ import {CreatePageDto} from "@/features/pages/model/create-page.dto";
 import {UpdatePageLaneDto} from "@/features/pages/model/update-page-lane.dto";
 import {UpdatePageOrderDto} from "@/features/pages/model/update-page-order.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
+import {PageMapper} from "@/features/pages/page.mapper";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {
@@ -20,7 +21,10 @@ import {
 
 @Controller()
 export class PagesController {
-  constructor(private readonly pagesService: PagesService) {}
+  constructor(
+    private readonly pagesService: PagesService,
+    private readonly pageMapper: PageMapper,
+  ) {}
 
   @Post("books/:bookId/lanes/:laneId/pages")
   @UseGuards(AuthGuard, FlowChartGuard)
@@ -40,8 +44,15 @@ export class PagesController {
   }
 
   @Get("books/:bookId/intro-page")
-  findIntroPage(@Param("bookId") bookId: number) {
-    return this.pagesService.findIntroPage(bookId);
+  async findIntroPage(@Param("bookId") bookId: number) {
+    const introPage = await this.pagesService.findIntroPage(bookId);
+    return this.pageMapper.toResponse(introPage);
+  }
+
+  @Get("books/:bookId/pages/:pageId")
+  async findPage(@Param("pageId") pageId: number) {
+    const page = await this.pagesService.findPageById(pageId);
+    return this.pageMapper.toResponse(page);
   }
 
   @Patch("books/:bookId/pages/:pageId/order")

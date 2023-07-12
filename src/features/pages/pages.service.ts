@@ -47,7 +47,17 @@ export class PagesService {
     if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     this.booksService.logBookViewed(bookId);
-    return R.omit(["lane"], introPage);
+    return introPage;
+  }
+
+  async findPageById(id: number) {
+    const page = await this.pagesRepository.findOne({
+      where: {id},
+      relations: {choices: true},
+      order: {choices: {order: "ASC"}},
+    });
+    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
+    return page;
   }
 
   async updatePageById(id: number, updatePageDto: UpdatePageDto) {
