@@ -1,15 +1,16 @@
 import {AuthModule} from "@/features/auth/auth.module";
 import {BackdoorModule} from "@/features/backdoor/backdoor.module";
 import {BooksModule} from "@/features/books/books.module";
+import {ChoicesModule} from "@/features/choices/choices.module";
 import {FilesModule} from "@/features/files/files.module";
 import {LanesModule} from "@/features/lanes/lanes.module";
+import {LocksModule} from "@/features/locks/locks.module";
 import {MembersModule} from "@/features/members/members.module";
 import {PagesModule} from "@/features/pages/pages.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
-import {ChoicesModule} from "./features/choices/choices.module";
 
 function featureModules() {
   const productionModules = [
@@ -20,6 +21,7 @@ function featureModules() {
     LanesModule,
     PagesModule,
     ChoicesModule,
+    LocksModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"

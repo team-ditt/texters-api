@@ -3,6 +3,7 @@ import {BookMapper} from "@/features/books/book.mapper";
 import {BooksService} from "@/features/books/books.service";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
+import {LocksService} from "@/features/locks/locks.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
@@ -15,12 +16,15 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from "@nestjs/common";
+import {Request, Response} from "express";
 
 @Controller("books")
 export class BooksController {
   constructor(
+    private readonly locksService: LocksService,
     private readonly booksService: BooksService,
     private readonly bookMapper: BookMapper,
   ) {}
@@ -41,9 +45,13 @@ export class BooksController {
 
   @Get(":bookId/flow-chart")
   @UseGuards(AuthGuard, BookAuthorGuard)
-  async loadFlowChart(@Param("bookId") bookId: number) {
+  async loadFlowChart(@Param("bookId") bookId: number, @Res() res: Response) {
     const bookWithFlowChart = await this.booksService.loadFlowChart(bookId);
-    return this.bookMapper.toResponse(bookWithFlowChart);
+    const lock = await this.locksService.lockFlowChart(bookId);
+
+    const response = this.bookMapper.toResponse(bookWithFlowChart);
+    res.set("flow-chart-lock-key", lock.key);
+    res.send(response);
   }
 
   @Patch(":bookId")

@@ -1,9 +1,8 @@
-import {BookAuthorGuard} from "@/features/books/book-author.guard";
+import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
 import {UpdatePageLaneDto} from "@/features/pages/model/update-page-lane.dto";
 import {UpdatePageOrderDto} from "@/features/pages/model/update-page-order.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
-import {PageAuthorGuard} from "@/features/pages/page-author.guard";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {
@@ -23,7 +22,7 @@ export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Post("books/:bookId/lanes/:laneId/pages")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.CREATED)
   createPage(
     @Param("bookId") bookId: number,
@@ -33,26 +32,26 @@ export class PagesController {
     return this.pagesService.createPage(bookId, laneId, createPageDto.title);
   }
 
-  @Patch("pages/:pageId")
-  @UseGuards(AuthGuard, PageAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
     return this.pagesService.updatePageById(pageId, updatePageDto);
   }
 
-  @Patch("pages/:pageId/order")
-  @UseGuards(AuthGuard, PageAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId/order")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updatePageOrder(@Param("pageId") pageId: number, @Body() updatePageOrderDto: UpdatePageOrderDto) {
     return this.pagesService.updatePageOrder(pageId, updatePageOrderDto.order);
   }
 
-  @Patch("pages/:pageId/lane")
-  @UseGuards(AuthGuard, PageAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId/lane")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updatePageLane(@Param("pageId") pageId: number, @Body() updatePageLaneDto: UpdatePageLaneDto) {
     return this.pagesService.updatePageLane(pageId, updatePageLaneDto);
   }
 
-  @Delete("pages/:pageId")
-  @UseGuards(AuthGuard, PageAuthorGuard)
+  @Delete("books/:bookId/pages/:pageId")
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deletePage(@Param("pageId") pageId: number) {
     return this.pagesService.deletePageById(pageId);

@@ -26,7 +26,7 @@ export class AuthController {
       signInDto.provider,
       signInDto.authorizationCode,
     );
-    this.setAuthCookies(res, accessToken, refreshToken);
+    this.setAuthCookies(res, refreshToken);
     res.send(accessToken);
   }
 
@@ -37,7 +37,7 @@ export class AuthController {
       signUpDto.oauthId,
       signUpDto.penName,
     );
-    this.setAuthCookies(res, accessToken, refreshToken);
+    this.setAuthCookies(res, refreshToken);
     res.send(accessToken);
   }
 
@@ -48,7 +48,7 @@ export class AuthController {
       req["member"].id,
       req.cookies.RefreshToken,
     );
-    this.setAuthCookies(res, accessToken, refreshToken);
+    this.setAuthCookies(res, refreshToken);
     res.send(accessToken);
   }
 
@@ -62,7 +62,7 @@ export class AuthController {
     res.send();
   }
 
-  private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+  private setAuthCookies(res: Response, refreshToken: string) {
     const expiresInDays = 1;
     const cookieOptions = {
       maxAge: expiresInDays * 24 * 60 * 60 * 1000,
@@ -71,7 +71,6 @@ export class AuthController {
       secure: process.env.NODE_ENV === "PRODUCTION",
     };
 
-    res.cookie("Authorization", `Bearer ${accessToken}`, cookieOptions);
     res.cookie("RefreshToken", refreshToken, cookieOptions);
   }
 }

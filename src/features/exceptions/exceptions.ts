@@ -113,6 +113,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "페이지에서 연결되는 선택지들보다 오른쪽으로 움직일 수 없습니다.",
   },
+  LOCKED_FLOW_CHART: {
+    code: 1019,
+    statusCode: HttpStatus.CONFLICT,
+    message: "다른 클라이언트에서 작품을 수정 중입니다. 새로고침해주세요.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

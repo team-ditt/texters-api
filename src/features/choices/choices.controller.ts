@@ -1,10 +1,9 @@
-import {ChoiceAuthorGuard} from "@/features/choices/choice-author.guard";
+import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {CreateChoiceDto} from "@/features/choices/model/create-choice.dto";
 import {UpdateChoiceDestinationDto} from "@/features/choices/model/update-choice-destination.dto";
 import {UpdateChoiceOrderDto} from "@/features/choices/model/update-choice-order.dto";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
-import {PageAuthorGuard} from "@/features/pages/page-author.guard";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
@@ -22,21 +21,21 @@ import {
 export class ChoicesController {
   constructor(private readonly choicesService: ChoicesService) {}
 
-  @Post("pages/:pageId/choices")
-  @UseGuards(AuthGuard, PageAuthorGuard)
+  @Post("books/:bookId/pages/:pageId/choices")
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.CREATED)
   createChoice(@Param("pageId") pageId: number, @Body() createChoiceDto: CreateChoiceDto) {
     return this.choicesService.createChoice(pageId, createChoiceDto.content);
   }
 
-  @Patch("choices/:choiceId")
-  @UseGuards(AuthGuard, ChoiceAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId/choices/:choiceId")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoice(@Param("choiceId") choiceId: number, @Body() updateChoiceDto: UpdateChoiceDto) {
     return this.choicesService.updateChoiceById(choiceId, updateChoiceDto);
   }
 
-  @Patch("choices/:choiceId/destination")
-  @UseGuards(AuthGuard, ChoiceAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId/choices/:choiceId/destination")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoiceDestination(
     @Param("choiceId") choiceId: number,
     @Body() updateChoiceDestinationDto: UpdateChoiceDestinationDto,
@@ -47,8 +46,8 @@ export class ChoicesController {
     );
   }
 
-  @Patch("choices/:choiceId/order")
-  @UseGuards(AuthGuard, ChoiceAuthorGuard)
+  @Patch("books/:bookId/pages/:pageId/choices/:choiceId/order")
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoiceOrder(
     @Param("choiceId") choiceId: number,
     @Body() updateChoiceOrderDto: UpdateChoiceOrderDto,
@@ -56,8 +55,8 @@ export class ChoicesController {
     return this.choicesService.updateChoiceOrder(choiceId, updateChoiceOrderDto.order);
   }
 
-  @Delete("choices/:choiceId")
-  @UseGuards(AuthGuard, ChoiceAuthorGuard)
+  @Delete("books/:bookId/pages/:pageId/choices/:choiceId")
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteChoice(@Param("choiceId") choiceId: number) {
     return this.choicesService.deleteChoiceById(choiceId);

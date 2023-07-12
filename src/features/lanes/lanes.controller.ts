@@ -1,5 +1,4 @@
-import {BookAuthorGuard} from "@/features/books/book-author.guard";
-import {LaneAuthorGuard} from "@/features/lanes/lane-author.guard";
+import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {LanesService} from "@/features/lanes/lanes.service";
 import {CreateLaneDto} from "@/features/lanes/model/create-lane.dto";
 import {AuthGuard} from "@/features/shared/auth.guard";
@@ -19,14 +18,14 @@ export class LanesController {
   constructor(private readonly lanesService: LanesService) {}
 
   @Post("books/:bookId/lanes")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.CREATED)
   createLane(@Param("bookId") bookId: number, @Body() createLaneDto: CreateLaneDto) {
     return this.lanesService.createLane(bookId, createLaneDto.order);
   }
 
-  @Delete("lanes/:laneId")
-  @UseGuards(AuthGuard, LaneAuthorGuard)
+  @Delete("books/:bookId/lanes/:laneId")
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteLane(@Param("laneId") laneId: number) {
     return this.lanesService.deleteLaneById(laneId);

@@ -30,6 +30,26 @@ export class AuthService {
     return this.issueAuthTokens(member);
   }
 
+  async signUp(oauthId: string, penName: string) {
+    if (await this.membersService.isExist({oauthId}))
+      throw new TextersHttpException("ALREADY_REGISTERED");
+
+    const member = await this.membersService.create(oauthId, penName);
+    return this.issueAuthTokens(member);
+  }
+
+  async reissueAuthTokens(memberId: number, refreshToken: string) {
+    const auth = await this.authRepository.findOne({where: {id: memberId}});
+
+    if (auth.refreshToken !== refreshToken) throw new TextersHttpException("INVALID_AUTH_TOKEN");
+    const member = await this.membersService.findById(memberId);
+    return this.issueAuthTokens(member);
+  }
+
+  async signOut(memberId: number) {
+    await this.authRepository.delete({id: memberId});
+  }
+
   private async signInWithOauth(provider: OauthProvider, authorizationCode: string) {
     switch (provider) {
       case OauthProvider.KAKAO:
@@ -136,25 +156,5 @@ export class AuthService {
 
   private saveRefreshToken(id: number, refreshToken: string) {
     this.authRepository.save(Auth.of(id, refreshToken));
-  }
-
-  async signUp(oauthId: string, penName: string) {
-    if (await this.membersService.isExist({oauthId}))
-      throw new TextersHttpException("ALREADY_REGISTERED");
-
-    const member = await this.membersService.create(oauthId, penName);
-    return this.issueAuthTokens(member);
-  }
-
-  async reissueAuthTokens(memberId: number, refreshToken: string) {
-    const auth = await this.authRepository.findOne({where: {id: memberId}});
-
-    if (auth.refreshToken !== refreshToken) throw new TextersHttpException("INVALID_AUTH_TOKEN");
-    const member = await this.membersService.findById(memberId);
-    return this.issueAuthTokens(member);
-  }
-
-  async signOut(memberId: number) {
-    await this.authRepository.delete({id: memberId});
   }
 }
