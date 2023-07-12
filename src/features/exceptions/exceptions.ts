@@ -118,6 +118,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.CONFLICT,
     message: "다른 클라이언트에서 작품을 수정 중입니다. 새로고침해주세요.",
   },
+  NOT_AUTHORIZED_MEMBER: {
+    code: 1020,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "작업을 수행할 권한이 없습니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
