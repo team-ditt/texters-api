@@ -12,6 +12,7 @@ import {LocksService} from "@/features/locks/locks.service";
 import {FlowChartLock} from "@/features/locks/model/flow-chart-lock.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
+import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
@@ -28,7 +29,23 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       FlowChartLock,
     ]),
   ],
-  exports: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],
-  providers: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],
+  exports: [
+    PaginationMapper,
+    FilesService,
+    BooksService,
+    LanesService,
+    PagesService,
+    ChoicesService,
+    LocksService,
+  ],
+  providers: [
+    PaginationMapper,
+    FilesService,
+    BooksService,
+    LanesService,
+    PagesService,
+    ChoicesService,
+    LocksService,
+  ],
 })
 export class SharedModule {}

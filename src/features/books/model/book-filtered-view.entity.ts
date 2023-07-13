@@ -1,4 +1,4 @@
-import {Book} from "@/features/books/model/book.entity";
+import {Book, BookStatus} from "@/features/books/model/book.entity";
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
@@ -13,8 +13,6 @@ import {
   ViewColumn,
   ViewEntity,
 } from "typeorm";
-
-export type BookStatus = "DRAFT" | "PUBLISHED" | "DELETED";
 
 @ViewEntity({
   expression: (dataSource: DataSource) =>

@@ -3,12 +3,16 @@ import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
+import {Choice} from "@/features/choices/model/choice.entity";
+import {EXCEPTIONS} from "@/features/exceptions/exceptions";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
 import {LanesService} from "@/features/lanes/lanes.service";
+import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import * as R from "ramda";
 import {Repository} from "typeorm";
 
 @Injectable()
@@ -24,7 +28,7 @@ export class BooksService {
     private readonly bookViewedRepository: Repository<BookViewed>,
   ) {}
 
-  async createBook(authorId: number, createBookDto: CreateBookDto): Promise<Book> {
+  async createBook(authorId: number, createBookDto: CreateBookDto) {
     const {title, description, coverImageId} = createBookDto;
 
     const book = Book.of(title, description);
@@ -37,7 +41,29 @@ export class BooksService {
     return await this.findBookById(bookId);
   }
 
-  async findBookById(id: number): Promise<BookFilteredView> {
+  async findBooksByAuthorId(authorId: number, page: number, limit: number) {
+    const [books, totalCount] = await this.filteredBooksRepository.findAndCount({
+      where: {authorId},
+      relations: {author: true, coverImage: true, lanes: {pages: {choices: true}}},
+      order: {modifiedAt: "DESC"},
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const refinedBooks = books.map(book => {
+      const {canPublish, publishErrors} = this.validateCanPublish(book);
+
+      return R.pipe(
+        R.omit(["lanes"]),
+        R.assoc("canPublish", canPublish),
+        R.assoc("publishErrors", publishErrors),
+      )(book);
+    }) as (Book & {canPublish: boolean; publishErrors: string[]})[];
+
+    return {books: refinedBooks, totalCount};
+  }
+
+  async findBookById(id: number) {
     const book = await this.filteredBooksRepository.findOne({
       where: {id},
       relations: {author: true, coverImage: true},
@@ -63,9 +89,9 @@ export class BooksService {
       .getOne();
   }
 
-  async updateBookById(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
+  async updateBookById(id: number, updateBookDto: UpdateBookDto) {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, updateBookDto);
     await this.booksRepository.save(book);
@@ -73,21 +99,79 @@ export class BooksService {
     return await this.findBookById(id);
   }
 
-  async deleteBookById(id: number): Promise<void> {
+  async publishBookById(id: number) {
+    const book = await this.booksRepository.findOne({
+      where: {id},
+      relations: {lanes: {pages: {choices: true}}},
+    });
+    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
+
+    const {canPublish} = this.validateCanPublish(book);
+    if (!canPublish) throw new TextersHttpException("CANNOT_PUBLISH");
+
+    book.status = "PUBLISHED";
+    await this.booksRepository.save(book);
+
+    return await this.findBookById(id);
+  }
+
+  async deleteBookById(id: number) {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
 
     book.status = "DELETED";
     await this.booksRepository.save(book);
   }
 
-  async isAuthor(memberId: number, bookId: number): Promise<boolean> {
+  async isAuthor(memberId: number, bookId: number) {
     const book = await this.booksRepository.findOne({where: {id: bookId}});
-    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
 
   logBookViewed(bookId: number) {
     this.bookViewedRepository.save(BookViewed.of(bookId));
+  }
+
+  private validateCanPublish(book: Book) {
+    const pages = book.lanes.flatMap(lane => lane.pages);
+    const choices = pages.flatMap(page => page.choices);
+
+    const allPagesHaveContent = pages.every(page => page.content);
+    const allChoicesHaveDestination = choices.every(choice => choice.destinationPageId);
+    const allPagesConnected = this.validateAllPagesConnected(pages, choices);
+
+    const canPublish = allPagesHaveContent && allChoicesHaveDestination && allPagesConnected;
+    const publishErrors = this.toPublishErrors({
+      allPagesHaveContent,
+      allChoicesHaveDestination,
+      allPagesConnected,
+    });
+
+    return {canPublish, publishErrors};
+  }
+
+  private validateAllPagesConnected(pages: Page[], choices: Choice[]) {
+    const uniqueDestinationPageCount = new Set(choices.map(choice => choice.destinationPageId))
+      .size;
+    return pages.length - 1 === uniqueDestinationPageCount;
+  }
+
+  private toPublishErrors(flags: {
+    allPagesHaveContent: boolean;
+    allChoicesHaveDestination: boolean;
+    allPagesConnected: boolean;
+  }) {
+    const failedMessages = {
+      allPagesHaveContent: EXCEPTIONS.NOT_ALL_PAGES_HAVE_CONTENT.message,
+      allChoicesHaveDestination: EXCEPTIONS.NOT_ALL_CHOICES_HAVE_DESTINATION.message,
+      allPagesConnected: EXCEPTIONS.NOT_ALL_PAGES_CONNECTED.message,
+    };
+
+    return R.pipe(
+      R.pickBy(R.complement(R.identity)),
+      R.keys,
+      R.map(key => failedMessages[key]),
+    )(flags);
   }
 }
