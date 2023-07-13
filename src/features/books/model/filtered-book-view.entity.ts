@@ -1,10 +1,9 @@
-import {Book, BookStatus} from "@/features/books/model/book.entity";
+import {BookStatus} from "@/features/books/model/book.entity";
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {
-  DataSource,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -15,10 +14,30 @@ import {
 } from "typeorm";
 
 @ViewEntity({
-  expression: (dataSource: DataSource) =>
-    dataSource.createQueryBuilder().from(Book, "book").where("book.status <> 'DELETED'"),
+  expression: `
+    WITH viewed_count AS (
+      SELECT "bookId", COUNT("bookId")
+      FROM book_viewed
+      GROUP BY "bookId"
+    ), liked_count AS (
+      SELECT "bookId", COUNT("bookId")
+      FROM book_liked
+      GROUP BY "bookId"
+    )
+    SELECT
+      book.*,
+      COALESCE(viewed_count.count::integer, 0) AS viewed,
+      COALESCE(liked_count.count::integer, 0) AS liked
+    FROM
+      book LEFT JOIN viewed_count
+      ON book.id = viewed_count."bookId"
+      LEFT JOIN liked_count
+      ON book.id = liked_Count."bookId"
+    WHERE
+      book.status <> 'DELETED'
+  `,
 })
-export class BookFilteredView {
+export class FilteredBookView {
   @ViewColumn()
   @PrimaryColumn()
   id: number;
@@ -40,6 +59,12 @@ export class BookFilteredView {
 
   @ViewColumn()
   authorId: number;
+
+  @ViewColumn()
+  viewed: number;
+
+  @ViewColumn()
+  liked: number;
 
   @ManyToOne(() => Member, member => member.books)
   @JoinColumn({name: "authorId"})

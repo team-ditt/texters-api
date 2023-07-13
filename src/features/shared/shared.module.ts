@@ -1,7 +1,9 @@
+import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
-import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
+import {FilteredBookView} from "@/features/books/model/filtered-book-view.entity";
+import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {FilesService} from "@/features/files/files.service";
@@ -21,8 +23,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     TypeOrmModule.forFeature([
       File,
       Book,
-      BookFilteredView,
+      FilteredBookView,
+      PublishedBookView,
       BookViewed,
+      BookLiked,
       Lane,
       Page,
       Choice,

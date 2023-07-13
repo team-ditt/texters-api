@@ -1,7 +1,7 @@
-import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
+import {FilteredBookView} from "@/features/books/model/filtered-book-view.entity";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {EXCEPTIONS} from "@/features/exceptions/exceptions";
@@ -22,8 +22,8 @@ export class BooksService {
     private readonly lanesService: LanesService,
     private readonly pagesService: PagesService,
     @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
-    @InjectRepository(BookFilteredView)
-    private readonly filteredBooksRepository: Repository<BookFilteredView>,
+    @InjectRepository(FilteredBookView)
+    private readonly filteredBooksRepository: Repository<FilteredBookView>,
     @InjectRepository(BookViewed)
     private readonly bookViewedRepository: Repository<BookViewed>,
   ) {}
@@ -133,7 +133,7 @@ export class BooksService {
     this.bookViewedRepository.save(BookViewed.of(bookId));
   }
 
-  private validateCanPublish(book: Book | BookFilteredView) {
+  private validateCanPublish(book: Book | FilteredBookView) {
     const pages = book.lanes.flatMap(lane => lane.pages);
     const choices = pages.flatMap(page => page.choices);
 
