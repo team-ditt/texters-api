@@ -4,7 +4,7 @@ import {Injectable} from "@nestjs/common";
 @Injectable()
 export class PaginationMapper {
   toPagination(page: number, limit: number, totalCount: number) {
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalPages = totalCount ? Math.ceil(totalCount / limit) : 1;
     if (page > totalPages) throw new TextersHttpException("INVALID_PAGE_PARAM");
     return {
       page,
