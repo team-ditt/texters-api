@@ -62,4 +62,8 @@ export class Book {
   static of(title: string, description: string) {
     return new Book(title, description);
   }
+
+  isDeleted() {
+    return this.status === "DELETED";
+  }
 }

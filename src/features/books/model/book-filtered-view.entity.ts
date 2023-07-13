@@ -54,4 +54,8 @@ export class BookFilteredView {
 
   @OneToMany(() => Page, page => page.book)
   pages: Page[];
+
+  isPublished() {
+    return this.status === "PUBLISHED";
+  }
 }

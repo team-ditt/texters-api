@@ -46,7 +46,9 @@ export class PagesService {
     });
     if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
 
-    this.booksService.logBookViewed(bookId);
+    const book = await this.booksService.findBookById(bookId);
+    if (book.isPublished()) this.booksService.logBookViewed(bookId);
+
     return introPage;
   }
 

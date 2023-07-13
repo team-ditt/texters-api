@@ -91,7 +91,7 @@ export class BooksService {
 
   async updateBookById(id: number, updateBookDto: UpdateBookDto) {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, updateBookDto);
     await this.booksRepository.save(book);
@@ -104,7 +104,7 @@ export class BooksService {
       where: {id},
       relations: {lanes: {pages: {choices: true}}},
     });
-    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     const {canPublish} = this.validateCanPublish(book);
     if (!canPublish) throw new TextersHttpException("CANNOT_PUBLISH");
@@ -117,7 +117,7 @@ export class BooksService {
 
   async deleteBookById(id: number) {
     const book = await this.booksRepository.findOne({where: {id}});
-    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     book.status = "DELETED";
     await this.booksRepository.save(book);
@@ -125,7 +125,7 @@ export class BooksService {
 
   async isAuthor(memberId: number, bookId: number) {
     const book = await this.booksRepository.findOne({where: {id: bookId}});
-    if (!book || book.status === "DELETED") throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
 
@@ -133,7 +133,7 @@ export class BooksService {
     this.bookViewedRepository.save(BookViewed.of(bookId));
   }
 
-  private validateCanPublish(book: Book) {
+  private validateCanPublish(book: Book | BookFilteredView) {
     const pages = book.lanes.flatMap(lane => lane.pages);
     const choices = pages.flatMap(page => page.choices);
 
