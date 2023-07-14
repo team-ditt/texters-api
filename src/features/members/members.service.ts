@@ -7,22 +7,22 @@ import {FindOptionsWhere, Repository} from "typeorm";
 export class MembersService {
   constructor(
     @InjectRepository(Member)
-    private readonly membersRepository: Repository<Member>,
+    private readonly memberRepository: Repository<Member>,
   ) {}
 
   findById(id: number) {
-    return this.membersRepository.findOne({where: {id}});
+    return this.memberRepository.findOne({where: {id}});
   }
 
   findByOauthId(oauthId: string) {
-    return this.membersRepository.findOne({where: {oauthId}});
+    return this.memberRepository.findOne({where: {oauthId}});
   }
 
   create(email: string, penName: string) {
-    return this.membersRepository.save(Member.of(email, penName));
+    return this.memberRepository.save(Member.of(email, penName));
   }
 
   isExist(where: FindOptionsWhere<Member>) {
-    return this.membersRepository.exist({where});
+    return this.memberRepository.exist({where});
   }
 }

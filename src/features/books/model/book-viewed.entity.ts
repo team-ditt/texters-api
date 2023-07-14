@@ -8,7 +8,7 @@ export class BookViewed {
   @Column()
   bookId: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
 
   constructor(bookId: number) {

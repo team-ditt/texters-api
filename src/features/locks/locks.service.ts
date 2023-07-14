@@ -8,16 +8,16 @@ import {Repository} from "typeorm";
 export class LocksService {
   constructor(
     @InjectRepository(FlowChartLock)
-    private readonly flowChartLocksRepository: Repository<FlowChartLock>,
+    private readonly flowChartLockRepository: Repository<FlowChartLock>,
   ) {}
 
   async lockFlowChart(bookId: number) {
     const key = randomUUID();
-    return await this.flowChartLocksRepository.save(FlowChartLock.of(bookId, key));
+    return await this.flowChartLockRepository.save(FlowChartLock.of(bookId, key));
   }
 
   async canEditFlowChart(id: number, key: string) {
-    const lock = await this.flowChartLocksRepository.findOne({where: {id}});
+    const lock = await this.flowChartLockRepository.findOne({where: {id}});
     return lock.key === key;
   }
 }

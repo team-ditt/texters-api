@@ -34,10 +34,10 @@ import {
       LEFT JOIN liked_count
       ON book.id = liked_Count."bookId"
     WHERE
-      book.status <> 'DELETED'
+      book."deletedAt" IS NULL
   `,
 })
-export class FilteredBookView {
+export class BookView {
   @ViewColumn()
   @PrimaryColumn()
   id: number;
@@ -55,7 +55,7 @@ export class FilteredBookView {
   createdAt: Date;
 
   @ViewColumn()
-  modifiedAt: Date;
+  updatedAt: Date;
 
   @ViewColumn()
   authorId: number;

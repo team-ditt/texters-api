@@ -1,9 +1,9 @@
 import {BookOrderBy, BookSearchParams} from "@/features/books/model/book-search.params";
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
+import {BookView} from "@/features/books/model/book-view.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
-import {FilteredBookView} from "@/features/books/model/filtered-book-view.entity";
 import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {Choice} from "@/features/choices/model/choice.entity";
@@ -24,13 +24,13 @@ export class BooksService {
     private readonly filesService: FilesService,
     private readonly lanesService: LanesService,
     private readonly pagesService: PagesService,
-    @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
+    @InjectRepository(Book) private readonly bookRepository: Repository<Book>,
     @InjectRepository(BookTitleSearch)
     private readonly bookTitleSearchRepository: Repository<BookTitleSearch>,
-    @InjectRepository(FilteredBookView)
-    private readonly filteredBooksRepository: Repository<FilteredBookView>,
+    @InjectRepository(BookView)
+    private readonly bookViewRepository: Repository<BookView>,
     @InjectRepository(PublishedBookView)
-    private readonly publishedBooksRepository: Repository<PublishedBookView>,
+    private readonly publishedBookViewRepository: Repository<PublishedBookView>,
     @InjectRepository(BookViewed)
     private readonly bookViewedRepository: Repository<BookViewed>,
     private readonly dataSource: DataSource,
@@ -43,17 +43,17 @@ export class BooksService {
     book.authorId = authorId;
     book.coverImage = await this.filesService.findById(coverImageId);
 
-    const {id: bookId} = await this.booksRepository.save(book);
+    const {id: bookId} = await this.bookRepository.save(book);
     const {id: laneId} = await this.lanesService.createIntroLane(bookId);
     await this.pagesService.createIntroPage(bookId, laneId);
     return await this.findBookById(bookId);
   }
 
   async findBooksByAuthorId(authorId: number, page: number, limit: number) {
-    const [books, totalCount] = await this.filteredBooksRepository.findAndCount({
+    const [books, totalCount] = await this.bookViewRepository.findAndCount({
       where: {authorId},
       relations: {author: true, coverImage: true, lanes: {pages: {choices: true}}},
-      order: {modifiedAt: "DESC"},
+      order: {updatedAt: "DESC"},
       take: limit,
       skip: (page - 1) * limit,
     });
@@ -80,11 +80,11 @@ export class BooksService {
         case BookOrderBy.LIKED:
           return "liked";
         case BookOrderBy.PUBLISHED_DATE:
-          return "modifiedAt";
+          return "updatedAt";
       }
     })();
 
-    const [books, totalCount] = await this.publishedBooksRepository
+    const [books, totalCount] = await this.publishedBookViewRepository
       .createQueryBuilder("book")
       .leftJoin(BookTitleSearch, "bookTitleSearch", "book.id = bookTitleSearch.id")
       .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
@@ -121,7 +121,7 @@ export class BooksService {
   }
 
   async findBookById(id: number) {
-    const book = await this.filteredBooksRepository.findOne({
+    const book = await this.bookViewRepository.findOne({
       where: {id},
       relations: {author: true, coverImage: true},
     });
@@ -130,7 +130,7 @@ export class BooksService {
   }
 
   async loadFlowChart(id: number) {
-    return await this.booksRepository
+    return await this.bookRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
@@ -147,45 +147,44 @@ export class BooksService {
   }
 
   async updateBookById(id: number, updateBookDto: UpdateBookDto) {
-    const book = await this.booksRepository.findOne({where: {id}});
-    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
+    const book = await this.bookRepository.findOne({where: {id}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, updateBookDto);
-    await this.booksRepository.save(book);
+    await this.bookRepository.save(book);
 
     return await this.findBookById(id);
   }
 
   async publishBookById(id: number) {
-    const book = await this.booksRepository.findOne({
+    const book = await this.bookRepository.findOne({
       where: {id},
       relations: {lanes: {pages: {choices: true}}},
     });
-    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     if (book.isPublished()) throw new TextersHttpException("ALREADY_PUBLISHED");
 
     const {canPublish} = this.validateCanPublish(book);
     if (!canPublish) throw new TextersHttpException("CANNOT_PUBLISH");
 
     book.status = "PUBLISHED";
-    await this.booksRepository.save(book);
+    await this.bookRepository.save(book);
     this.updateSearchIndex(book);
 
     return await this.findBookById(id);
   }
 
   async deleteBookById(id: number) {
-    const book = await this.booksRepository.findOne({where: {id}});
-    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
+    const book = await this.bookRepository.findOne({where: {id}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     if (book.isPublished()) this.bookTitleSearchRepository.delete({id: book.id});
-    book.status = "DELETED";
-    await this.booksRepository.save(book);
+    await this.bookRepository.softRemove(book);
   }
 
   async isAuthor(memberId: number, bookId: number) {
-    const book = await this.booksRepository.findOne({where: {id: bookId}});
-    if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
+    const book = await this.bookRepository.findOne({where: {id: bookId}});
+    if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
 
@@ -193,7 +192,7 @@ export class BooksService {
     this.bookViewedRepository.save(BookViewed.of(bookId));
   }
 
-  private validateCanPublish(book: Book | FilteredBookView) {
+  private validateCanPublish(book: Book | BookView) {
     const pages = book.lanes.flatMap(lane => lane.pages);
     const choices = pages.flatMap(page => page.choices);
 
