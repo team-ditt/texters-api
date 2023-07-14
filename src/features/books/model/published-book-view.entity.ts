@@ -8,4 +8,4 @@ import {DataSource, ViewEntity} from "typeorm";
       .from(FilteredBookView, "book")
       .where("book.status = 'PUBLISHED'"),
 })
-export class PublishedBookView {}
+export class PublishedBookView extends FilteredBookView {}

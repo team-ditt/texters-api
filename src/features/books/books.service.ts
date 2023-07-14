@@ -1,8 +1,10 @@
+import {BookOrderBy, BookSearchParams} from "@/features/books/model/book-search.params";
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {FilteredBookView} from "@/features/books/model/filtered-book-view.entity";
+import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {EXCEPTIONS} from "@/features/exceptions/exceptions";
@@ -27,6 +29,8 @@ export class BooksService {
     private readonly bookTitleSearchRepository: Repository<BookTitleSearch>,
     @InjectRepository(FilteredBookView)
     private readonly filteredBooksRepository: Repository<FilteredBookView>,
+    @InjectRepository(PublishedBookView)
+    private readonly publishedBooksRepository: Repository<PublishedBookView>,
     @InjectRepository(BookViewed)
     private readonly bookViewedRepository: Repository<BookViewed>,
   ) {}
@@ -64,6 +68,32 @@ export class BooksService {
     }) as (Book & {canPublish: boolean; publishErrors: string[]})[];
 
     return {books: refinedBooks, totalCount};
+  }
+
+  async findPublishedBooks({query, order, page, limit}: BookSearchParams) {
+    const refinedQuery = query.toLowerCase().replace(/\s/g, "");
+    const orderBy = (() => {
+      switch (order) {
+        case BookOrderBy.VIEWED:
+          return "viewed";
+        case BookOrderBy.LIKED:
+          return "liked";
+        case BookOrderBy.PUBLISHED_DATE:
+          return "modifiedAt";
+      }
+    })();
+
+    const [books, totalCount] = await this.publishedBooksRepository
+      .createQueryBuilder("book")
+      .leftJoin(BookTitleSearch, "bookTitleSearch", "book.id = bookTitleSearch.id")
+      .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
+      .orderBy(`book.${orderBy}`, "DESC")
+      .addOrderBy("book.title")
+      .take(limit)
+      .skip((page - 1) * limit)
+      .getManyAndCount();
+
+    return {books, totalCount};
   }
 
   async findBookById(id: number) {

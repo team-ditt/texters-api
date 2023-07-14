@@ -2,11 +2,12 @@ import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {BookMapper} from "@/features/books/book.mapper";
 import {BooksService} from "@/features/books/books.service";
 import {DashBoardGuard} from "@/features/books/dash-board-guard";
+import {BookSearchParams} from "@/features/books/model/book-search.params";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book-request.dto";
 import {LocksService} from "@/features/locks/locks.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
-import {PaginationParams} from "@/features/shared/model/pagination.prams";
+import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {
   Body,
@@ -50,6 +51,15 @@ export class BooksController {
     return {
       data: books.map(book => this.bookMapper.toResponse(book)),
       ...this.paginationMapper.toPagination(page, limit, totalCount),
+    };
+  }
+
+  @Get("books")
+  async findPublishedBooks(@Query() searchParams: BookSearchParams) {
+    const {books, totalCount} = await this.booksService.findPublishedBooks(searchParams);
+    return {
+      data: books.map(book => this.bookMapper.toResponse(book)),
+      ...this.paginationMapper.toPagination(searchParams.page, searchParams.limit, totalCount),
     };
   }
 
