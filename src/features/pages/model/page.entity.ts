@@ -26,11 +26,11 @@ export class Page {
   @Column()
   order: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
 
-  @UpdateDateColumn()
-  modifiedAt: Date;
+  @UpdateDateColumn({type: "timestamptz"})
+  updatedAt: Date;
 
   @Column()
   bookId: number;

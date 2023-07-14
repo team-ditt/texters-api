@@ -1,6 +1,11 @@
+import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
-import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
+import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
+import {BookView} from "@/features/books/model/book-view.entity";
+import {BookViewed} from "@/features/books/model/book-viewed.entity";
+import {BookWeeklyViewedView} from "@/features/books/model/book-weekly-viewed-view.entity";
 import {Book} from "@/features/books/model/book.entity";
+import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {FilesService} from "@/features/files/files.service";
@@ -11,14 +16,44 @@ import {LocksService} from "@/features/locks/locks.service";
 import {FlowChartLock} from "@/features/locks/model/flow-chart-lock.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
+import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([File, Book, BookFilteredView, Lane, Page, Choice, FlowChartLock]),
+    TypeOrmModule.forFeature([
+      File,
+      Book,
+      BookView,
+      PublishedBookView,
+      BookTitleSearch,
+      BookViewed,
+      BookWeeklyViewedView,
+      BookLiked,
+      Lane,
+      Page,
+      Choice,
+      FlowChartLock,
+    ]),
   ],
-  exports: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],
-  providers: [FilesService, BooksService, LanesService, PagesService, ChoicesService, LocksService],
+  exports: [
+    PaginationMapper,
+    FilesService,
+    BooksService,
+    LanesService,
+    PagesService,
+    ChoicesService,
+    LocksService,
+  ],
+  providers: [
+    PaginationMapper,
+    FilesService,
+    BooksService,
+    LanesService,
+    PagesService,
+    ChoicesService,
+    LocksService,
+  ],
 })
 export class SharedModule {}

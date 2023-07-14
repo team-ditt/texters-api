@@ -118,6 +118,46 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.CONFLICT,
     message: "다른 클라이언트에서 작품을 수정 중입니다. 새로고침해주세요.",
   },
+  NOT_AUTHORIZED_MEMBER: {
+    code: 1020,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "작업을 수행할 권한이 없습니다.",
+  },
+  NOT_ALL_PAGES_HAVE_CONTENT: {
+    code: 1021,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "페이지엔 내용이 필요해요, 뭐라도 써주세요!",
+  },
+  NOT_ALL_CHOICES_HAVE_DESTINATION: {
+    code: 1022,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "선택에는 결과가 따르는 법, 선택지를 다른 페이지와 연결해주세요!",
+  },
+  NOT_ALL_PAGES_CONNECTED: {
+    code: 1023,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "선택없는 결과는 없다! 페이지에 선택지를 연결해주세요!",
+  },
+  INVALID_PAGE_PARAM: {
+    code: 1024,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "잘못된 페이지 번호입니다.",
+  },
+  CANNOT_PUBLISH: {
+    code: 1025,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "공개할 수 없는 작품입니다.",
+  },
+  INTERNAL_SERVER_ERROR: {
+    code: 1026,
+    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: "작업 도중 서버에서 오류가 발생했습니다.",
+  },
+  ALREADY_PUBLISHED: {
+    code: 1027,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "이미 공개된 작품입니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

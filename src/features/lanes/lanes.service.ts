@@ -10,25 +10,25 @@ export class LanesService {
   constructor(
     @Inject(forwardRef(() => PagesService))
     private readonly pagesService: PagesService,
-    @InjectRepository(Lane) private readonly lanesRepository: Repository<Lane>,
+    @InjectRepository(Lane) private readonly laneRepository: Repository<Lane>,
   ) {}
 
   async createIntroLane(bookId: number) {
-    return await this.lanesRepository.save(Lane.of(bookId, 0));
+    return await this.laneRepository.save(Lane.of(bookId, 0));
   }
 
   async createLane(bookId: number, order: number) {
     if (order === 0) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
-    const lanes = await this.lanesRepository.find({where: {bookId}, order: {order: "ASC"}});
+    const lanes = await this.laneRepository.find({where: {bookId}, order: {order: "ASC"}});
     if (lanes.length < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("increase", bookId, order);
-    return await this.lanesRepository.save(Lane.of(bookId, order));
+    return await this.laneRepository.save(Lane.of(bookId, order));
   }
 
   async deleteLaneById(id: number) {
-    const lane = await this.lanesRepository.findOne({where: {id}});
+    const lane = await this.laneRepository.findOne({where: {id}});
     if (lane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
     const hasAnyPages = this.pagesService.hasAnyPages(lane.id);
@@ -36,12 +36,12 @@ export class LanesService {
 
     await Promise.all([
       this.reorder("decrease", lane.bookId, lane.order + 1),
-      this.lanesRepository.remove(lane),
+      this.laneRepository.remove(lane),
     ]);
   }
 
   async isAuthor(memberId: number, laneId: number) {
-    const lane = await this.lanesRepository.findOne({
+    const lane = await this.laneRepository.findOne({
       where: {id: laneId},
       relations: {book: true},
     });
@@ -50,12 +50,12 @@ export class LanesService {
   }
 
   async findLaneWithPagesById(id: number) {
-    return this.lanesRepository.findOne({where: {id}, relations: {pages: true}});
+    return this.laneRepository.findOne({where: {id}, relations: {pages: true}});
   }
 
   private async reorder(type: "increase" | "decrease", bookId: number, from: number) {
     const setOrderQuery = () => (type === "increase" ? "order + 1" : "order - 1");
-    await this.lanesRepository
+    await this.laneRepository
       .createQueryBuilder()
       .update()
       .set({order: setOrderQuery})

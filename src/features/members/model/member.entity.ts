@@ -28,7 +28,7 @@ export class Member {
   createdAt: Date;
 
   @UpdateDateColumn({type: "timestamptz"})
-  modifiedAt: Date;
+  updatedAt: Date;
 
   @OneToMany(() => Book, book => book.author)
   books: Book[];

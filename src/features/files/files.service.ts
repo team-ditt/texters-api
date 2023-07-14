@@ -14,7 +14,7 @@ export class FilesService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(File) private readonly filesRepository: Repository<File>,
+    @InjectRepository(File) private readonly fileRepository: Repository<File>,
   ) {
     this.s3 = new S3Client({
       credentials: {
@@ -30,18 +30,18 @@ export class FilesService {
     const {extension, buffer} = await this.refineImage(image);
 
     const directory = "books/cover";
-    const {uuid} = await this.filesRepository.save(File.of(directory, extension));
+    const {uuid} = await this.fileRepository.save(File.of(directory, extension));
     try {
       await this.tryUploadBufferToS3Bucket(`${directory}/${uuid}.${extension}`, buffer);
     } catch {
-      await this.filesRepository.delete(uuid);
+      await this.fileRepository.delete(uuid);
       throw new TextersHttpException("FAILED_UPLOAD_TO_AWS");
     }
     return {coverImageId: uuid};
   }
 
   async findById(uuid: string) {
-    return await this.filesRepository.findOne({where: {uuid}});
+    return await this.fileRepository.findOne({where: {uuid}});
   }
 
   private async refineImage(image: Express.Multer.File) {

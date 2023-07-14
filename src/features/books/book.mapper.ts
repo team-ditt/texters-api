@@ -1,26 +1,16 @@
-import {BookFilteredView} from "@/features/books/model/book-filtered-view.entity";
-import {Book, BookStatus} from "@/features/books/model/book.entity";
-import {AuthorDto, MemberMapper} from "@/features/members/member.mapper";
+import {BookView} from "@/features/books/model/book-view.entity";
+import {Book} from "@/features/books/model/book.entity";
+import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
+import {MemberMapper} from "@/features/members/member.mapper";
 import {Member} from "@/features/members/model/member.entity";
 import {Injectable} from "@nestjs/common";
 import * as R from "ramda";
-
-type BookResponseDto = {
-  id: number;
-  author: AuthorDto;
-  coverImageUrl: string | null;
-  title: string;
-  description: string;
-  status: BookStatus;
-  createdAt: Date;
-  modifiedAt: Date;
-};
 
 @Injectable()
 export class BookMapper {
   constructor(private readonly memberMapper: MemberMapper) {}
 
-  toResponse(entity: Book | BookFilteredView) {
+  toResponse(entity: Book | BookView | PublishedBookView) {
     const toAuthor = (member: Member) => this.memberMapper.toAuthor(member);
     const coverImageUrl = entity.coverImage?.toUrl ?? null;
     return R.pipe(

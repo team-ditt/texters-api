@@ -21,11 +21,11 @@ export class File {
   @Column()
   extension: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
 
-  @UpdateDateColumn()
-  modifiedAt: Date;
+  @UpdateDateColumn({type: "timestamptz"})
+  updatedAt: Date;
 
   @OneToOne(() => Book, book => book.coverImage)
   book: Book;

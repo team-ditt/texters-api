@@ -5,6 +5,7 @@ import {Page} from "@/features/pages/model/page.entity";
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -14,7 +15,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-export type BookStatus = "DRAFT" | "PUBLISHED" | "DELETED";
+export type BookStatus = "DRAFT" | "PUBLISHED";
 
 @Entity()
 export class Book {
@@ -30,11 +31,14 @@ export class Book {
   @Column()
   status: BookStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
 
-  @UpdateDateColumn()
-  modifiedAt: Date;
+  @UpdateDateColumn({type: "timestamptz"})
+  updatedAt: Date;
+
+  @DeleteDateColumn({type: "timestamptz"})
+  deletedAt?: Date;
 
   @Column()
   authorId: number;
@@ -61,5 +65,9 @@ export class Book {
 
   static of(title: string, description: string) {
     return new Book(title, description);
+  }
+
+  isPublished() {
+    return this.status === "PUBLISHED";
   }
 }
