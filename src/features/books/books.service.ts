@@ -16,7 +16,7 @@ import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as R from "ramda";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 @Injectable()
 export class BooksService {
@@ -33,6 +33,7 @@ export class BooksService {
     private readonly publishedBooksRepository: Repository<PublishedBookView>,
     @InjectRepository(BookViewed)
     private readonly bookViewedRepository: Repository<BookViewed>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createBook(authorId: number, createBookDto: CreateBookDto) {
@@ -94,6 +95,29 @@ export class BooksService {
       .getManyAndCount();
 
     return {books, totalCount};
+  }
+
+  async findWeeklyMostViewedBooks(page: number, limit: number) {
+    const query = `
+      SELECT
+        book.*,
+        COALESCE(weekly.viewed::integer, 0) AS "weeklyViewed"
+      FROM published_book_view AS book LEFT JOIN book_weekly_viewed_view AS weekly
+        ON book.id = weekly.id
+      ORDER BY
+        "weeklyViewed" DESC,
+        book.title ASC
+    `;
+    const [books, [{count: totalCount}]] = await Promise.all([
+      this.dataSource.createQueryRunner().query(`
+        ${query} LIMIT ${limit} OFFSET ${(page - 1) * limit}
+      `),
+      this.dataSource.createQueryRunner().query(`
+        SELECT COUNT(*) FROM (${query}) AS query
+      `),
+    ]);
+
+    return {books, totalCount: parseInt(totalCount)};
   }
 
   async findBookById(id: number) {
