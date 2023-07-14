@@ -63,6 +63,10 @@ export class Book {
     return new Book(title, description);
   }
 
+  isPublished() {
+    return this.status === "PUBLISHED";
+  }
+
   isDeleted() {
     return this.status === "DELETED";
   }

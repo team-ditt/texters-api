@@ -1,5 +1,6 @@
 import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
+import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {FilteredBookView} from "@/features/books/model/filtered-book-view.entity";
@@ -25,6 +26,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Book,
       FilteredBookView,
       PublishedBookView,
+      BookTitleSearch,
       BookViewed,
       BookLiked,
       Lane,

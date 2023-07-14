@@ -1,3 +1,4 @@
+import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book-request.dto";
@@ -22,6 +23,8 @@ export class BooksService {
     private readonly lanesService: LanesService,
     private readonly pagesService: PagesService,
     @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
+    @InjectRepository(BookTitleSearch)
+    private readonly bookTitleSearchRepository: Repository<BookTitleSearch>,
     @InjectRepository(FilteredBookView)
     private readonly filteredBooksRepository: Repository<FilteredBookView>,
     @InjectRepository(BookViewed)
@@ -105,12 +108,14 @@ export class BooksService {
       relations: {lanes: {pages: {choices: true}}},
     });
     if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
+    if (book.isPublished()) throw new TextersHttpException("ALREADY_PUBLISHED");
 
     const {canPublish} = this.validateCanPublish(book);
     if (!canPublish) throw new TextersHttpException("CANNOT_PUBLISH");
 
     book.status = "PUBLISHED";
     await this.booksRepository.save(book);
+    this.updateSearchIndex(book);
 
     return await this.findBookById(id);
   }
@@ -119,6 +124,7 @@ export class BooksService {
     const book = await this.booksRepository.findOne({where: {id}});
     if (!book || book.isDeleted()) throw new TextersHttpException("BOOK_NOT_FOUND");
 
+    if (book.isPublished()) this.bookTitleSearchRepository.delete({id: book.id});
     book.status = "DELETED";
     await this.booksRepository.save(book);
   }
@@ -173,5 +179,10 @@ export class BooksService {
       R.keys,
       R.map(key => failedMessages[key]),
     )(flags);
+  }
+
+  private async updateSearchIndex(book: Book) {
+    const index = book.title.toLowerCase().replace(/\s/g, "");
+    await this.bookTitleSearchRepository.save(BookTitleSearch.of(book.id, index));
   }
 }

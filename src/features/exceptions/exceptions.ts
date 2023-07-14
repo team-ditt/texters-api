@@ -148,6 +148,16 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "공개할 수 없는 작품입니다.",
   },
+  INTERNAL_SERVER_ERROR: {
+    code: 1026,
+    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: "작업 도중 서버에서 오류가 발생했습니다.",
+  },
+  ALREADY_PUBLISHED: {
+    code: 1027,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "이미 공개된 작품입니다.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
