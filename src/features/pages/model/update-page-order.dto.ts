@@ -1,7 +1,8 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
+import {IsInt, IsNotEmpty, Min} from "class-validator";
 
 export class UpdatePageOrderDto {
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   order: number;
 }
