@@ -34,7 +34,7 @@ export class PagesController {
     @Param("laneId") laneId: number,
     @Body() createPageDto: CreatePageDto,
   ) {
-    return this.pagesService.createPage(bookId, laneId, createPageDto.title);
+    return this.pagesService.createPage(bookId, laneId, createPageDto);
   }
 
   @Patch("books/:bookId/pages/:pageId")

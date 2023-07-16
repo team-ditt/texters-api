@@ -3,6 +3,7 @@ import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {LanesService} from "@/features/lanes/lanes.service";
+import {CreatePageDto} from "@/features/pages/model/create-page.dto";
 import {Page} from "@/features/pages/model/page.entity";
 import {UpdatePageLaneDto} from "@/features/pages/model/update-page-lane.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
@@ -29,11 +30,14 @@ export class PagesService {
     return await this.pageRepository.save(Page.of(bookId, laneId, INTRO_PAGE_TITLE, 0));
   }
 
-  async createPage(bookId: number, laneId: number, title: string) {
+  async createPage(bookId: number, laneId: number, {title, order}: CreatePageDto) {
     const pagesInBook = await this.pageRepository.count({where: {bookId}});
     if (pagesInBook >= 100) throw new TextersHttpException("TOO_MANY_PAGES");
 
     const pagesInLane = await this.pageRepository.count({where: {laneId}});
+    if (pagesInLane < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
+
+    await this.reorder("increase", laneId, order);
     const page = Page.of(bookId, laneId, title, pagesInLane);
     return await this.pageRepository.save(page);
   }
