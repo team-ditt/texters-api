@@ -6,6 +6,7 @@ import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {PageMapper} from "@/features/pages/page.mapper";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
+import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {
   Body,
   Controller,
@@ -24,6 +25,7 @@ export class PagesController {
   constructor(
     private readonly pagesService: PagesService,
     private readonly pageMapper: PageMapper,
+    private readonly paginationMapper: PaginationMapper,
   ) {}
 
   @Post("books/:bookId/lanes/:laneId/pages")
@@ -34,13 +36,7 @@ export class PagesController {
     @Param("laneId") laneId: number,
     @Body() createPageDto: CreatePageDto,
   ) {
-    return this.pagesService.createPage(bookId, laneId, createPageDto.title);
-  }
-
-  @Patch("books/:bookId/pages/:pageId")
-  @UseGuards(AuthGuard, FlowChartGuard)
-  updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.updatePageById(pageId, updatePageDto);
+    return this.pagesService.createPage(bookId, laneId, createPageDto);
   }
 
   @Get("books/:bookId/intro-page")
@@ -53,6 +49,12 @@ export class PagesController {
   async findPage(@Param("pageId") pageId: number) {
     const page = await this.pagesService.findPageById(pageId);
     return this.pageMapper.toResponse(page);
+  }
+
+  @Patch("books/:bookId/pages/:pageId")
+  @UseGuards(AuthGuard, FlowChartGuard)
+  updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
+    return this.pagesService.updatePageById(pageId, updatePageDto);
   }
 
   @Patch("books/:bookId/pages/:pageId/order")

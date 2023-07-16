@@ -1,7 +1,8 @@
-import {IsNumber, IsOptional} from "class-validator";
+import {IsInt, IsOptional, IsPositive} from "class-validator";
 
 export class UpdateChoiceDestinationDto {
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   destinationPageId: number;
 }

@@ -1,11 +1,13 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
+import {IsInt, IsNotEmpty, IsPositive, Min} from "class-validator";
 
 export class UpdatePageLaneDto {
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   laneId: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   order: number;
 }
