@@ -45,7 +45,7 @@ export class FilesService {
   }
 
   private async refineImage(image: Express.Multer.File) {
-    const targetWidth = 667;
+    const targetWidth = 1000;
     const targetHeight = 1000;
     const targetExtension = "webp";
     return {
