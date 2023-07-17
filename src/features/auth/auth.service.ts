@@ -70,7 +70,7 @@ export class AuthService {
           {
             grant_type: "authorization_code",
             client_id: this.configService.get<string>("OAUTH_KAKAO_CLIENT_ID"),
-            redirect_uri: this.configService.get<string>("CLIENT_URL") + "/login/oauth/kakao",
+            redirect_uri: this.configService.get<string>("CLIENT_URL") + "/sign-in?oauth=kakao",
             code: authorizationCode,
           },
           {headers: {"Content-Type": "application/x-www-form-urlencoded;charset=utf-8"}},
@@ -103,7 +103,7 @@ export class AuthService {
             grant_type: "authorization_code",
             client_id: clientId,
             client_secret: clientSecret,
-            redirect_uri: this.configService.get<string>("CLIENT_URL") + "/login/oauth/naver",
+            redirect_uri: this.configService.get<string>("CLIENT_URL") + "/sign-in?oauth=naver",
             code: authorizationCode,
           },
           headers: {
@@ -130,7 +130,7 @@ export class AuthService {
   private async signInWithGoogle(authorizationCode: string): Promise<string> {
     const clientId = this.configService.get<string>("OAUTH_GOOGLE_CLIENT_ID");
     const clientSecret = this.configService.get<string>("OAUTH_GOOGLE_CLIENT_SECRET");
-    const redirectUri = this.configService.get<string>("CLIENT_URL") + "/login/oauth/google";
+    const redirectUri = this.configService.get<string>("CLIENT_URL") + "/sign-in?oauth=google";
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
     // 1. 인증코드로 ID 토큰 발급
