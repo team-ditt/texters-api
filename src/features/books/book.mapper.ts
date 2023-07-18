@@ -12,7 +12,7 @@ export class BookMapper {
 
   toResponse(entity: Book | BookView | PublishedBookView) {
     const toAuthor = (member: Member) => this.memberMapper.toAuthor(member);
-    const coverImageUrl = entity.coverImage?.toUrl ?? null;
+    const coverImageUrl = entity.coverImage?.toUrl() ?? null;
     return R.pipe(
       R.evolve({author: toAuthor}),
       R.omit(["authorId", "coverImage"]),
