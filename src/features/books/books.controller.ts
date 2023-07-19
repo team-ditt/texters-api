@@ -64,12 +64,9 @@ export class BooksController {
   }
 
   @Get("books/weekly-most-viewed")
-  async findWeeklyMostViewedBooks(@Query() {page, limit}: PaginationParams) {
-    const {books, totalCount} = await this.booksService.findWeeklyMostViewedBooks(page, limit);
-    return {
-      data: books.map(book => this.bookMapper.toResponse(book)),
-      ...this.paginationMapper.toPagination(page, limit, totalCount),
-    };
+  async findWeeklyMostViewedBooks(@Query() {limit}: PaginationParams) {
+    const books = await this.booksService.findWeeklyMostViewedBooks(limit);
+    return books.map(book => this.bookMapper.rawToResponse(book));
   }
 
   @Get("books/:bookId")

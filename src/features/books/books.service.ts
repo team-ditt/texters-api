@@ -2,6 +2,7 @@ import {BookOrderBy, BookSearchParams} from "@/features/books/model/book-search.
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
 import {BookView} from "@/features/books/model/book-view.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
+import {BookWeeklyViewedView} from "@/features/books/model/book-weekly-viewed-view.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {CreateBookDto} from "@/features/books/model/create-book.dto";
 import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
@@ -11,6 +12,7 @@ import {EXCEPTIONS} from "@/features/exceptions/exceptions";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
 import {LanesService} from "@/features/lanes/lanes.service";
+import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {Injectable} from "@nestjs/common";
@@ -87,6 +89,7 @@ export class BooksService {
     const [books, totalCount] = await this.publishedBookViewRepository
       .createQueryBuilder("book")
       .leftJoin(BookTitleSearch, "bookTitleSearch", "book.id = bookTitleSearch.id")
+      .leftJoinAndSelect("book.author", "member.books")
       .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
       .orderBy(`book.${orderBy}`, "DESC")
       .addOrderBy("book.title")
@@ -97,27 +100,23 @@ export class BooksService {
     return {books, totalCount};
   }
 
-  async findWeeklyMostViewedBooks(page: number, limit: number) {
-    const query = `
-      SELECT
-        book.*,
-        COALESCE(weekly.viewed::integer, 0) AS "weeklyViewed"
-      FROM published_book_view AS book LEFT JOIN book_weekly_viewed_view AS weekly
-        ON book.id = weekly.id
-      ORDER BY
-        "weeklyViewed" DESC,
-        book.title ASC
-    `;
-    const [books, [{count: totalCount}]] = await Promise.all([
-      this.dataSource.createQueryRunner().query(`
-        ${query} LIMIT ${limit} OFFSET ${(page - 1) * limit}
-      `),
-      this.dataSource.createQueryRunner().query(`
-        SELECT COUNT(*) FROM (${query}) AS query
-      `),
-    ]);
-
-    return {books, totalCount: parseInt(totalCount)};
+  async findWeeklyMostViewedBooks(limit: number) {
+    return await this.dataSource
+      .createQueryBuilder()
+      .from(PublishedBookView, "book")
+      .leftJoin(BookWeeklyViewedView, "weekly", "book.id = weekly.id")
+      .leftJoinAndSelect(Member, "author", "book.authorId = author.id")
+      .select([
+        "book.*",
+        "author.id",
+        "author.penName",
+        "author.createdAt",
+        'COALESCE(weekly.viewed::integer, 0) AS "weeklyViewed"',
+      ])
+      .orderBy('"weeklyViewed"', "DESC")
+      .addOrderBy("book.title", "ASC")
+      .limit(limit)
+      .getRawMany();
   }
 
   async findBookById(id: number) {
