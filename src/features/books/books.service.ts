@@ -43,7 +43,7 @@ export class BooksService {
 
     const book = Book.of(title, description);
     book.authorId = authorId;
-    book.coverImage = await this.filesService.findById(coverImageId);
+    if (coverImageId) book.coverImage = await this.filesService.findById(coverImageId);
 
     const {id: bookId} = await this.bookRepository.save(book);
     const {id: laneId} = await this.lanesService.createIntroLane(bookId);
