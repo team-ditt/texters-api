@@ -6,7 +6,6 @@ import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {PageMapper} from "@/features/pages/page.mapper";
 import {PagesService} from "@/features/pages/pages.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
-import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {
   Body,
   Controller,
@@ -25,7 +24,6 @@ export class PagesController {
   constructor(
     private readonly pagesService: PagesService,
     private readonly pageMapper: PageMapper,
-    private readonly paginationMapper: PaginationMapper,
   ) {}
 
   @Post("books/:bookId/lanes/:laneId/pages")

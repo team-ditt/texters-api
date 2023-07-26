@@ -47,6 +47,9 @@ export class Book {
   @JoinColumn({name: "authorId"})
   author: Member;
 
+  @Column({nullable: true})
+  coverImageId: number;
+
   @OneToOne(() => File, file => file.book, {nullable: true})
   @JoinColumn({name: "coverImageId"})
   coverImage: File;
