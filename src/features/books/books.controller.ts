@@ -54,6 +54,12 @@ export class BooksController {
     };
   }
 
+  @Get("members/:memberId/books/:bookId")
+  @UseGuards(AuthGuard, BookAuthorGuard)
+  async findMyBook(@Param("bookId") bookId: number) {
+    return this.findBook(bookId);
+  }
+
   @Get("books")
   async findPublishedBooks(@Query() searchParams: BookSearchParams) {
     const {books, totalCount} = await this.booksService.findPublishedBooks(searchParams);

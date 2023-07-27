@@ -154,7 +154,8 @@ export class AuthService {
     return {accessToken, refreshToken};
   }
 
-  private saveRefreshToken(id: number, refreshToken: string) {
+  private async saveRefreshToken(id: number, refreshToken: string) {
+    await this.authRepository.delete({id});
     this.authRepository.save(Auth.of(id, refreshToken));
   }
 }
