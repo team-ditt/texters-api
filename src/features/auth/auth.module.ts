@@ -16,7 +16,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
-        signOptions: {expiresIn: "30m"},
+        signOptions: {expiresIn: "1h"},
       }),
     }),
     HttpModule,

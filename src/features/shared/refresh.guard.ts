@@ -9,13 +9,13 @@ export class RefreshGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const refreshToken = request.cookies.RefreshToken;
-    if (!refreshToken) throw new TextersHttpException("INVALID_AUTH_TOKEN");
+    if (!refreshToken) throw new TextersHttpException("INVALID_REFRESH_TOKEN");
 
     try {
       const payload = this.jwtService.verify(refreshToken);
       request["member"] = payload.member;
     } catch {
-      throw new TextersHttpException("INVALID_AUTH_TOKEN");
+      throw new TextersHttpException("INVALID_REFRESH_TOKEN");
     }
     return true;
   }

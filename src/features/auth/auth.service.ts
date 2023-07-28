@@ -41,7 +41,9 @@ export class AuthService {
   async reissueAuthTokens(memberId: number, refreshToken: string) {
     const auth = await this.authRepository.findOne({where: {id: memberId}});
 
-    if (auth.refreshToken !== refreshToken) throw new TextersHttpException("INVALID_AUTH_TOKEN");
+    if (auth?.refreshToken !== refreshToken) {
+      throw new TextersHttpException("INVALID_REFRESH_TOKEN");
+    }
     const member = await this.membersService.findById(memberId);
     return this.issueAuthTokens(member);
   }
@@ -149,13 +151,13 @@ export class AuthService {
   private issueAuthTokens(member: Member) {
     const payload = {id: member.id, role: member.role, penName: member.penName};
     const accessToken = this.jwtService.sign({member: payload});
-    const refreshToken = this.jwtService.sign({member: payload}, {expiresIn: "1d"});
+    const refreshToken = this.jwtService.sign({member: payload}, {expiresIn: "7d"});
     this.saveRefreshToken(member.id, refreshToken);
     return {accessToken, refreshToken};
   }
 
   private async saveRefreshToken(id: number, refreshToken: string) {
     await this.authRepository.delete({id});
-    this.authRepository.save(Auth.of(id, refreshToken));
+    await this.authRepository.save(Auth.of(id, refreshToken));
   }
 }

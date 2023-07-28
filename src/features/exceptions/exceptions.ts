@@ -158,6 +158,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "이미 공개된 작품입니다.",
   },
+  INVALID_REFRESH_TOKEN: {
+    code: 1031,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    message: "세션이 만료되었어요. 다시 로그인해주세요.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
