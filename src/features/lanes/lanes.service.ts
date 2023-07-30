@@ -31,7 +31,7 @@ export class LanesService {
     const lane = await this.laneRepository.findOne({where: {id}});
     if (lane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
-    const hasAnyPages = this.pagesService.hasAnyPages(lane.id);
+    const hasAnyPages = await this.pagesService.hasAnyPages(lane.id);
     if (hasAnyPages) throw new TextersHttpException("NOT_EMPTY_LANE");
 
     await Promise.all([
