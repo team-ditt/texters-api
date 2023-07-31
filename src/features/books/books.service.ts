@@ -184,6 +184,7 @@ export class BooksService {
       this.bookRepository.remove(book),
       this.bookViewedRepository.delete({bookId: id}),
       this.bookLikedService.removeAllByBookId(id),
+      this.bookTitleSearchRepository.delete({id}),
     ]);
   }
 
