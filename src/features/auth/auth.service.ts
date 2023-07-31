@@ -4,7 +4,7 @@ import {TextersHttpException} from "@/features/exceptions/texters-http.exception
 import {MembersService} from "@/features/members/members.service";
 import {Member} from "@/features/members/model/member.entity";
 import {HttpService} from "@nestjs/axios";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -16,6 +16,7 @@ import {Repository} from "typeorm";
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => MembersService))
     private readonly membersService: MembersService,
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,

@@ -183,7 +183,7 @@ export class BooksService {
       book.coverImageId ? this.filesService.deleteById(book.coverImageId) : null,
       this.bookRepository.remove(book),
       this.bookViewedRepository.delete({bookId: id}),
-      this.bookLikedService.removeAllBookLikedByBookId(id),
+      this.bookLikedService.removeAllByBookId(id),
     ]);
   }
 

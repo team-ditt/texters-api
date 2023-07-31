@@ -1,6 +1,6 @@
 import {BackdoorController} from "@/features/backdoor/backdoor.controller";
 import {BackdoorService} from "@/features/backdoor/backdoor.service";
-import {MembersModule} from "@/features/members/members.module";
+import {SharedModule} from "@/features/shared/shared.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
@@ -16,7 +16,7 @@ import {JwtModule} from "@nestjs/jwt";
         signOptions: {expiresIn: "1d"},
       }),
     }),
-    MembersModule,
+    SharedModule,
   ],
   controllers: [BackdoorController],
   providers: [BackdoorService],
