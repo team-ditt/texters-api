@@ -1,7 +1,16 @@
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {MembersService} from "@/features/members/members.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
-import {Controller, Get, HttpCode, HttpStatus, Param, Request, UseGuards} from "@nestjs/common";
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Request,
+  UseGuards,
+} from "@nestjs/common";
 import {Response} from "express";
 
 @Controller("members")
@@ -20,5 +29,12 @@ export class MembersController {
   @HttpCode(HttpStatus.OK)
   getProfile(@Request() req: Response) {
     return this.membersService.findById(req["member"].id);
+  }
+
+  @Delete(":memberId")
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async withdrawById(@Param("memberId") memberId: number) {
+    return this.membersService.deleteById(memberId);
   }
 }

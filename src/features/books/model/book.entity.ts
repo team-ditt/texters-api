@@ -48,9 +48,9 @@ export class Book {
   author: Member;
 
   @Column({nullable: true})
-  coverImageId: number;
+  coverImageId: string;
 
-  @OneToOne(() => File, file => file.book, {nullable: true})
+  @OneToOne(() => File, file => file.book, {nullable: true, onDelete: "CASCADE"})
   @JoinColumn({name: "coverImageId"})
   coverImage: File;
 

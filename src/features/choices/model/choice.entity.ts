@@ -15,7 +15,7 @@ export class Choice {
   @Column()
   sourcePageId: number;
 
-  @ManyToOne(() => Page, page => page.choices)
+  @ManyToOne(() => Page, page => page.choices, {onDelete: "CASCADE"})
   sourcePage: Page;
 
   @Column({nullable: true})

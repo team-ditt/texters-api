@@ -13,7 +13,7 @@ export class Lane {
   @Column()
   bookId: number;
 
-  @ManyToOne(() => Book, book => book.lanes)
+  @ManyToOne(() => Book, book => book.lanes, {onDelete: "CASCADE"})
   @JoinColumn({name: "bookId"})
   book: Book;
 

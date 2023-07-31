@@ -1,3 +1,6 @@
+import {AuthService} from "@/features/auth/auth.service";
+import {Auth} from "@/features/auth/model/auth.entity";
+import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
@@ -14,21 +17,40 @@ import {LanesService} from "@/features/lanes/lanes.service";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {LocksService} from "@/features/locks/locks.service";
 import {FlowChartLock} from "@/features/locks/model/flow-chart-lock.entity";
+import {MemberMapper} from "@/features/members/member.mapper";
+import {MembersService} from "@/features/members/members.service";
+import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
+import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
+import {ConfigModule, ConfigService} from "@nestjs/config";
+import {JwtModule} from "@nestjs/jwt";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>("JWT_SECRET"),
+        signOptions: {expiresIn: "1h"},
+      }),
+    }),
+    HttpModule,
     TypeOrmModule.forFeature([
+      Auth,
+      Member,
       File,
       Book,
       BookView,
       PublishedBookView,
       BookTitleSearch,
       BookViewed,
+      BookLiked,
       BookWeeklyViewedView,
       BookLiked,
       Lane,
@@ -38,18 +60,26 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     ]),
   ],
   exports: [
+    AuthService,
+    MembersService,
+    MemberMapper,
     PaginationMapper,
     FilesService,
     BooksService,
+    BookLikedService,
     LanesService,
     PagesService,
     ChoicesService,
     LocksService,
   ],
   providers: [
+    AuthService,
+    MembersService,
+    MemberMapper,
     PaginationMapper,
     FilesService,
     BooksService,
+    BookLikedService,
     LanesService,
     PagesService,
     ChoicesService,

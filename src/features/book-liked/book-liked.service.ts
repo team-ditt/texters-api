@@ -19,12 +19,22 @@ export class BookLikedService {
     return await this.bookLikedRepository.exist({where: {memberId, bookId}});
   }
 
+  async removeAllByBookId(bookId: number) {
+    const bookLiked = await this.bookLikedRepository.find({where: {bookId}});
+    await Promise.all(bookLiked.map(like => this.removeBookLiked(like)));
+  }
+
+  async removeAllByMemberId(memberId: number) {
+    const bookLiked = await this.bookLikedRepository.find({where: {memberId}});
+    await Promise.all(bookLiked.map(like => this.removeBookLiked(like)));
+  }
+
   private async createBookLiked(memberId, bookId) {
     await this.bookLikedRepository.save(BookLiked.of(memberId, bookId));
     return true;
   }
 
-  private async removeBookLiked(bookLiked: BookLiked) {
+  async removeBookLiked(bookLiked: BookLiked) {
     await this.bookLikedRepository.remove(bookLiked);
     return false;
   }

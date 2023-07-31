@@ -163,6 +163,16 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.UNAUTHORIZED,
     message: "세션이 만료되었어요. 다시 로그인해주세요.",
   },
+  MEMBER_NOT_FOUND: {
+    code: 1032,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "회원을 찾을 수 없어요.",
+  },
+  CANNOT_WITHDRAW_NOT_EMPTY_DASHBOARD: {
+    code: 1033,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "삭제하지 않은 작품이 있어 탈퇴할 수 없어요.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

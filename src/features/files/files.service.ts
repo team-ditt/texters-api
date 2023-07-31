@@ -44,6 +44,10 @@ export class FilesService {
     return await this.fileRepository.findOne({where: {uuid}});
   }
 
+  async deleteById(uuid: string) {
+    return await this.fileRepository.delete({uuid});
+  }
+
   private async refineImage(image: Express.Multer.File) {
     const targetWidth = 1000;
     const targetHeight = 1000;
