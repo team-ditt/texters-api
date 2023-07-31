@@ -1,3 +1,4 @@
+import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {BookOrderBy, BookSearchParams} from "@/features/books/model/book-search.params";
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
 import {BookView} from "@/features/books/model/book-view.entity";
@@ -26,6 +27,7 @@ export class BooksService {
     private readonly filesService: FilesService,
     private readonly lanesService: LanesService,
     private readonly pagesService: PagesService,
+    private readonly bookLikedService: BookLikedService,
     @InjectRepository(Book) private readonly bookRepository: Repository<Book>,
     @InjectRepository(BookTitleSearch)
     private readonly bookTitleSearchRepository: Repository<BookTitleSearch>,
@@ -177,8 +179,12 @@ export class BooksService {
     const book = await this.bookRepository.findOne({where: {id}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
-    if (book.isPublished()) this.bookTitleSearchRepository.delete({id: book.id});
-    await this.bookRepository.softRemove(book);
+    await Promise.all([
+      book.coverImageId ? this.filesService.deleteById(book.coverImageId) : null,
+      this.bookRepository.remove(book),
+      this.bookViewedRepository.delete({bookId: id}),
+      this.bookLikedService.removeAllBookLikedByBookId(id),
+    ]);
   }
 
   async isAuthor(memberId: number, bookId: number) {

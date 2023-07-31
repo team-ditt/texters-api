@@ -35,14 +35,14 @@ export class Page {
   @Column()
   bookId: number;
 
-  @ManyToOne(() => Book, book => book.pages)
+  @ManyToOne(() => Book, book => book.pages, {onDelete: "CASCADE"})
   @JoinColumn({name: "bookId"})
   book: Book;
 
   @Column()
   laneId: number;
 
-  @ManyToOne(() => Lane, lane => lane.pages)
+  @ManyToOne(() => Lane, lane => lane.pages, {onDelete: "CASCADE"})
   @JoinColumn({name: "laneId"})
   lane: Lane;
 

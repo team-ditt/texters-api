@@ -1,3 +1,4 @@
+import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
 import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
@@ -29,6 +30,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       PublishedBookView,
       BookTitleSearch,
       BookViewed,
+      BookLiked,
       BookWeeklyViewedView,
       BookLiked,
       Lane,
@@ -41,6 +43,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     PaginationMapper,
     FilesService,
     BooksService,
+    BookLikedService,
     LanesService,
     PagesService,
     ChoicesService,
@@ -50,6 +53,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     PaginationMapper,
     FilesService,
     BooksService,
+    BookLikedService,
     LanesService,
     PagesService,
     ChoicesService,

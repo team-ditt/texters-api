@@ -33,8 +33,6 @@ import {
       ON book.id = viewed_count."bookId"
       LEFT JOIN liked_count
       ON book.id = liked_Count."bookId"
-    WHERE
-      book."deletedAt" IS NULL
   `,
 })
 export class BookView {
