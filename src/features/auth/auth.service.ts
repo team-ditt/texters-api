@@ -26,9 +26,12 @@ export class AuthService {
 
   async signInOrThrow(provider: OauthProvider, authorizationCode: string) {
     const oauthId = await this.signInWithOauth(provider, authorizationCode);
-    const member = await this.membersService.findByOauthId(oauthId);
-    if (!member) throw new TextersHttpException("NOT_REGISTERED", {oauthId});
-    return this.issueAuthTokens(member);
+    try {
+      const member = await this.membersService.findByOauthId(oauthId);
+      return this.issueAuthTokens(member);
+    } catch {
+      throw new TextersHttpException("NOT_REGISTERED", {oauthId});
+    }
   }
 
   async signUp(oauthId: string, penName: string) {
