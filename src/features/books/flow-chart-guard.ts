@@ -14,7 +14,7 @@ export class FlowChartGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const bookId = parseInt(request.params.bookId);
     const memberId = request.member.id;
-    const key = request.headers["flow-chart-lock-key"];
+    const key = request.cookies.FlowChartLockKey;
 
     const canEdit = await this.locksService.canEditFlowChart(bookId, key);
     if (!canEdit) throw new TextersHttpException("LOCKED_FLOW_CHART");

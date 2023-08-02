@@ -10,7 +10,10 @@ async function bootstrap() {
   const PORT = configService.get<string>("PORT");
 
   app.setGlobalPrefix("api/v1");
-  app.enableCors({origin: ["https://texters.io", "https://www.texters.io"]});
+  app.enableCors({
+    origin: "https://www.texters.io",
+    credentials: true,
+  });
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({transform: true}));
   await app.listen(parseInt(PORT) || 3000);
