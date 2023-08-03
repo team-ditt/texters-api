@@ -92,6 +92,7 @@ export class BooksService {
       .createQueryBuilder("book")
       .leftJoin(BookTitleSearch, "bookTitleSearch", "book.id = bookTitleSearch.id")
       .leftJoinAndSelect("book.author", "member.books")
+      .leftJoinAndSelect("book.coverImage", "file.book")
       .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
       .orderBy(`book.${orderBy}`, "DESC")
       .addOrderBy("book.title")
