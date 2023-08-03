@@ -6,10 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "env NODE_ENV=PRODUCTION nest build",
-    "build:dev": "env NODE_ENV=DEVELOPMENT nest build",
+    "build": "nest build && zip -r dist/api.zip dist/*",
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "env NODE_ENV=DEVELOPMENT nest start --watch",
+    "start": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },

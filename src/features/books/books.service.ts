@@ -12,6 +12,7 @@ import {Choice} from "@/features/choices/model/choice.entity";
 import {EXCEPTIONS} from "@/features/exceptions/exceptions";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {FilesService} from "@/features/files/files.service";
+import {File} from "@/features/files/model/file.entity";
 import {LanesService} from "@/features/lanes/lanes.service";
 import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
@@ -108,12 +109,15 @@ export class BooksService {
       .createQueryBuilder()
       .from(PublishedBookView, "book")
       .leftJoin(BookWeeklyViewedView, "weekly", "book.id = weekly.id")
-      .leftJoinAndSelect(Member, "author", "book.authorId = author.id")
+      .leftJoin(Member, "author", "book.authorId = author.id")
+      .leftJoin(File, "coverImage", "book.coverImageId = coverImage.uuid")
       .select([
         "book.*",
         "author.id",
         "author.penName",
         "author.createdAt",
+        "coverImage.directory",
+        "coverImage.extension",
         'COALESCE(weekly.viewed::integer, 0) AS "weeklyViewed"',
       ])
       .orderBy('"weeklyViewed"', "DESC")

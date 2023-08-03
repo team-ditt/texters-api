@@ -1,6 +1,7 @@
 import {BookView} from "@/features/books/model/book-view.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
+import {File} from "@/features/files/model/file.entity";
 import {MemberMapper} from "@/features/members/member.mapper";
 import {Member} from "@/features/members/model/member.entity";
 import {Injectable} from "@nestjs/common";
@@ -26,7 +27,14 @@ export class BookMapper {
       penName: raw["author_penName"],
       createdAt: raw["author_createdAt"],
     } as Member);
-    const coverImageUrl = raw.coverImage?.toUrl() ?? null;
+    const coverImageUrl = raw["coverImageId"]
+      ? File.toUrl({
+          uuid: raw["coverImageId"],
+          directory: raw["coverImage_directory"],
+          extension: raw["coverImage_extension"],
+        } as File)
+      : null;
+
     return R.pipe(
       R.omit([
         "authorId",
@@ -35,6 +43,8 @@ export class BookMapper {
         "author_createdAt",
         "coverImage",
         "coverImageId",
+        "coverImage_directory",
+        "coverImage_extension",
         "deletedAt",
       ]),
       R.assoc("author", author),

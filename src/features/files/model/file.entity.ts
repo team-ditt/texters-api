@@ -39,6 +39,12 @@ export class File {
     return new File(directory, extension);
   }
 
+  static toUrl({uuid, directory, extension}: File) {
+    const file = new File(directory, extension);
+    file.uuid = uuid;
+    return file.toUrl();
+  }
+
   toUrl(): string {
     return `${this.S3_BUCKET_PUBLIC_URL}/${this.directory}/${this.uuid}.${this.extension}`;
   }
