@@ -1,5 +1,5 @@
 import {Page} from "@/features/pages/model/page.entity";
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
 export class Choice {
@@ -16,12 +16,14 @@ export class Choice {
   sourcePageId: number;
 
   @ManyToOne(() => Page, page => page.choices, {onDelete: "CASCADE"})
+  @JoinColumn({name: "sourcePageId"})
   sourcePage: Page;
 
   @Column({nullable: true})
   destinationPageId: number;
 
-  @ManyToOne(() => Page, page => page.sourceChoices)
+  @ManyToOne(() => Page, page => page.sourceChoices, {onDelete: "CASCADE"})
+  @JoinColumn({name: "destinationPageId"})
   destinationPage: Page;
 
   constructor(sourcePageId: number, content: string, order: number) {
