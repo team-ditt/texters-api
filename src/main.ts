@@ -13,6 +13,7 @@ async function bootstrap() {
   app.enableCors({
     origin: "https://www.texters.io",
     credentials: true,
+    exposedHeaders: ["X-Flow-Chart-Lock-Key"],
   });
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({transform: true}));

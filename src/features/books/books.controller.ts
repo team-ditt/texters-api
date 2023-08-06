@@ -88,7 +88,7 @@ export class BooksController {
     const lock = await this.locksService.lockFlowChart(bookId);
 
     const response = this.bookMapper.toResponse(bookWithFlowChart);
-    this.setLockCookies(res, lock.key);
+    res.setHeader("X-Flow-Chart-Lock-Key", lock.key);
     res.send(response);
   }
 
@@ -111,17 +111,5 @@ export class BooksController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBook(@Param("bookId") bookId: number) {
     return await this.booksService.deleteBookById(bookId);
-  }
-
-  private setLockCookies(res: Response, flowChartLockKey: string) {
-    const expiresInDays = 1;
-    const cookieOptions = {
-      maxAge: expiresInDays * 24 * 60 * 60 * 1000,
-      sameSite: "strict" as const,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "PRODUCTION",
-    };
-
-    res.cookie("FlowChartLockKey", flowChartLockKey, cookieOptions);
   }
 }
