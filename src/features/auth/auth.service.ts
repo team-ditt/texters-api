@@ -43,13 +43,13 @@ export class AuthService {
   }
 
   async reissueAuthTokens(memberId: number, refreshToken: string) {
-    const auth = await this.authRepository.findOne({where: {id: memberId}});
+    const auth = await this.authRepository.findOne({
+      where: {memberId, refreshToken},
+    });
 
-    if (auth?.refreshToken !== refreshToken) {
-      throw new TextersHttpException("INVALID_REFRESH_TOKEN");
-    }
+    if (!auth) throw new TextersHttpException("INVALID_REFRESH_TOKEN");
     const member = await this.membersService.findById(memberId);
-    return this.issueAuthTokens(member);
+    return this.issueAuthTokens(member, auth);
   }
 
   async signOut(memberId: number) {
@@ -152,16 +152,25 @@ export class AuthService {
     return createHash("sha256").update(oauthId).digest("hex");
   }
 
-  private issueAuthTokens(member: Member) {
+  private issueAuthTokens(member: Member, auth?: Auth) {
     const payload = {id: member.id, role: member.role, penName: member.penName};
     const accessToken = this.jwtService.sign({member: payload});
     const refreshToken = this.jwtService.sign({member: payload}, {expiresIn: "7d"});
-    this.saveRefreshToken(member.id, refreshToken);
+    if (auth) this.replaceRefreshToken(auth, refreshToken);
+    else this.saveRefreshToken(member.id, refreshToken);
     return {accessToken, refreshToken};
   }
 
-  private async saveRefreshToken(id: number, refreshToken: string) {
-    await this.authRepository.delete({id});
-    await this.authRepository.save(Auth.of(id, refreshToken));
+  // Update existing refresh token on reissuing request
+  private async replaceRefreshToken(auth: Auth, refreshToken: string) {
+    auth.refreshToken = refreshToken;
+    await this.authRepository.save(auth);
+  }
+
+  // Remove oldest token from DB and save newly issued refresh token
+  private async saveRefreshToken(memberId: number, refreshToken: string) {
+    const auths = await this.authRepository.find({where: {memberId}, order: {createdAt: "ASC"}});
+    if (auths.length >= 5) await this.authRepository.remove(auths[0]);
+    await this.authRepository.save(Auth.of(memberId, refreshToken));
   }
 }
