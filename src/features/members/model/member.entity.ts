@@ -1,4 +1,5 @@
 import {Book} from "@/features/books/model/book.entity";
+import {Comment} from "@/features/comments/model/comment.entity";
 import {
   Column,
   CreateDateColumn,
@@ -32,6 +33,9 @@ export class Member {
 
   @OneToMany(() => Book, book => book.author)
   books: Book[];
+
+  @OneToMany(() => Comment, comment => comment.book)
+  comments: Comment[];
 
   constructor(oauthId: string, penName: string) {
     this.oauthId = oauthId;

@@ -1,3 +1,4 @@
+import {Comment} from "@/features/comments/model/comment.entity";
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
@@ -59,6 +60,9 @@ export class Book {
 
   @OneToMany(() => Page, page => page.book)
   pages: Page[];
+
+  @OneToMany(() => Comment, comment => comment.book)
+  comments: Comment[];
 
   constructor(title: string, description: string) {
     this.title = title;
