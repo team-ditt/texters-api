@@ -39,4 +39,17 @@ export class CommentsService {
       },
     });
   }
+
+  async deleteCommentById(id: number) {
+    const comment = await this.commentsRepository.findOne({where: {id}});
+    if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");
+
+    await this.commentsRepository.remove(comment);
+  }
+
+  async isCommenter(memberId: number, commentId: number) {
+    const comment = await this.commentsRepository.findOne({where: {id: commentId}});
+    if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");
+    return comment.commenterId === memberId;
+  }
 }

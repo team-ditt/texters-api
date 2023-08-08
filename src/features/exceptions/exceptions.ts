@@ -178,6 +178,16 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "공개되지 않은 작품에는 댓글을 달 수 없어요.",
   },
+  NOT_COMMENTER: {
+    code: 1035,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "댓글 작성자가 아니면 댓글을 지울 수 없어요!",
+  },
+  COMMENT_NOT_FOUND: {
+    code: 1036,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "댓글을 찾을 수 없어요!",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
