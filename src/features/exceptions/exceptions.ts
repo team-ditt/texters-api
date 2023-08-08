@@ -173,6 +173,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "삭제하지 않은 작품이 있어 탈퇴할 수 없어요.",
   },
+  CANNOT_COMMENT_ON_UNPUBLISHED_BOOK: {
+    code: 1034,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "공개되지 않은 작품에는 댓글을 달 수 없어요.",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

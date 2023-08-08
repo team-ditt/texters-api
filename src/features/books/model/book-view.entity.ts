@@ -1,4 +1,5 @@
 import {BookStatus} from "@/features/books/model/book.entity";
+import {Comment} from "@/features/comments/model/comment.entity";
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
@@ -68,6 +69,9 @@ export class BookView {
   @JoinColumn({name: "authorId"})
   author: Member;
 
+  @ViewColumn()
+  coverImageId: string;
+
   @OneToOne(() => File, file => file.book, {nullable: true})
   @JoinColumn({name: "coverImageId"})
   coverImage: File;
@@ -77,6 +81,9 @@ export class BookView {
 
   @OneToMany(() => Page, page => page.book)
   pages: Page[];
+
+  @OneToMany(() => Comment, comment => comment.book)
+  comments: Comment[];
 
   isPublished() {
     return this.status === "PUBLISHED";
