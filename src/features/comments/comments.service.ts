@@ -40,6 +40,18 @@ export class CommentsService {
     });
   }
 
+  async findComments(bookId: number, page: number, limit: number) {
+    const [comments, totalCount] = await this.commentsRepository.findAndCount({
+      where: {bookId},
+      relations: {book: {author: true}, commenter: true},
+      order: {createdAt: "DESC"},
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return {comments, totalCount};
+  }
+
   async deleteCommentById(id: number) {
     const comment = await this.commentsRepository.findOne({where: {id}});
     if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");

@@ -4,9 +4,9 @@ import * as R from "ramda";
 
 @Injectable()
 export class CommentMapper {
-  toResponse(currentMemberId: number, entity: Comment) {
-    const isAuthor = entity.book.author.id === currentMemberId;
-    const isCommenter = entity.commenter?.id === currentMemberId;
+  toResponse(entity: Comment, currentMemberId?: number) {
+    const isAuthor = entity.book.author.id === entity.commenterId;
+    const isCommenter = !!currentMemberId && entity.commenter?.id === currentMemberId;
 
     return R.pipe(
       R.omit(["commenterId", "commenter", "bookId", "book"]),
