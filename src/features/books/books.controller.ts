@@ -5,6 +5,7 @@ import {DashBoardGuard} from "@/features/books/dash-board-guard";
 import {BookSearchParams} from "@/features/books/model/book-search.params";
 import {CreateBookDto} from "@/features/books/model/create-book.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book.dto";
+import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {LocksService} from "@/features/locks/locks.service";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {PaginationParams} from "@/features/shared/model/pagination.params";
@@ -93,14 +94,14 @@ export class BooksController {
   }
 
   @Patch("books/:bookId")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @UseGuards(AuthGuard, BookAuthorGuard, PublishedBookGuard)
   async updateBook(@Param("bookId") bookId: number, @Body() updateBookDto: UpdateBookDto) {
     const book = await this.booksService.updateBookById(bookId, updateBookDto);
     return this.bookMapper.toResponse(book);
   }
 
   @Put("books/:bookId/publish")
-  @UseGuards(AuthGuard, BookAuthorGuard)
+  @UseGuards(AuthGuard, BookAuthorGuard, PublishedBookGuard)
   async publishBook(@Param("bookId") bookId: number) {
     const book = await this.booksService.publishBookById(bookId);
     return this.bookMapper.toResponse(book);
