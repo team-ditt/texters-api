@@ -45,7 +45,6 @@ export class BookMapper {
         "coverImageId",
         "coverImage_directory",
         "coverImage_extension",
-        "deletedAt",
       ]),
       R.assoc("author", author),
       R.assoc("coverImageUrl", coverImageUrl),
