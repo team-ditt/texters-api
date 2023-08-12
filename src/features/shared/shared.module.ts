@@ -1,5 +1,7 @@
 import {AuthService} from "@/features/auth/auth.service";
 import {Auth} from "@/features/auth/model/auth.entity";
+import {BookCommentsService} from "@/features/book-comments/book-comments.service";
+import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
@@ -11,8 +13,6 @@ import {Book} from "@/features/books/model/book.entity";
 import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
-import {CommentsService} from "@/features/comments/comments.service";
-import {Comment} from "@/features/comments/model/comment.entity";
 import {FilesService} from "@/features/files/files.service";
 import {File} from "@/features/files/model/file.entity";
 import {LanesService} from "@/features/lanes/lanes.service";
@@ -59,7 +59,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Page,
       Choice,
       FlowChartLock,
-      Comment,
+      BookComment,
     ]),
   ],
   exports: [
@@ -74,7 +74,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     PagesService,
     ChoicesService,
     LocksService,
-    CommentsService,
+    BookCommentsService,
   ],
   providers: [
     AuthService,
@@ -88,7 +88,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     PagesService,
     ChoicesService,
     LocksService,
-    CommentsService,
+    BookCommentsService,
   ],
 })
 export class SharedModule {}

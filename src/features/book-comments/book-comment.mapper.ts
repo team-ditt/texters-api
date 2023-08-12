@@ -1,10 +1,10 @@
-import {Comment} from "@/features/comments/model/comment.entity";
+import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {Injectable} from "@nestjs/common";
 import * as R from "ramda";
 
 @Injectable()
-export class CommentMapper {
-  toResponse(entity: Comment, currentMemberId?: number) {
+export class BookCommentMapper {
+  toResponse(entity: BookComment, currentMemberId?: number) {
     const isAuthor = entity.book.author.id === entity.commenterId;
     const isCommenter = !!currentMemberId && entity.commenter?.id === currentMemberId;
 
