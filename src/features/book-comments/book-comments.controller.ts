@@ -1,7 +1,7 @@
-import {CommentCommenterGuard} from "@/features/comments/comment-commenter.guard";
-import {CommentMapper} from "@/features/comments/comment.mapper";
-import {CommentsService} from "@/features/comments/comments.service";
-import {CreateCommentDto} from "@/features/comments/model/create-comment.dto";
+import {BookCommentCommenterGuard} from "@/features/book-comments/book-comment-commenter.guard";
+import {BookCommentMapper} from "@/features/book-comments/book-comment.mapper";
+import {BookCommentsService} from "@/features/book-comments/book-comments.service";
+import {CreateBookCommentDto} from "@/features/book-comments/model/create-book-comment.dto";
 import {AuthGuard} from "@/features/shared/auth.guard";
 import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {OptionalAuthGuard} from "@/features/shared/optional-auth.guard";
@@ -22,10 +22,10 @@ import {
 import {Request} from "express";
 
 @Controller()
-export class CommentsController {
+export class BookCommentsController {
   constructor(
-    private readonly commentsService: CommentsService,
-    private readonly commentMapper: CommentMapper,
+    private readonly bookCommentsService: BookCommentsService,
+    private readonly bookCommentMapper: BookCommentMapper,
     private readonly paginationMapper: PaginationMapper,
   ) {}
 
@@ -35,16 +35,16 @@ export class CommentsController {
   async createComment(
     @Req() req: Request,
     @Param("bookId") bookId: number,
-    @Body() createCommentDto: CreateCommentDto,
+    @Body() createBookCommentDto: CreateBookCommentDto,
   ) {
     const {id: currentMemberId, penName} = req["member"];
-    const comment = await this.commentsService.createComment(
+    const comment = await this.bookCommentsService.createComment(
       bookId,
       currentMemberId,
       penName,
-      createCommentDto,
+      createBookCommentDto,
     );
-    return this.commentMapper.toResponse(comment, currentMemberId);
+    return this.bookCommentMapper.toResponse(comment, currentMemberId);
   }
 
   @Get("books/:bookId/comments")
@@ -54,17 +54,17 @@ export class CommentsController {
     @Param("bookId") bookId: number,
     @Query() {page, limit}: PaginationParams,
   ) {
-    const {comments, totalCount} = await this.commentsService.findComments(bookId, page, limit);
+    const {comments, totalCount} = await this.bookCommentsService.findComments(bookId, page, limit);
     return {
-      data: comments.map(comment => this.commentMapper.toResponse(comment, req["member"]?.id)),
+      data: comments.map(comment => this.bookCommentMapper.toResponse(comment, req["member"]?.id)),
       ...this.paginationMapper.toPagination(page, limit, totalCount),
     };
   }
 
   @Delete("comments/:commentId")
-  @UseGuards(AuthGuard, CommentCommenterGuard)
+  @UseGuards(AuthGuard, BookCommentCommenterGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteBook(@Param("commentId") commentId: number) {
-    return this.commentsService.deleteCommentById(commentId);
+    return this.bookCommentsService.deleteCommentById(commentId);
   }
 }

@@ -1,6 +1,6 @@
 import {IsBoolean, IsNotEmpty, IsString, Length} from "class-validator";
 
-export class CreateCommentDto {
+export class CreateBookCommentDto {
   @IsNotEmpty()
   @IsBoolean()
   isSpoiler: boolean;

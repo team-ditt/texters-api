@@ -1,5 +1,5 @@
+import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {BookStatus} from "@/features/books/model/book.entity";
-import {Comment} from "@/features/comments/model/comment.entity";
 import {File} from "@/features/files/model/file.entity";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {Member} from "@/features/members/model/member.entity";
@@ -82,8 +82,8 @@ export class BookView {
   @OneToMany(() => Page, page => page.book)
   pages: Page[];
 
-  @OneToMany(() => Comment, comment => comment.book)
-  comments: Comment[];
+  @OneToMany(() => BookComment, comment => comment.book)
+  comments: BookComment[];
 
   isPublished() {
     return this.status === "PUBLISHED";

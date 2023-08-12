@@ -1,33 +1,33 @@
+import {BookComment} from "@/features/book-comments/model/book-comment.entity";
+import {CreateBookCommentDto} from "@/features/book-comments/model/create-book-comment.dto";
 import {BooksService} from "@/features/books/books.service";
-import {Comment} from "@/features/comments/model/comment.entity";
-import {CreateCommentDto} from "@/features/comments/model/create-comment.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 @Injectable()
-export class CommentsService {
+export class BookCommentsService {
   constructor(
     private readonly booksService: BooksService,
-    @InjectRepository(Comment) private readonly commentsRepository: Repository<Comment>,
+    @InjectRepository(BookComment) private readonly commentsRepository: Repository<BookComment>,
   ) {}
 
   async createComment(
     bookId: number,
     commenterId: number,
     commenterName: string,
-    createCommentDto: CreateCommentDto,
+    createBookCommentDto: CreateBookCommentDto,
   ) {
     const book = await this.booksService.findBookById(bookId);
     if (!book.isPublished()) throw new TextersHttpException("CANNOT_COMMENT_ON_UNPUBLISHED_BOOK");
 
-    const comment = Comment.of(
+    const comment = BookComment.of(
       book.id,
       commenterId,
       commenterName,
-      createCommentDto.isSpoiler,
-      createCommentDto.content,
+      createBookCommentDto.isSpoiler,
+      createBookCommentDto.content,
     );
 
     const {id} = await this.commentsRepository.save(comment);

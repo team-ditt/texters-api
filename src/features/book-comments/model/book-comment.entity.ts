@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 
 @Entity()
-export class Comment {
+export class BookComment {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -65,6 +65,6 @@ export class Comment {
     isSpoiler: boolean,
     content: string,
   ) {
-    return new Comment(bookId, commenterId, commenterName, isSpoiler, content);
+    return new BookComment(bookId, commenterId, commenterName, isSpoiler, content);
   }
 }

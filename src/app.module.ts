@@ -1,9 +1,9 @@
 import {AuthModule} from "@/features/auth/auth.module";
 import {BackdoorModule} from "@/features/backdoor/backdoor.module";
+import {BookCommentsModule} from "@/features/book-comments/book-comments.module";
 import {BookLikedModule} from "@/features/book-liked/book-liked.module";
 import {BooksModule} from "@/features/books/books.module";
 import {ChoicesModule} from "@/features/choices/choices.module";
-import {CommentsModule} from "@/features/comments/comments.module";
 import {FilesModule} from "@/features/files/files.module";
 import {LanesModule} from "@/features/lanes/lanes.module";
 import {LocksModule} from "@/features/locks/locks.module";
@@ -25,7 +25,7 @@ function featureModules() {
     ChoicesModule,
     LocksModule,
     BookLikedModule,
-    CommentsModule,
+    BookCommentsModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"
@@ -51,7 +51,6 @@ function featureModules() {
       }),
     }),
     ...featureModules(),
-    CommentsModule,
   ],
 })
 export class AppModule {
