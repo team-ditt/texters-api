@@ -1,0 +1,28 @@
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
+import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
+import {Reflector} from "@nestjs/core";
+import {JwtService} from "@nestjs/jwt";
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const roles = this.reflector.get<string[]>("roles", context.getHandler());
+    if (!roles) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const member = request.member;
+    const hasRole = this.hasRole(roles, member.role);
+    if (!hasRole) throw new TextersHttpException("NOT_AUTHORIZED_MEMBER");
+    return true;
+  }
+
+  private hasRole(roles: string[], rawRole: string) {
+    const [_, role] = rawRole.split("_");
+    return roles.includes(role.toLowerCase());
+  }
+}

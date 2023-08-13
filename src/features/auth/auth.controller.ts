@@ -1,8 +1,8 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {AuthService} from "@/features/auth/auth.service";
 import {SignInDto} from "@/features/auth/model/sign-in.dto";
 import {SignUpDto} from "@/features/auth/model/sign-up.dto";
-import {AuthGuard} from "@/features/shared/auth.guard";
-import {RefreshGuard} from "@/features/shared/refresh.guard";
+import {RefreshGuard} from "@/features/auth/refresh.guard";
 import {
   Body,
   Controller,

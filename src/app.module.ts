@@ -13,6 +13,7 @@ import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
+import {BoardsModule} from "./features/boards/boards.module";
 
 function featureModules() {
   const productionModules = [
@@ -26,6 +27,7 @@ function featureModules() {
     LocksModule,
     BookLikedModule,
     BookCommentsModule,
+    BoardsModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"

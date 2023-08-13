@@ -1,3 +1,4 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
@@ -6,7 +7,6 @@ import {UpdatePageOrderDto} from "@/features/pages/model/update-page-order.dto";
 import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {PageMapper} from "@/features/pages/page.mapper";
 import {PagesService} from "@/features/pages/pages.service";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
   Controller,

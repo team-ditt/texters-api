@@ -188,6 +188,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.NOT_FOUND,
     message: "댓글을 찾을 수 없어요!",
   },
+  DUPLICATE_BOARD_ID: {
+    code: 1037,
+    statusCode: HttpStatus.CONFLICT,
+    message: "이미 존재하는 게시판 ID에요!",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

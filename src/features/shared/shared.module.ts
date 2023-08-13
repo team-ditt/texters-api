@@ -1,5 +1,7 @@
 import {AuthService} from "@/features/auth/auth.service";
 import {Auth} from "@/features/auth/model/auth.entity";
+import {BoardsService} from "@/features/boards/boards.service";
+import {Board} from "@/features/boards/model/board.entity";
 import {BookCommentsService} from "@/features/book-comments/book-comments.service";
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {BookLikedService} from "@/features/book-liked/book-liked.service";
@@ -60,6 +62,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Choice,
       FlowChartLock,
       BookComment,
+      Board,
     ]),
   ],
   exports: [
@@ -75,6 +78,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     ChoicesService,
     LocksService,
     BookCommentsService,
+    BoardsService,
   ],
   providers: [
     AuthService,
@@ -89,6 +93,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     ChoicesService,
     LocksService,
     BookCommentsService,
+    BoardsService,
   ],
 })
 export class SharedModule {}
