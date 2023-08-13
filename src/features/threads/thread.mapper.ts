@@ -9,7 +9,7 @@ export class ThreadMapper {
   constructor(private readonly memberMapper: MemberMapper) {}
 
   toResponse(entity: Thread, member?: Pick<Member, "id" | "role" | "penName">) {
-    const isAuthor = entity.author ? entity.author.id === member?.id : false;
+    const isAuthor = entity.authorId ? entity.authorId === member?.id : false;
 
     return R.pipe(R.omit(["author", "board", "password"]), R.assoc("isAuthor", isAuthor))(entity);
   }

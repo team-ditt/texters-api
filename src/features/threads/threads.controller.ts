@@ -51,4 +51,11 @@ export class ThreadsController {
       ...this.paginationMapper.toPagination(searchParams.page, searchParams.limit, totalCount),
     };
   }
+
+  @Get("/boards/:boardId/threads/:threadId")
+  @UseGuards(OptionalAuthGuard)
+  async findThread(@Req() req: Request, @Param("threadId") threadId: number) {
+    const thread = await this.threadsService.findThreadById(threadId, req["member"]);
+    return this.threadMapper.toResponse(thread, req["member"]);
+  }
 }

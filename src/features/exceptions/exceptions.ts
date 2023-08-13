@@ -198,10 +198,15 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.NOT_FOUND,
     message: "게시판을 찾을 수 없어요!",
   },
-  NO_UNAUTHENTICATED_HIDDEN_THREAD: {
+  NO_UNAUTHENTICATED_HIDDEN_THREAD_CREATION: {
     code: 1039,
     statusCode: HttpStatus.UNAUTHORIZED,
     message: "비회원은 숨김글을 작성할 수 없어요!",
+  },
+  NOT_AUTHORIZED_TO_VIEW_HIDDEN_THREAD: {
+    code: 1040,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "숨김글은 작성자 본인과 운영진만 확인할 수 있어요!",
   },
 };
 

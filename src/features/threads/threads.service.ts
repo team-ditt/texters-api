@@ -57,8 +57,13 @@ export class ThreadsService {
     return {threads, totalCount};
   }
 
-  async findThreadById(id: number) {
-    return await this.threadsRepository.findOne({where: {id}, relations: {author: true}});
+  async findThreadById(id: number, member?: Pick<Member, "id" | "role" | "penName">) {
+    // FIXME: replace to threadViewRepository after implementing comment, like feature
+    const thread = await this.threadsRepository.findOne({where: {id}});
+    if (thread.isHidden && !this.canViewHiddenThread(thread.authorId, member))
+      throw new TextersHttpException("NOT_AUTHORIZED_TO_VIEW_HIDDEN_THREAD");
+
+    return thread;
   }
 
   private async createAuthenticatedThread(
@@ -68,14 +73,20 @@ export class ThreadsService {
     const {id} = await this.threadsRepository.save(
       Thread.fromAuthenticated(createThreadDto, member),
     );
-    return await this.findThreadById(id);
+    return await this.threadsRepository.findOne({where: {id}});
   }
 
   private async createUnauthenticatedThread(createThreadDto: CreateThreadDto) {
     if (createThreadDto.isHidden)
-      throw new TextersHttpException("NO_UNAUTHENTICATED_HIDDEN_THREAD");
+      throw new TextersHttpException("NO_UNAUTHENTICATED_HIDDEN_THREAD_CREATION");
 
     const {id} = await this.threadsRepository.save(Thread.fromUnauthenticated(createThreadDto));
-    return await this.findThreadById(id);
+    return await this.threadsRepository.findOne({where: {id}});
+  }
+
+  private canViewHiddenThread(authorId?: number, member?: Pick<Member, "id" | "role" | "penName">) {
+    if (member?.role === "ROLE_ADMIN") return true;
+    if (!member) return false;
+    return authorId === member?.id;
   }
 }
