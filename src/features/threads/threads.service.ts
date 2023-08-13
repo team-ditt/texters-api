@@ -2,6 +2,11 @@ import {BoardsService} from "@/features/boards/boards.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Member} from "@/features/members/model/member.entity";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
+import {
+  ThreadOrderBy,
+  ThreadSearchParams,
+  ThreadType,
+} from "@/features/threads/model/thread-search.params";
 import {Thread} from "@/features/threads/model/thread.entity";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -27,6 +32,29 @@ export class ThreadsService {
     return member !== undefined
       ? await this.createAuthenticatedThread(createThreadDto, member)
       : await this.createUnauthenticatedThread(createThreadDto);
+  }
+
+  async findThreads(boardId: string, {type, order, page, limit}: ThreadSearchParams) {
+    const shouldFilterFixed = type === ThreadType.FIXED;
+    const orderBy = (() => {
+      switch (order) {
+        case ThreadOrderBy.CREATED_AT:
+          return "createdAt";
+        // FIXME: activate below condition after adding thread like feature
+        // case ThreadOrderBy.LIKED: return 'liked';
+      }
+    })();
+
+    // FIXME: replace below with threads view after implementing comments, like feature
+    const [threads, totalCount] = await this.threadsRepository.findAndCount({
+      where: {...(shouldFilterFixed && {isFixed: true})},
+      relations: {author: true},
+      take: limit,
+      skip: (page - 1) * limit,
+      order: {[orderBy]: "DESC"},
+    });
+
+    return {threads, totalCount};
   }
 
   async findThreadById(id: number) {
