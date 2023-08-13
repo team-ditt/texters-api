@@ -1,4 +1,5 @@
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
+import {MemberRole} from "@/features/members/model/member.entity";
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {Reflector} from "@nestjs/core";
 import {JwtService} from "@nestjs/jwt";
@@ -21,7 +22,7 @@ export class RolesGuard implements CanActivate {
     return true;
   }
 
-  private hasRole(roles: string[], rawRole: string) {
+  private hasRole(roles: string[], rawRole: MemberRole) {
     const [_, role] = rawRole.split("_");
     return roles.includes(role.toLowerCase());
   }

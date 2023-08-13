@@ -1,5 +1,6 @@
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {Book} from "@/features/books/model/book.entity";
+import {Thread} from "@/features/threads/model/thread.entity";
 import {
   Column,
   CreateDateColumn,
@@ -36,6 +37,9 @@ export class Member {
 
   @OneToMany(() => BookComment, comment => comment.book)
   comments: BookComment[];
+
+  @OneToMany(() => Thread, thread => thread.author)
+  threads: Thread[];
 
   constructor(oauthId: string, penName: string) {
     this.oauthId = oauthId;

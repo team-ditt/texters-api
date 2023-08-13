@@ -193,6 +193,16 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.CONFLICT,
     message: "이미 존재하는 게시판 ID에요!",
   },
+  BOARD_NOT_FOUND: {
+    code: 1038,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "게시판을 찾을 수 없어요!",
+  },
+  NO_UNAUTHENTICATED_HIDDEN_THREAD: {
+    code: 1039,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    message: "비회원은 숨김글을 작성할 수 없어요!",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;

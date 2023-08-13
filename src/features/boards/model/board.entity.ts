@@ -1,4 +1,12 @@
-import {Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
+import {Thread} from "@/features/threads/model/thread.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Board {
@@ -13,6 +21,9 @@ export class Board {
 
   @UpdateDateColumn({type: "timestamptz"})
   updatedAt: Date;
+
+  @OneToMany(() => Thread, thread => thread.board)
+  threads: Thread[];
 
   constructor(id: string, name: string) {
     this.id = id;

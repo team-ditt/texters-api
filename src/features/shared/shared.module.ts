@@ -27,6 +27,8 @@ import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
+import {Thread} from "@/features/threads/model/thread.entity";
+import {ThreadsService} from "@/features/threads/threads.service";
 import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
@@ -63,6 +65,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       FlowChartLock,
       BookComment,
       Board,
+      Thread,
     ]),
   ],
   exports: [
@@ -79,6 +82,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     LocksService,
     BookCommentsService,
     BoardsService,
+    ThreadsService,
   ],
   providers: [
     AuthService,
@@ -94,6 +98,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     LocksService,
     BookCommentsService,
     BoardsService,
+    ThreadsService,
   ],
 })
 export class SharedModule {}
