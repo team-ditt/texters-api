@@ -38,7 +38,7 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "누락되거나 잘못된 항목이 있습니다.",
   },
-  NOT_AUTHOR: {
+  NOT_AUTHOR_OF_BOOK: {
     code: 1007,
     statusCode: HttpStatus.FORBIDDEN,
     message: "작가 본인이 아니면 작품을 수정할 수 없습니다.",
@@ -217,6 +217,11 @@ export const EXCEPTIONS = {
     code: 1042,
     statusCode: HttpStatus.FORBIDDEN,
     message: "올바른 스레드 비밀번호를 입력해주세요!",
+  },
+  NOT_AUTHOR_OF_THREAD: {
+    code: 1043,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "스레드 수정/삭제할 권한이 없어요!",
   },
 };
 

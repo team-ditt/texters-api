@@ -51,3 +51,5 @@ export class Member {
     return new Member(oauthId, penName);
   }
 }
+
+export type MemberReqPayload = Pick<Member, "id" | "role" | "penName">;

@@ -12,7 +12,7 @@ export class BookAuthorGuard implements CanActivate {
     const memberId = request.member.id;
 
     const isAuthor = await this.booksService.isAuthor(memberId, bookId);
-    if (!isAuthor) throw new TextersHttpException("NOT_AUTHOR");
+    if (!isAuthor) throw new TextersHttpException("NOT_AUTHOR_OF_BOOK");
     return true;
   }
 }

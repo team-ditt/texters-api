@@ -3,6 +3,7 @@ import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {AuthorizeThreadPasswordDto} from "@/features/threads/model/authorize-thread-password.dto";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
 import {ThreadSearchParams} from "@/features/threads/model/thread-search.params";
+import {UpdateThreadDto} from "@/features/threads/model/update-thread.dto";
 import {ThreadMapper} from "@/features/threads/thread.mapper";
 import {ThreadsService} from "@/features/threads/threads.service";
 import {
@@ -12,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -42,10 +44,11 @@ export class ThreadsController {
   @Post("/boards/:boardId/threads/:threadId/authorization")
   @HttpCode(HttpStatus.NO_CONTENT)
   async authorizePassword(
+    @Param("boardId") boardId: string,
     @Param("threadId") threadId: number,
     @Body() {password}: AuthorizeThreadPasswordDto,
   ) {
-    await this.threadsService.authorizePassword(threadId, password);
+    await this.threadsService.authorizePassword(boardId, threadId, password);
   }
 
   @Get("/boards/:boardId/threads")
@@ -64,8 +67,29 @@ export class ThreadsController {
 
   @Get("/boards/:boardId/threads/:threadId")
   @UseGuards(OptionalAuthGuard)
-  async findThread(@Req() req: Request, @Param("threadId") threadId: number) {
-    const thread = await this.threadsService.findThreadById(threadId, req["member"]);
+  async findThread(
+    @Req() req: Request,
+    @Param("boardId") boardId: string,
+    @Param("threadId") threadId: number,
+  ) {
+    const thread = await this.threadsService.findThread(boardId, threadId, req["member"]);
+    return this.threadMapper.toResponse(thread, req["member"]);
+  }
+
+  @Patch("/boards/:boardId/threads/:threadId")
+  @UseGuards(OptionalAuthGuard)
+  async updateThread(
+    @Req() req: Request,
+    @Param("boardId") boardId: string,
+    @Param("threadId") threadId: number,
+    @Body() updateThreadDto: UpdateThreadDto,
+  ) {
+    const thread = await this.threadsService.updateThread(
+      boardId,
+      threadId,
+      updateThreadDto,
+      req["member"],
+    );
     return this.threadMapper.toResponse(thread, req["member"]);
   }
 }
