@@ -1,5 +1,6 @@
 import {OptionalAuthGuard} from "@/features/auth/optional-auth.guard";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
+import {AuthorizeThreadPasswordDto} from "@/features/threads/model/authorize-thread-password.dto";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
 import {ThreadSearchParams} from "@/features/threads/model/thread-search.params";
 import {ThreadMapper} from "@/features/threads/thread.mapper";
@@ -36,6 +37,15 @@ export class ThreadsController {
   ) {
     const thread = await this.threadsService.createThread(boardId, createThreadDto, req["member"]);
     return this.threadMapper.toResponse(thread, req["member"]);
+  }
+
+  @Post("/boards/:boardId/threads/:threadId/authorization")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async authorizePassword(
+    @Param("threadId") threadId: number,
+    @Body() {password}: AuthorizeThreadPasswordDto,
+  ) {
+    await this.threadsService.authorizePassword(threadId, password);
   }
 
   @Get("/boards/:boardId/threads")

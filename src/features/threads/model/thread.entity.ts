@@ -80,12 +80,12 @@ export class Thread {
     return thread;
   }
 
+  static hashPassword(password: string): string {
+    return createHash("sha256").update(password).digest("hex");
+  }
+
   private static generateDefaultPassword() {
     const date = new Date();
     return `thread-${date.toUTCString()}-${date.getTime()}`;
-  }
-
-  private static hashPassword(password: string): string {
-    return createHash("sha256").update(password).digest("hex");
   }
 }

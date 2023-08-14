@@ -34,6 +34,13 @@ export class ThreadsService {
       : await this.createUnauthenticatedThread(createThreadDto);
   }
 
+  async authorizePassword(id: number, password: string) {
+    const thread = await this.threadsRepository.findOne({where: {id}});
+    if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
+    if (thread.password !== Thread.hashPassword(password))
+      throw new TextersHttpException("WRONG_THREAD_PASSWORD");
+  }
+
   async findThreads(boardId: string, {type, order, page, limit}: ThreadSearchParams) {
     const shouldFilterFixed = type === ThreadType.FIXED;
     const orderBy = (() => {
