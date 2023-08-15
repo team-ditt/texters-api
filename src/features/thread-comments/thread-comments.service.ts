@@ -1,3 +1,4 @@
+import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {MemberReqPayload} from "@/features/members/model/member.entity";
 import {CreateThreadCommentDto} from "@/features/thread-comments/model/create-thread-comment.dto";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
@@ -24,6 +25,13 @@ export class ThreadCommentsService {
     return member !== undefined
       ? await this.createAuthenticatedComment(thread.id, createThreadCommentDto, member)
       : await this.createUnauthenticatedComment(thread.id, createThreadCommentDto);
+  }
+
+  async authorizePassword(threadId: number, commentId: number, password: string) {
+    const comment = await this.commentsRepository.findOne({where: {id: commentId, threadId}});
+    if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");
+    if (!comment.validatePassword(password))
+      throw new TextersHttpException("WRONG_COMMENT_PASSWORD");
   }
 
   private async createAuthenticatedComment(
