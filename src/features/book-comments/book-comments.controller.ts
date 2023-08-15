@@ -37,14 +37,12 @@ export class BookCommentsController {
     @Param("bookId") bookId: number,
     @Body() createBookCommentDto: CreateBookCommentDto,
   ) {
-    const {id: currentMemberId, penName} = req["member"];
     const comment = await this.bookCommentsService.createComment(
       bookId,
-      currentMemberId,
-      penName,
       createBookCommentDto,
+      req["member"],
     );
-    return this.bookCommentMapper.toResponse(comment, currentMemberId);
+    return this.bookCommentMapper.toResponse(comment, req["member"].id);
   }
 
   @Get("books/:bookId/comments")

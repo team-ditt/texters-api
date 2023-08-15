@@ -19,6 +19,9 @@ export class BookComment {
   commenterName: string;
 
   @Column()
+  commenterRole: string;
+
+  @Column()
   isSpoiler: boolean;
 
   @Column()
@@ -48,12 +51,14 @@ export class BookComment {
     bookId: number,
     commenterId: number,
     commenterName: string,
+    commenterRole: string,
     isSpoiler: boolean,
     content: string,
   ) {
     this.bookId = bookId;
     this.commenterId = commenterId;
     this.commenterName = commenterName;
+    this.commenterRole = commenterRole;
     this.isSpoiler = isSpoiler;
     this.content = content;
   }
@@ -62,9 +67,10 @@ export class BookComment {
     bookId: number,
     commenterId: number,
     commenterName: string,
+    commenterRole: string,
     isSpoiler: boolean,
     content: string,
   ) {
-    return new BookComment(bookId, commenterId, commenterName, isSpoiler, content);
+    return new BookComment(bookId, commenterId, commenterName, commenterRole, isSpoiler, content);
   }
 }
