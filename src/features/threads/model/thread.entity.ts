@@ -1,6 +1,7 @@
 import {Board} from "@/features/boards/model/board.entity";
 import {Member, MemberReqPayload, MemberRole} from "@/features/members/model/member.entity";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
 import {createHash} from "crypto";
 import {
@@ -62,6 +63,9 @@ export class Thread {
 
   @OneToMany(() => ThreadComment, comment => comment.thread)
   comments: ThreadComment[];
+
+  @OneToMany(() => ThreadLiked, threadLiked => threadLiked.thread)
+  likedRecords: ThreadLiked[];
 
   constructor(
     boardId: string,

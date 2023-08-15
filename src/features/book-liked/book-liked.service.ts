@@ -34,7 +34,7 @@ export class BookLikedService {
     return true;
   }
 
-  async removeBookLiked(bookLiked: BookLiked) {
+  private async removeBookLiked(bookLiked: BookLiked) {
     await this.bookLikedRepository.remove(bookLiked);
     return false;
   }

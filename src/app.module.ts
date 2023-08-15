@@ -11,6 +11,7 @@ import {LocksModule} from "@/features/locks/locks.module";
 import {MembersModule} from "@/features/members/members.module";
 import {PagesModule} from "@/features/pages/pages.module";
 import {ThreadCommentsModule} from "@/features/thread-comments/thread-comments.module";
+import {ThreadLikedModule} from "@/features/thread-liked/thread-liked.module";
 import {ThreadsModule} from "@/features/threads/threads.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
@@ -32,6 +33,7 @@ function featureModules() {
     BoardsModule,
     ThreadsModule,
     ThreadCommentsModule,
+    ThreadLikedModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"

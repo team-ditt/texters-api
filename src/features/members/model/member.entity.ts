@@ -1,6 +1,7 @@
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {Book} from "@/features/books/model/book.entity";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
 import {Thread} from "@/features/threads/model/thread.entity";
 import {
   Column,
@@ -44,6 +45,9 @@ export class Member {
 
   @OneToMany(() => ThreadComment, comment => comment)
   threadComments: ThreadComment[];
+
+  @OneToMany(() => ThreadLiked, threadLiked => threadLiked.member)
+  threadLikedRecords: ThreadLiked[];
 
   constructor(oauthId: string, penName: string) {
     this.oauthId = oauthId;

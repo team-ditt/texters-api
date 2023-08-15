@@ -233,6 +233,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.FORBIDDEN,
     message: "댓글을 수정/삭제할 권한이 없어요!",
   },
+  THREAD_LIKED_IN_PAST_24_HOURS: {
+    code: 1046,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "추천은 24시간에 1번만 누를 수 있어요!",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
