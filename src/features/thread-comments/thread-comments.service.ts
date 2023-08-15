@@ -34,6 +34,18 @@ export class ThreadCommentsService {
       throw new TextersHttpException("WRONG_COMMENT_PASSWORD");
   }
 
+  async findComments(threadId: number, page: number, limit: number) {
+    const [comments, totalCount] = await this.commentsRepository.findAndCount({
+      where: {threadId},
+      relations: {thread: true},
+      take: limit,
+      skip: (page - 1) * limit,
+      order: {createdAt: "DESC"},
+    });
+
+    return {comments, totalCount};
+  }
+
   private async createAuthenticatedComment(
     threadId: number,
     {content}: CreateThreadCommentDto,
