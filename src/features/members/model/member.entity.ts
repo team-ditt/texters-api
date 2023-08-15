@@ -1,5 +1,8 @@
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {Book} from "@/features/books/model/book.entity";
+import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
+import {Thread} from "@/features/threads/model/thread.entity";
 import {
   Column,
   CreateDateColumn,
@@ -35,7 +38,16 @@ export class Member {
   books: Book[];
 
   @OneToMany(() => BookComment, comment => comment.book)
-  comments: BookComment[];
+  bookComments: BookComment[];
+
+  @OneToMany(() => Thread, thread => thread.author)
+  threads: Thread[];
+
+  @OneToMany(() => ThreadComment, comment => comment)
+  threadComments: ThreadComment[];
+
+  @OneToMany(() => ThreadLiked, threadLiked => threadLiked.member)
+  threadLikedRecords: ThreadLiked[];
 
   constructor(oauthId: string, penName: string) {
     this.oauthId = oauthId;
@@ -47,3 +59,5 @@ export class Member {
     return new Member(oauthId, penName);
   }
 }
+
+export type MemberReqPayload = Pick<Member, "id" | "role" | "penName">;

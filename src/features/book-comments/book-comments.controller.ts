@@ -1,10 +1,10 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
+import {OptionalAuthGuard} from "@/features/auth/optional-auth.guard";
 import {BookCommentCommenterGuard} from "@/features/book-comments/book-comment-commenter.guard";
 import {BookCommentMapper} from "@/features/book-comments/book-comment.mapper";
 import {BookCommentsService} from "@/features/book-comments/book-comments.service";
 import {CreateBookCommentDto} from "@/features/book-comments/model/create-book-comment.dto";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {PaginationParams} from "@/features/shared/model/pagination.params";
-import {OptionalAuthGuard} from "@/features/shared/optional-auth.guard";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {
   Body,
@@ -37,14 +37,12 @@ export class BookCommentsController {
     @Param("bookId") bookId: number,
     @Body() createBookCommentDto: CreateBookCommentDto,
   ) {
-    const {id: currentMemberId, penName} = req["member"];
     const comment = await this.bookCommentsService.createComment(
       bookId,
-      currentMemberId,
-      penName,
       createBookCommentDto,
+      req["member"],
     );
-    return this.bookCommentMapper.toResponse(comment, currentMemberId);
+    return this.bookCommentMapper.toResponse(comment, req["member"].id);
   }
 
   @Get("books/:bookId/comments")

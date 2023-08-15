@@ -1,3 +1,4 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {BookMapper} from "@/features/books/book.mapper";
 import {BooksService} from "@/features/books/books.service";
@@ -7,7 +8,6 @@ import {CreateBookDto} from "@/features/books/model/create-book.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book.dto";
 import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {LocksService} from "@/features/locks/locks.service";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {

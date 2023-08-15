@@ -1,6 +1,6 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {Controller, Get, Param, Put, Req, UseGuards} from "@nestjs/common";
 import {Request} from "express";
 

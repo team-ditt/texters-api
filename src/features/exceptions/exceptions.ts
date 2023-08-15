@@ -38,7 +38,7 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "누락되거나 잘못된 항목이 있습니다.",
   },
-  NOT_AUTHOR: {
+  NOT_AUTHOR_OF_BOOK: {
     code: 1007,
     statusCode: HttpStatus.FORBIDDEN,
     message: "작가 본인이 아니면 작품을 수정할 수 없습니다.",
@@ -121,7 +121,7 @@ export const EXCEPTIONS = {
   NOT_AUTHORIZED_MEMBER: {
     code: 1023,
     statusCode: HttpStatus.FORBIDDEN,
-    message: "작업을 수행할 권한이 없습니다.",
+    message: "작업을 수행할 권한이 없어요!",
   },
   NOT_ALL_PAGES_HAVE_CONTENT: {
     code: 1024,
@@ -187,6 +187,56 @@ export const EXCEPTIONS = {
     code: 1036,
     statusCode: HttpStatus.NOT_FOUND,
     message: "댓글을 찾을 수 없어요!",
+  },
+  DUPLICATE_BOARD_ID: {
+    code: 1037,
+    statusCode: HttpStatus.CONFLICT,
+    message: "이미 존재하는 게시판 ID에요!",
+  },
+  BOARD_NOT_FOUND: {
+    code: 1038,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "게시판을 찾을 수 없어요!",
+  },
+  NO_UNAUTHENTICATED_HIDDEN_THREAD_CREATION: {
+    code: 1039,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    message: "비회원은 비공개 스레드를 작성할 수 없어요!",
+  },
+  NOT_AUTHORIZED_TO_VIEW_HIDDEN_THREAD: {
+    code: 1040,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "비공개 스레드는 작성자 본인과 운영진만 확인할 수 있어요!",
+  },
+  THREAD_NOT_FOUND: {
+    code: 1041,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "스레드를 찾을 수 없어요!",
+  },
+  WRONG_THREAD_PASSWORD: {
+    code: 1042,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "올바른 스레드 비밀번호를 입력해주세요!",
+  },
+  NOT_AUTHOR_OF_THREAD: {
+    code: 1043,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "스레드를 수정/삭제할 권한이 없어요!",
+  },
+  WRONG_COMMENT_PASSWORD: {
+    code: 1044,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "올바른 댓글 비밀번호를 입력해주세요!",
+  },
+  NOT_AUTHOR_OF_THREAD_COMMENT: {
+    code: 1045,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "댓글을 수정/삭제할 권한이 없어요!",
+  },
+  THREAD_LIKED_IN_PAST_24_HOURS: {
+    code: 1046,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "추천은 24시간에 1번만 누를 수 있어요!",
   },
 };
 

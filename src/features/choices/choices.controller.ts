@@ -1,3 +1,4 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {ChoicesService} from "@/features/choices/choices.service";
@@ -5,7 +6,6 @@ import {CreateChoiceDto} from "@/features/choices/model/create-choice.dto";
 import {UpdateChoiceDestinationDto} from "@/features/choices/model/update-choice-destination.dto";
 import {UpdateChoiceOrderDto} from "@/features/choices/model/update-choice-order.dto";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
   Controller,

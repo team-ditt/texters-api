@@ -1,8 +1,8 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {FlowChartGuard} from "@/features/books/flow-chart-guard";
 import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {LanesService} from "@/features/lanes/lanes.service";
 import {CreateLaneDto} from "@/features/lanes/model/create-lane.dto";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Body,
   Controller,

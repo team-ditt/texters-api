@@ -1,6 +1,6 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {MembersService} from "@/features/members/members.service";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Controller,
   Delete,

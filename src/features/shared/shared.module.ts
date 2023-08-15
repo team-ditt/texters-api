@@ -1,5 +1,7 @@
 import {AuthService} from "@/features/auth/auth.service";
 import {Auth} from "@/features/auth/model/auth.entity";
+import {BoardsService} from "@/features/boards/boards.service";
+import {Board} from "@/features/boards/model/board.entity";
 import {BookCommentsService} from "@/features/book-comments/book-comments.service";
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {BookLikedService} from "@/features/book-liked/book-liked.service";
@@ -25,6 +27,13 @@ import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
+import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
+import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
+import {ThreadLikedService} from "@/features/thread-liked/thread-liked.service";
+import {ThreadView} from "@/features/threads/model/thread-view.entity";
+import {Thread} from "@/features/threads/model/thread.entity";
+import {ThreadsService} from "@/features/threads/threads.service";
 import {HttpModule} from "@nestjs/axios";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
@@ -60,6 +69,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Choice,
       FlowChartLock,
       BookComment,
+      Board,
+      Thread,
+      ThreadView,
+      ThreadComment,
+      ThreadLiked,
     ]),
   ],
   exports: [
@@ -75,6 +89,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     ChoicesService,
     LocksService,
     BookCommentsService,
+    BoardsService,
+    ThreadsService,
+    ThreadCommentsService,
+    ThreadLikedService,
   ],
   providers: [
     AuthService,
@@ -89,6 +107,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     ChoicesService,
     LocksService,
     BookCommentsService,
+    BoardsService,
+    ThreadsService,
+    ThreadCommentsService,
+    ThreadLikedService,
   ],
 })
 export class SharedModule {}
