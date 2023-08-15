@@ -31,6 +31,7 @@ import {ThreadComment} from "@/features/thread-comments/model/thread-comment.ent
 import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
 import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
 import {ThreadLikedService} from "@/features/thread-liked/thread-liked.service";
+import {ThreadView} from "@/features/threads/model/thread-view.entity";
 import {Thread} from "@/features/threads/model/thread.entity";
 import {ThreadsService} from "@/features/threads/threads.service";
 import {HttpModule} from "@nestjs/axios";
@@ -70,6 +71,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       BookComment,
       Board,
       Thread,
+      ThreadView,
       ThreadComment,
       ThreadLiked,
     ]),

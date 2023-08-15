@@ -7,6 +7,7 @@ import {
   ThreadSearchParams,
   ThreadType,
 } from "@/features/threads/model/thread-search.params";
+import {ThreadView} from "@/features/threads/model/thread-view.entity";
 import {Thread} from "@/features/threads/model/thread.entity";
 import {UpdateThreadDto} from "@/features/threads/model/update-thread.dto";
 import {Injectable} from "@nestjs/common";
@@ -19,6 +20,7 @@ export class ThreadsService {
   constructor(
     private readonly boardsService: BoardsService,
     @InjectRepository(Thread) private readonly threadsRepository: Repository<Thread>,
+    @InjectRepository(ThreadView) private readonly threadViewRepository: Repository<ThreadView>,
   ) {}
 
   async createThread(boardId: string, createThreadDto: CreateThreadDto, member?: MemberReqPayload) {
@@ -44,13 +46,12 @@ export class ThreadsService {
       switch (order) {
         case ThreadOrderBy.CREATED_AT:
           return "createdAt";
-        // FIXME: activate below condition after adding thread like feature
-        // case ThreadOrderBy.LIKED: return 'liked';
+        case ThreadOrderBy.LIKED:
+          return "liked";
       }
     })();
 
-    // FIXME: replace below with threads view after implementing comments, like feature
-    const [threads, totalCount] = await this.threadsRepository.findAndCount({
+    const [threads, totalCount] = await this.threadViewRepository.findAndCount({
       where: {boardId, ...(shouldFilterFixed && {isFixed: true})},
       relations: {author: true},
       take: limit,
@@ -62,8 +63,7 @@ export class ThreadsService {
   }
 
   async findThread(boardId: string, threadId: number, member?: MemberReqPayload) {
-    // FIXME: replace to threadViewRepository after implementing comment, like feature
-    const thread = await this.threadsRepository.findOne({where: {id: threadId, boardId}});
+    const thread = await this.threadViewRepository.findOne({where: {id: threadId, boardId}});
     if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
     if (thread.isHidden && !this.canViewHiddenThread(thread.authorId, member))
       throw new TextersHttpException("NOT_AUTHORIZED_TO_VIEW_HIDDEN_THREAD");
