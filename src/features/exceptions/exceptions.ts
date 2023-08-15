@@ -221,7 +221,7 @@ export const EXCEPTIONS = {
   NOT_AUTHOR_OF_THREAD: {
     code: 1043,
     statusCode: HttpStatus.FORBIDDEN,
-    message: "스레드 수정/삭제할 권한이 없어요!",
+    message: "스레드를 수정/삭제할 권한이 없어요!",
   },
 };
 

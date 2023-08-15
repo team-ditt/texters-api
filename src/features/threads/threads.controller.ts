@@ -2,6 +2,7 @@ import {OptionalAuthGuard} from "@/features/auth/optional-auth.guard";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {AuthorizeThreadPasswordDto} from "@/features/threads/model/authorize-thread-password.dto";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
+import {DeleteThreadDto} from "@/features/threads/model/delete-thread.dto";
 import {ThreadSearchParams} from "@/features/threads/model/thread-search.params";
 import {UpdateThreadDto} from "@/features/threads/model/update-thread.dto";
 import {ThreadMapper} from "@/features/threads/thread.mapper";
@@ -9,6 +10,7 @@ import {ThreadsService} from "@/features/threads/threads.service";
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -91,5 +93,17 @@ export class ThreadsController {
       req["member"],
     );
     return this.threadMapper.toResponse(thread, req["member"]);
+  }
+
+  @Delete("/boards/:boardId/threads/:threadId")
+  @UseGuards(OptionalAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteThread(
+    @Req() req: Request,
+    @Param("boardId") boardId: string,
+    @Param("threadId") threadId: number,
+    @Body() {password}: DeleteThreadDto,
+  ) {
+    return this.threadsService.deleteThread(boardId, threadId, password, req["member"]);
   }
 }

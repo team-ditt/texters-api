@@ -81,8 +81,22 @@ export class ThreadsService {
     if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
 
     return member
-      ? this.updateAuthenticatedThread(thread, updateThreadDto, member)
-      : this.updateUnauthenticatedThread(thread, updateThreadDto);
+      ? await this.updateAuthenticatedThread(thread, updateThreadDto, member)
+      : await this.updateUnauthenticatedThread(thread, updateThreadDto);
+  }
+
+  async deleteThread(
+    boardId: string,
+    threadId: number,
+    password?: string,
+    member?: MemberReqPayload,
+  ) {
+    const thread = await this.threadsRepository.findOne({where: {id: threadId, boardId}});
+    if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
+
+    member
+      ? await this.deleteAuthenticatedThread(thread, member)
+      : await this.deleteUnauthenticatedThread(thread, password);
   }
 
   private async createAuthenticatedThread(
@@ -117,10 +131,10 @@ export class ThreadsService {
     updateThreadDto: UpdateThreadDto,
     member: MemberReqPayload,
   ) {
-    if (thread.authorId && thread.authorId !== member.id)
-      throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
-
     const isAdmin = member?.role === "ROLE_ADMIN";
+    const isAuthor = thread.authorId && thread.authorId === member.id;
+    if (!isAdmin && !isAuthor) throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
+
     const willUpdateFixedState =
       updateThreadDto.isFixed && updateThreadDto.isFixed !== thread.isFixed;
     if (!isAdmin && willUpdateFixedState) throw new TextersHttpException("NOT_AUTHORIZED_MEMBER");
@@ -138,5 +152,20 @@ export class ThreadsService {
     Object.assign(thread, updateThreadDto);
     await this.threadsRepository.save(thread);
     return thread;
+  }
+
+  private async deleteAuthenticatedThread(thread: Thread, member: MemberReqPayload) {
+    const isAdmin = member?.role === "ROLE_ADMIN";
+    const isAuthor = thread.authorId && thread.authorId === member.id;
+    if (!isAdmin && !isAuthor) throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
+
+    await this.threadsRepository.remove(thread);
+  }
+
+  private async deleteUnauthenticatedThread(thread: Thread, password?: string) {
+    if (!password || !thread.validatePassword(password))
+      throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
+
+    await this.threadsRepository.remove(thread);
   }
 }
