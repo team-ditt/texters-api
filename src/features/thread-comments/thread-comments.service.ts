@@ -61,6 +61,20 @@ export class ThreadCommentsService {
       : await this.updateUnauthenticatedComment(comment, content, password);
   }
 
+  async deleteComment(
+    threadId: number,
+    commentId: number,
+    password?: string,
+    member?: MemberReqPayload,
+  ) {
+    const comment = await this.commentsRepository.findOne({where: {id: commentId, threadId}});
+    if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");
+
+    member !== undefined
+      ? await this.deleteAuthenticatedComment(comment, member)
+      : await this.deleteUnauthenticatedComment(comment, password);
+  }
+
   private async createAuthenticatedComment(
     threadId: number,
     {content}: CreateThreadCommentDto,
@@ -107,5 +121,20 @@ export class ThreadCommentsService {
     comment.content = content;
     const {id} = await this.commentsRepository.save(comment);
     return await this.commentsRepository.findOne({where: {id}, relations: {thread: true}});
+  }
+
+  private async deleteAuthenticatedComment(comment: ThreadComment, member: MemberReqPayload) {
+    const isAdmin = member?.role === "ROLE_ADMIN";
+    const isCommenter = comment.commenterId && comment.commenterId === member.id;
+    if (!isAdmin && !isCommenter) throw new TextersHttpException("NOT_AUTHOR_OF_THREAD_COMMENT");
+
+    await this.commentsRepository.remove(comment);
+  }
+
+  private async deleteUnauthenticatedComment(comment: ThreadComment, password?: string) {
+    if (password === undefined || !comment.validatePassword(password))
+      throw new TextersHttpException("NOT_AUTHOR_OF_THREAD_COMMENT");
+
+    await this.commentsRepository.remove(comment);
   }
 }

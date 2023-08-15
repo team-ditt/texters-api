@@ -3,12 +3,14 @@ import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {AuthorizeThreadCommentPasswordDto} from "@/features/thread-comments/model/authorize-thread-comment-password.dto";
 import {CreateThreadCommentDto} from "@/features/thread-comments/model/create-thread-comment.dto";
+import {DeleteThreadCommentDto} from "@/features/thread-comments/model/delete-thread-comment.dto";
 import {UpdateThreadCommentDto} from "@/features/thread-comments/model/update-thread-comment.dto";
 import {ThreadCommentMapper} from "@/features/thread-comments/thread-comment.mapper";
 import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -90,5 +92,17 @@ export class ThreadCommentsController {
       req["member"],
     );
     return this.threadCommentMapper.toResponse(comment, req["member"]);
+  }
+
+  @Delete("/boards/:boardId/threads/:threadId/comments/:commentId")
+  @UseGuards(OptionalAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteComment(
+    @Req() req: Request,
+    @Param("threadId") threadId: number,
+    @Param("commentId") commentId: number,
+    @Body() {password}: DeleteThreadCommentDto,
+  ) {
+    return this.threadsCommentService.deleteComment(threadId, commentId, password, req["member"]);
   }
 }
