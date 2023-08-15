@@ -27,6 +27,8 @@ import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
+import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
 import {Thread} from "@/features/threads/model/thread.entity";
 import {ThreadsService} from "@/features/threads/threads.service";
 import {HttpModule} from "@nestjs/axios";
@@ -66,6 +68,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       BookComment,
       Board,
       Thread,
+      ThreadComment,
     ]),
   ],
   exports: [
@@ -83,6 +86,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     BookCommentsService,
     BoardsService,
     ThreadsService,
+    ThreadCommentsService,
   ],
   providers: [
     AuthService,
@@ -99,6 +103,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     BookCommentsService,
     BoardsService,
     ThreadsService,
+    ThreadCommentsService,
   ],
 })
 export class SharedModule {}

@@ -22,7 +22,7 @@ export class ThreadsService {
   ) {}
 
   async createThread(boardId: string, createThreadDto: CreateThreadDto, member?: MemberReqPayload) {
-    if (!(await this.boardsService.existsById(boardId)))
+    if (!(await this.boardsService.existById(boardId)))
       throw new TextersHttpException("BOARD_NOT_FOUND");
     if (createThreadDto.isFixed && member?.role !== "ROLE_ADMIN")
       throw new TextersHttpException("NOT_AUTHORIZED_MEMBER");
@@ -71,6 +71,10 @@ export class ThreadsService {
     return thread;
   }
 
+  async existById(id: number) {
+    return await this.threadsRepository.exist({where: {id}});
+  }
+
   async updateThread(
     boardId: string,
     threadId: number,
@@ -80,7 +84,7 @@ export class ThreadsService {
     const thread = await this.threadsRepository.findOne({where: {id: threadId, boardId}});
     if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
 
-    return member
+    return member !== undefined
       ? await this.updateAuthenticatedThread(thread, updateThreadDto, member)
       : await this.updateUnauthenticatedThread(thread, updateThreadDto);
   }
@@ -94,7 +98,7 @@ export class ThreadsService {
     const thread = await this.threadsRepository.findOne({where: {id: threadId, boardId}});
     if (!thread) throw new TextersHttpException("THREAD_NOT_FOUND");
 
-    member
+    member !== undefined
       ? await this.deleteAuthenticatedThread(thread, member)
       : await this.deleteUnauthenticatedThread(thread, password);
   }
@@ -104,20 +108,16 @@ export class ThreadsService {
     createThreadDto: CreateThreadDto,
     member: MemberReqPayload,
   ) {
-    const {id} = await this.threadsRepository.save(
+    return await this.threadsRepository.save(
       Thread.fromAuthenticated(boardId, createThreadDto, member),
     );
-    return await this.threadsRepository.findOne({where: {id}});
   }
 
   private async createUnauthenticatedThread(boardId: string, createThreadDto: CreateThreadDto) {
     if (createThreadDto.isHidden)
       throw new TextersHttpException("NO_UNAUTHENTICATED_HIDDEN_THREAD_CREATION");
 
-    const {id} = await this.threadsRepository.save(
-      Thread.fromUnauthenticated(boardId, createThreadDto),
-    );
-    return await this.threadsRepository.findOne({where: {id}});
+    return await this.threadsRepository.save(Thread.fromUnauthenticated(boardId, createThreadDto));
   }
 
   private canViewHiddenThread(authorId?: number, member?: MemberReqPayload) {

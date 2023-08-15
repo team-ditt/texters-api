@@ -11,11 +11,11 @@ export class BoardsService {
 
   async createBoard(createBoardDto: CreateBoardDto) {
     const {id, name} = createBoardDto;
-    if (await this.existsById(id)) throw new TextersHttpException("DUPLICATE_BOARD_ID");
+    if (await this.existById(id)) throw new TextersHttpException("DUPLICATE_BOARD_ID");
     return await this.boardsRepository.save(Board.of(id, name));
   }
 
-  async existsById(id: string) {
+  async existById(id: string) {
     return await this.boardsRepository.exist({where: {id}});
   }
 }

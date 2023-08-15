@@ -1,5 +1,6 @@
 import {Board} from "@/features/boards/model/board.entity";
 import {Member, MemberReqPayload, MemberRole} from "@/features/members/model/member.entity";
+import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
 import {CreateThreadDto} from "@/features/threads/model/create-thread.dto";
 import {createHash} from "crypto";
 import {
@@ -8,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -47,7 +49,7 @@ export class Thread {
   @Column({nullable: true})
   authorId?: number;
 
-  @ManyToOne(() => Member, member => member.threads)
+  @ManyToOne(() => Member, member => member.threads, {onDelete: "SET NULL"})
   @JoinColumn({name: "authorId"})
   author: Member;
 
@@ -58,7 +60,17 @@ export class Thread {
   @JoinColumn({name: "boardId"})
   board: Board;
 
-  constructor(title: string, content: string, isHidden: boolean, isFixed: boolean) {
+  @OneToMany(() => ThreadComment, comment => comment.thread)
+  comments: ThreadComment[];
+
+  constructor(
+    boardId: string,
+    title: string,
+    content: string,
+    isHidden: boolean,
+    isFixed: boolean,
+  ) {
+    this.boardId = boardId;
     this.title = title;
     this.content = content;
     this.isHidden = isHidden;
@@ -67,8 +79,7 @@ export class Thread {
 
   static fromAuthenticated(boardId: string, createDto: CreateThreadDto, member: MemberReqPayload) {
     const {title, content, isHidden, isFixed} = createDto;
-    const thread = new Thread(title, content, isHidden, isFixed);
-    thread.boardId = boardId;
+    const thread = new Thread(boardId, title, content, isHidden, isFixed);
     thread.authorId = member.id;
     thread.authorName = member.penName;
     thread.authorRole = member.role;
@@ -77,8 +88,7 @@ export class Thread {
 
   static fromUnauthenticated(boardId: string, createDto: CreateThreadDto) {
     const {title, content, isHidden, isFixed, password} = createDto;
-    const thread = new Thread(title, content, isHidden, isFixed);
-    thread.boardId = boardId;
+    const thread = new Thread(boardId, title, content, isHidden, isFixed);
     thread.password = this.hashPassword(password ?? this.generateDefaultPassword());
     return thread;
   }

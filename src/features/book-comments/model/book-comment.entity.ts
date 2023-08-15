@@ -40,7 +40,7 @@ export class BookComment {
   @Column({nullable: true})
   commenterId: number;
 
-  @ManyToOne(() => Member, member => member.comments, {onDelete: "SET NULL"})
+  @ManyToOne(() => Member, member => member.bookComments, {onDelete: "SET NULL"})
   @JoinColumn({name: "commenterId"})
   commenter: Member;
 

@@ -10,6 +10,7 @@ import {LanesModule} from "@/features/lanes/lanes.module";
 import {LocksModule} from "@/features/locks/locks.module";
 import {MembersModule} from "@/features/members/members.module";
 import {PagesModule} from "@/features/pages/pages.module";
+import {ThreadCommentsModule} from "@/features/thread-comments/thread-comments.module";
 import {ThreadsModule} from "@/features/threads/threads.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
@@ -30,6 +31,7 @@ function featureModules() {
     BookCommentsModule,
     BoardsModule,
     ThreadsModule,
+    ThreadCommentsModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"
