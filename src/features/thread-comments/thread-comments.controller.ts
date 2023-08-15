@@ -3,6 +3,7 @@ import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {AuthorizeThreadCommentPasswordDto} from "@/features/thread-comments/model/authorize-thread-comment-password.dto";
 import {CreateThreadCommentDto} from "@/features/thread-comments/model/create-thread-comment.dto";
+import {UpdateThreadCommentDto} from "@/features/thread-comments/model/update-thread-comment.dto";
 import {ThreadCommentMapper} from "@/features/thread-comments/thread-comment.mapper";
 import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
 import {
@@ -12,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -71,5 +73,22 @@ export class ThreadCommentsController {
       data: comments.map(comment => this.threadCommentMapper.toResponse(comment, req["member"])),
       ...this.paginationMapper.toPagination(page, limit, totalCount),
     };
+  }
+
+  @Patch("/boards/:boardId/threads/:threadId/comments/:commentId")
+  @UseGuards(OptionalAuthGuard)
+  async updateThread(
+    @Req() req: Request,
+    @Param("threadId") threadId: number,
+    @Param("commentId") commentId: number,
+    @Body() updateThreadCommentDto: UpdateThreadCommentDto,
+  ) {
+    const comment = await this.threadsCommentService.updateComment(
+      threadId,
+      commentId,
+      updateThreadCommentDto,
+      req["member"],
+    );
+    return this.threadCommentMapper.toResponse(comment, req["member"]);
   }
 }

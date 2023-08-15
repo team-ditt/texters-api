@@ -71,10 +71,6 @@ export class ThreadsService {
     return thread;
   }
 
-  async existById(id: number) {
-    return await this.threadsRepository.exist({where: {id}});
-  }
-
   async updateThread(
     boardId: string,
     threadId: number,

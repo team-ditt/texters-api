@@ -2,6 +2,7 @@ import {TextersHttpException} from "@/features/exceptions/texters-http.exception
 import {MemberReqPayload} from "@/features/members/model/member.entity";
 import {CreateThreadCommentDto} from "@/features/thread-comments/model/create-thread-comment.dto";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
+import {UpdateThreadCommentDto} from "@/features/thread-comments/model/update-thread-comment.dto";
 import {ThreadsService} from "@/features/threads/threads.service";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -46,6 +47,20 @@ export class ThreadCommentsService {
     return {comments, totalCount};
   }
 
+  async updateComment(
+    threadId: number,
+    commentId: number,
+    {content, password}: UpdateThreadCommentDto,
+    member?: MemberReqPayload,
+  ) {
+    const comment = await this.commentsRepository.findOne({where: {id: commentId, threadId}});
+    if (!comment) throw new TextersHttpException("COMMENT_NOT_FOUND");
+
+    return member !== undefined
+      ? await this.updateAuthenticatedComment(comment, content, member)
+      : await this.updateUnauthenticatedComment(comment, content, password);
+  }
+
   private async createAuthenticatedComment(
     threadId: number,
     {content}: CreateThreadCommentDto,
@@ -64,6 +79,33 @@ export class ThreadCommentsService {
     const {id} = await this.commentsRepository.save(
       ThreadComment.fromUnauthenticated(threadId, content, password),
     );
+    return await this.commentsRepository.findOne({where: {id}, relations: {thread: true}});
+  }
+
+  private async updateAuthenticatedComment(
+    comment: ThreadComment,
+    content: string,
+    member: MemberReqPayload,
+  ) {
+    const isAdmin = member?.role === "ROLE_ADMIN";
+    const isCommenter = comment.commenterId && comment.commenterId === member.id;
+    if (!isAdmin && !isCommenter) throw new TextersHttpException("NOT_AUTHOR_OF_THREAD_COMMENT");
+
+    comment.content = content;
+    const {id} = await this.commentsRepository.save(comment);
+    return await this.commentsRepository.findOne({where: {id}, relations: {thread: true}});
+  }
+
+  private async updateUnauthenticatedComment(
+    comment: ThreadComment,
+    content: string,
+    password?: string,
+  ) {
+    if (password === undefined || !comment.validatePassword(password))
+      throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
+
+    comment.content = content;
+    const {id} = await this.commentsRepository.save(comment);
     return await this.commentsRepository.findOne({where: {id}, relations: {thread: true}});
   }
 }

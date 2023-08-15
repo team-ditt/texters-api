@@ -228,6 +228,11 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.FORBIDDEN,
     message: "올바른 댓글 비밀번호를 입력해주세요!",
   },
+  NOT_AUTHOR_OF_THREAD_COMMENT: {
+    code: 1045,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "댓글을 수정/삭제할 권한이 없어요!",
+  },
 };
 
 export type TextersExceptionKey = keyof typeof EXCEPTIONS;
