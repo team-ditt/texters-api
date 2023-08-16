@@ -31,9 +31,6 @@ export class PagesService {
   }
 
   async createPage(bookId: number, laneId: number, {title, order}: CreatePageDto) {
-    const pagesInBook = await this.pageRepository.count({where: {bookId}});
-    if (pagesInBook >= 100) throw new TextersHttpException("TOO_MANY_PAGES");
-
     const pagesInLane = await this.pageRepository.count({where: {laneId}});
     if (pagesInLane < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 

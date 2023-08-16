@@ -53,11 +53,6 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.NOT_FOUND,
     message: "레인을 찾을 수 없습니다.",
   },
-  TOO_MANY_PAGES: {
-    code: 1010,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지는 작품당 최대 100개까지 만들 수 있습니다.",
-  },
   NO_EXPLICIT_INTRO_LANE_MODIFICATION: {
     code: 1011,
     statusCode: HttpStatus.BAD_REQUEST,
