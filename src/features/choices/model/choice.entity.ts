@@ -22,7 +22,7 @@ export class Choice {
   @Column({nullable: true})
   destinationPageId: number;
 
-  @ManyToOne(() => Page, page => page.sourceChoices, {onDelete: "CASCADE"})
+  @ManyToOne(() => Page, page => page.sourceChoices, {onDelete: "SET NULL"})
   @JoinColumn({name: "destinationPageId"})
   destinationPage: Page;
 

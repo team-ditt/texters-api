@@ -17,7 +17,7 @@ import {LanesService} from "@/features/lanes/lanes.service";
 import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as R from "ramda";
 import {DataSource, Repository} from "typeorm";
@@ -26,7 +26,9 @@ import {DataSource, Repository} from "typeorm";
 export class BooksService {
   constructor(
     private readonly filesService: FilesService,
+    @Inject(forwardRef(() => LanesService))
     private readonly lanesService: LanesService,
+    @Inject(forwardRef(() => PagesService))
     private readonly pagesService: PagesService,
     private readonly bookLikedService: BookLikedService,
     @InjectRepository(Book) private readonly bookRepository: Repository<Book>,
@@ -160,6 +162,14 @@ export class BooksService {
     await this.bookRepository.save(book);
 
     return await this.findBookById(id);
+  }
+
+  async updateBookUpdatedAtToNow(id: number) {
+    const book = await this.bookRepository.findOne({where: {id}});
+    if (!book) return;
+
+    book.updatedAt = new Date();
+    await this.bookRepository.save(book);
   }
 
   async publishBookById(id: number) {

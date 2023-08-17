@@ -1,3 +1,4 @@
+import {BooksService} from "@/features/books/books.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Lane} from "@/features/lanes/model/lane.entity";
 import {PagesService} from "@/features/pages/pages.service";
@@ -8,6 +9,8 @@ import {Repository} from "typeorm";
 @Injectable()
 export class LanesService {
   constructor(
+    @Inject(forwardRef(() => BooksService))
+    private readonly booksService: BooksService,
     @Inject(forwardRef(() => PagesService))
     private readonly pagesService: PagesService,
     @InjectRepository(Lane) private readonly laneRepository: Repository<Lane>,
@@ -24,11 +27,13 @@ export class LanesService {
     if (lanes.length < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("increase", bookId, order);
-    return await this.laneRepository.save(Lane.of(bookId, order));
+    const lane = await this.laneRepository.save(Lane.of(bookId, order));
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return lane;
   }
 
-  async deleteLaneById(id: number) {
-    const lane = await this.laneRepository.findOne({where: {id}});
+  async deleteLaneById(bookId: number, laneId: number) {
+    const lane = await this.laneRepository.findOne({where: {id: laneId}});
     if (lane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_LANE_MODIFICATION");
 
     const hasAnyPages = await this.pagesService.hasAnyPages(lane.id);
@@ -37,6 +42,7 @@ export class LanesService {
     await Promise.all([
       this.reorder("decrease", lane.bookId, lane.order + 1),
       this.laneRepository.remove(lane),
+      this.booksService.updateBookUpdatedAtToNow(bookId),
     ]);
   }
 

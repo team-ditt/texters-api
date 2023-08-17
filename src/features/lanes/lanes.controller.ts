@@ -28,7 +28,7 @@ export class LanesController {
   @Delete("books/:bookId/lanes/:laneId")
   @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteLane(@Param("laneId") laneId: number) {
-    return this.lanesService.deleteLaneById(laneId);
+  deleteLane(@Param("bookId") bookId: number, @Param("laneId") laneId: number) {
+    return this.lanesService.deleteLaneById(bookId, laneId);
   }
 }

@@ -6,7 +6,6 @@ import {Page} from "@/features/pages/model/page.entity";
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -37,9 +36,6 @@ export class Book {
 
   @UpdateDateColumn({type: "timestamptz"})
   updatedAt: Date;
-
-  @DeleteDateColumn({type: "timestamptz"})
-  deletedAt?: Date;
 
   @Column()
   authorId: number;

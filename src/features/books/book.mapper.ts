@@ -16,7 +16,7 @@ export class BookMapper {
     const coverImageUrl = entity.coverImage?.toUrl() ?? null;
     return R.pipe(
       R.evolve({author: toAuthor}),
-      R.omit(["authorId", "coverImage", "coverImageId", "deletedAt"]),
+      R.omit(["authorId", "coverImage", "coverImageId"]),
       R.assoc("coverImageUrl", coverImageUrl),
     )(entity);
   }

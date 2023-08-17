@@ -52,26 +52,38 @@ export class PagesController {
 
   @Patch("books/:bookId/pages/:pageId")
   @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.updatePageById(pageId, updatePageDto);
+  updatePage(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageDto: UpdatePageDto,
+  ) {
+    return this.pagesService.updatePage(bookId, pageId, updatePageDto);
   }
 
   @Patch("books/:bookId/pages/:pageId/order")
   @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePageOrder(@Param("pageId") pageId: number, @Body() updatePageOrderDto: UpdatePageOrderDto) {
-    return this.pagesService.updatePageOrder(pageId, updatePageOrderDto.order);
+  updatePageOrder(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageOrderDto: UpdatePageOrderDto,
+  ) {
+    return this.pagesService.updatePageOrder(bookId, pageId, updatePageOrderDto.order);
   }
 
   @Patch("books/:bookId/pages/:pageId/lane")
   @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePageLane(@Param("pageId") pageId: number, @Body() updatePageLaneDto: UpdatePageLaneDto) {
-    return this.pagesService.updatePageLane(pageId, updatePageLaneDto);
+  updatePageLane(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageLaneDto: UpdatePageLaneDto,
+  ) {
+    return this.pagesService.updatePageLane(bookId, pageId, updatePageLaneDto);
   }
 
   @Delete("books/:bookId/pages/:pageId")
   @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  deletePage(@Param("pageId") pageId: number) {
-    return this.pagesService.deletePageById(pageId);
+  deletePage(@Param("bookId") bookId: number, @Param("pageId") pageId: number) {
+    return this.pagesService.deletePage(bookId, pageId);
   }
 }
