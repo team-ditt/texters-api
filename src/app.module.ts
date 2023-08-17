@@ -10,6 +10,8 @@ import {LanesModule} from "@/features/lanes/lanes.module";
 import {LocksModule} from "@/features/locks/locks.module";
 import {MembersModule} from "@/features/members/members.module";
 import {PagesModule} from "@/features/pages/pages.module";
+import {PublishedBooksModule} from "@/features/published-books/published-books.module";
+import {PublishedPagesModule} from "@/features/published-pages/published-pages.module";
 import {ThreadCommentsModule} from "@/features/thread-comments/thread-comments.module";
 import {ThreadLikedModule} from "@/features/thread-liked/thread-liked.module";
 import {ThreadsModule} from "@/features/threads/threads.module";
@@ -24,8 +26,10 @@ function featureModules() {
     MembersModule,
     FilesModule,
     BooksModule,
+    PublishedBooksModule,
     LanesModule,
     PagesModule,
+    PublishedPagesModule,
     ChoicesModule,
     LocksModule,
     BookLikedModule,

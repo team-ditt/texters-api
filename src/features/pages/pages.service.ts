@@ -1,5 +1,4 @@
 import {BooksService} from "@/features/books/books.service";
-import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {LanesService} from "@/features/lanes/lanes.service";
@@ -19,8 +18,6 @@ export class PagesService {
     private readonly booksService: BooksService,
     @Inject(forwardRef(() => LanesService))
     private readonly lanesService: LanesService,
-    @Inject(forwardRef(() => ChoicesService))
-    private readonly choicesService: ChoicesService,
     @InjectRepository(Page) private readonly pageRepository: Repository<Page>,
     private readonly dataSource: DataSource,
   ) {}
@@ -49,7 +46,7 @@ export class PagesService {
     if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     const book = await this.booksService.findBookById(bookId);
-    if (book.isPublished()) this.booksService.logBookViewed(bookId);
+    // if (book.isPublished()) this.booksService.logBookViewed(bookId);
 
     return introPage;
   }

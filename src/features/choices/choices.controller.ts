@@ -1,6 +1,5 @@
 import {AuthGuard} from "@/features/auth/auth.guard";
 import {FlowChartGuard} from "@/features/books/flow-chart-guard";
-import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {CreateChoiceDto} from "@/features/choices/model/create-choice.dto";
 import {UpdateChoiceDestinationDto} from "@/features/choices/model/update-choice-destination.dto";
@@ -23,7 +22,7 @@ export class ChoicesController {
   constructor(private readonly choicesService: ChoicesService) {}
 
   @Post("books/:bookId/pages/:pageId/choices")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.CREATED)
   createChoice(
     @Param("bookId") bookId: number,
@@ -34,7 +33,7 @@ export class ChoicesController {
   }
 
   @Patch("books/:bookId/pages/:pageId/choices/:choiceId")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoice(
     @Param("bookId") bookId: number,
     @Param("choiceId") choiceId: number,
@@ -44,7 +43,7 @@ export class ChoicesController {
   }
 
   @Patch("books/:bookId/pages/:pageId/choices/:choiceId/destination")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoiceDestination(
     @Param("bookId") bookId: number,
     @Param("choiceId") choiceId: number,
@@ -58,7 +57,7 @@ export class ChoicesController {
   }
 
   @Patch("books/:bookId/pages/:pageId/choices/:choiceId/order")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   updateChoiceOrder(
     @Param("bookId") bookId: number,
     @Param("choiceId") choiceId: number,
@@ -68,7 +67,7 @@ export class ChoicesController {
   }
 
   @Delete("books/:bookId/pages/:pageId/choices/:choiceId")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteChoice(@Param("bookId") bookId: number, @Param("choiceId") choiceId: number) {
     return this.choicesService.deleteChoice(bookId, choiceId);

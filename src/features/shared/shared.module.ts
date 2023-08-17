@@ -7,12 +7,8 @@ import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {BooksService} from "@/features/books/books.service";
-import {BookTitleSearch} from "@/features/books/model/book-title-index.entity";
-import {BookView} from "@/features/books/model/book-view.entity";
 import {BookViewed} from "@/features/books/model/book-viewed.entity";
-import {BookWeeklyViewedView} from "@/features/books/model/book-weekly-viewed-view.entity";
 import {Book} from "@/features/books/model/book.entity";
-import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {FilesService} from "@/features/files/files.service";
@@ -26,6 +22,13 @@ import {MembersService} from "@/features/members/members.service";
 import {Member} from "@/features/members/model/member.entity";
 import {Page} from "@/features/pages/model/page.entity";
 import {PagesService} from "@/features/pages/pages.service";
+import {BookWeeklyViewedView} from "@/features/published-books/model/book-weekly-viewed-view.entity";
+import {PublishedBookTitleSearch} from "@/features/published-books/model/published-book-title-index.entity";
+import {PublishedBook} from "@/features/published-books/model/published-book.entity";
+import {PublishedBooksService} from "@/features/published-books/published-books.service";
+import {PublishedChoice} from "@/features/published-pages/model/published-choice.entity";
+import {PublishedPage} from "@/features/published-pages/model/published-page.entity";
+import {PublishedPagesService} from "@/features/published-pages/published-pages.service";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
 import {ThreadCommentsService} from "@/features/thread-comments/thread-comments.service";
@@ -57,9 +60,6 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Member,
       File,
       Book,
-      BookView,
-      PublishedBookView,
-      BookTitleSearch,
       BookViewed,
       BookLiked,
       BookWeeklyViewedView,
@@ -67,6 +67,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
       Lane,
       Page,
       Choice,
+      PublishedBook,
+      PublishedPage,
+      PublishedChoice,
+      PublishedBookTitleSearch,
       FlowChartLock,
       BookComment,
       Board,
@@ -87,6 +91,8 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     LanesService,
     PagesService,
     ChoicesService,
+    PublishedBooksService,
+    PublishedPagesService,
     LocksService,
     BookCommentsService,
     BoardsService,
@@ -105,6 +111,8 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     LanesService,
     PagesService,
     ChoicesService,
+    PublishedBooksService,
+    PublishedPagesService,
     LocksService,
     BookCommentsService,
     BoardsService,

@@ -1,5 +1,8 @@
+import {Auth} from "@/features/auth/model/auth.entity";
 import {BookComment} from "@/features/book-comments/model/book-comment.entity";
+import {BookLiked} from "@/features/book-liked/model/book-liked.entity";
 import {Book} from "@/features/books/model/book.entity";
+import {PublishedBook} from "@/features/published-books/model/published-book.entity";
 import {ThreadComment} from "@/features/thread-comments/model/thread-comment.entity";
 import {ThreadLiked} from "@/features/thread-liked/model/thread-liked.entity";
 import {Thread} from "@/features/threads/model/thread.entity";
@@ -34,8 +37,17 @@ export class Member {
   @UpdateDateColumn({type: "timestamptz"})
   updatedAt: Date;
 
+  @OneToMany(() => Auth, auth => auth.member)
+  authTokens: Auth[];
+
   @OneToMany(() => Book, book => book.author)
   books: Book[];
+
+  @OneToMany(() => PublishedBook, book => book.author)
+  publishedBooks: PublishedBook[];
+
+  @OneToMany(() => BookLiked, bookLiked => bookLiked.book)
+  bookLikedRecords: BookLiked[];
 
   @OneToMany(() => BookComment, comment => comment.book)
   bookComments: BookComment[];

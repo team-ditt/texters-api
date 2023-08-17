@@ -19,11 +19,8 @@ export class BookCommentsService {
     createBookCommentDto: CreateBookCommentDto,
     member: MemberReqPayload,
   ) {
-    const book = await this.booksService.findBookById(bookId);
-    if (!book.isPublished()) throw new TextersHttpException("CANNOT_COMMENT_ON_UNPUBLISHED_BOOK");
-
     const comment = BookComment.of(
-      book.id,
+      bookId,
       member.id,
       member.penName,
       member.role,
