@@ -74,6 +74,7 @@ export class PublishedBooksService {
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
       .leftJoinAndSelect(BookStatisticsView, "bookStatistics", "book.id = bookStatistics.id")
+      .where("book.id = :id", {id})
       .getRawOne();
     if (!bookWithStatistic) throw new TextersHttpException("BOOK_NOT_FOUND");
     return bookWithStatistic;
