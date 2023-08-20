@@ -20,7 +20,9 @@ export class BooksService {
     private readonly lanesService: LanesService,
     @Inject(forwardRef(() => PagesService))
     private readonly pagesService: PagesService,
-    @InjectRepository(Book) private readonly bookRepository: Repository<Book>,
+    @InjectRepository(Book) private readonly booksRepository: Repository<Book>,
+    @InjectRepository(PublishedBook)
+    private readonly publishedBooksRepository: Repository<PublishedBook>,
     @InjectRepository(BookViewed)
     private readonly bookViewedRepository: Repository<BookViewed>,
   ) {}
@@ -32,15 +34,15 @@ export class BooksService {
     book.authorId = authorId;
     if (coverImageId) book.coverImage = await this.filesService.findById(coverImageId);
 
-    const {id: bookId} = await this.bookRepository.save(book);
+    const {id: bookId} = await this.booksRepository.save(book);
     const {id: laneId} = await this.lanesService.createIntroLane(bookId);
     await this.pagesService.createIntroPage(bookId, laneId);
     return await this.findBookById(bookId);
   }
 
   async findBooks(authorId: number, page: number, limit: number) {
-    const totalCount = await this.bookRepository.count({where: {authorId}});
-    const booksWithStatistics = await this.bookRepository
+    const totalCount = await this.booksRepository.count({where: {authorId}});
+    const booksWithStatistics = await this.booksRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
@@ -58,7 +60,7 @@ export class BooksService {
   }
 
   async findBookById(id: number) {
-    const bookWithStatistics = await this.bookRepository
+    const bookWithStatistics = await this.booksRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
@@ -74,7 +76,7 @@ export class BooksService {
   }
 
   async loadFlowChart(id: number) {
-    return await this.bookRepository
+    return await this.booksRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
@@ -91,35 +93,38 @@ export class BooksService {
   }
 
   async updateBookById(id: number, updateBookDto: UpdateBookDto) {
-    const book = await this.bookRepository.findOne({where: {id}});
+    const book = await this.booksRepository.findOne({where: {id}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     Object.assign(book, updateBookDto);
-    await this.bookRepository.save(book);
+    await this.booksRepository.save(book);
 
     return await this.findBookById(id);
   }
 
   async updateBookUpdatedAtToNow(id: number) {
-    const book = await this.bookRepository.findOne({where: {id}});
+    const book = await this.booksRepository.findOne({where: {id}});
     if (!book) return;
 
     book.updatedAt = new Date();
-    await this.bookRepository.save(book);
+    await this.booksRepository.save(book);
   }
 
   async deleteBookById(id: number) {
-    const book = await this.bookRepository.findOne({where: {id}});
+    const book = await this.booksRepository.findOne({where: {id}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
+
+    const publishedBook = await this.publishedBooksRepository.findOne({where: {id}});
 
     await Promise.all([
       book.coverImageId ? this.filesService.deleteById(book.coverImageId) : null,
-      this.bookRepository.remove(book),
+      this.booksRepository.remove(book),
+      this.publishedBooksRepository.remove(publishedBook),
     ]);
   }
 
   async isAuthor(memberId: number, bookId: number) {
-    const book = await this.bookRepository.findOne({where: {id: bookId}});
+    const book = await this.booksRepository.findOne({where: {id: bookId}});
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
     return book.authorId === memberId;
   }
