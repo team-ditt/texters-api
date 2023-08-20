@@ -90,10 +90,8 @@ export class PublishedBooksService {
     if (didPublishBookBefore) await this.unpublishBookById(id);
 
     const publishedBook = PublishedBook.from(book);
-    await Promise.all([
-      this.publishedBooksRepository.save(publishedBook),
-      this.updateSearchIndex(publishedBook),
-    ]);
+    await this.publishedBooksRepository.save(publishedBook);
+    await this.updateSearchIndex(publishedBook);
     return await this.findPublishedBookById(id);
   }
 
