@@ -1,4 +1,5 @@
 import {Book} from "@/features/books/model/book.entity";
+import {PublishedBook} from "@/features/published-books/model/published-book.entity";
 import {
   Column,
   CreateDateColumn,
@@ -29,6 +30,9 @@ export class File {
 
   @OneToOne(() => Book, book => book.coverImage)
   book: Book;
+
+  @OneToOne(() => PublishedBook, book => book.coverImage)
+  publishedBook: PublishedBook;
 
   constructor(directory: string, extension: string) {
     this.directory = directory;

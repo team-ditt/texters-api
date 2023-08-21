@@ -1,6 +1,6 @@
 import {AuthGuard} from "@/features/auth/auth.guard";
+import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {FlowChartGuard} from "@/features/books/flow-chart-guard";
-import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
 import {UpdatePageLaneDto} from "@/features/pages/model/update-page-lane.dto";
 import {UpdatePageOrderDto} from "@/features/pages/model/update-page-order.dto";
@@ -28,7 +28,7 @@ export class PagesController {
   ) {}
 
   @Post("books/:bookId/lanes/:laneId/pages")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.CREATED)
   createPage(
     @Param("bookId") bookId: number,
@@ -38,40 +38,54 @@ export class PagesController {
     return this.pagesService.createPage(bookId, laneId, createPageDto);
   }
 
-  @Get("books/:bookId/intro-page")
+  @Get("members/:memberId/books/:bookId/intro-page")
+  @UseGuards(AuthGuard, BookAuthorGuard)
   async findIntroPage(@Param("bookId") bookId: number) {
     const introPage = await this.pagesService.findIntroPage(bookId);
     return this.pageMapper.toResponse(introPage);
   }
 
-  @Get("books/:bookId/pages/:pageId")
+  @Get("members/:memberId/books/:bookId/pages/:pageId")
+  @UseGuards(AuthGuard, BookAuthorGuard)
   async findPage(@Param("pageId") pageId: number) {
     const page = await this.pagesService.findPageById(pageId);
     return this.pageMapper.toResponse(page);
   }
 
   @Patch("books/:bookId/pages/:pageId")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePage(@Param("pageId") pageId: number, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.updatePageById(pageId, updatePageDto);
+  @UseGuards(AuthGuard, FlowChartGuard)
+  updatePage(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageDto: UpdatePageDto,
+  ) {
+    return this.pagesService.updatePage(bookId, pageId, updatePageDto);
   }
 
   @Patch("books/:bookId/pages/:pageId/order")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePageOrder(@Param("pageId") pageId: number, @Body() updatePageOrderDto: UpdatePageOrderDto) {
-    return this.pagesService.updatePageOrder(pageId, updatePageOrderDto.order);
+  @UseGuards(AuthGuard, FlowChartGuard)
+  updatePageOrder(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageOrderDto: UpdatePageOrderDto,
+  ) {
+    return this.pagesService.updatePageOrder(bookId, pageId, updatePageOrderDto.order);
   }
 
   @Patch("books/:bookId/pages/:pageId/lane")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
-  updatePageLane(@Param("pageId") pageId: number, @Body() updatePageLaneDto: UpdatePageLaneDto) {
-    return this.pagesService.updatePageLane(pageId, updatePageLaneDto);
+  @UseGuards(AuthGuard, FlowChartGuard)
+  updatePageLane(
+    @Param("bookId") bookId: number,
+    @Param("pageId") pageId: number,
+    @Body() updatePageLaneDto: UpdatePageLaneDto,
+  ) {
+    return this.pagesService.updatePageLane(bookId, pageId, updatePageLaneDto);
   }
 
   @Delete("books/:bookId/pages/:pageId")
-  @UseGuards(AuthGuard, PublishedBookGuard, FlowChartGuard)
+  @UseGuards(AuthGuard, FlowChartGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  deletePage(@Param("pageId") pageId: number) {
-    return this.pagesService.deletePageById(pageId);
+  deletePage(@Param("bookId") bookId: number, @Param("pageId") pageId: number) {
+    return this.pagesService.deletePage(bookId, pageId);
   }
 }

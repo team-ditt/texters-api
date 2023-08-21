@@ -3,10 +3,8 @@ import {BookAuthorGuard} from "@/features/books/book-author.guard";
 import {BookMapper} from "@/features/books/book.mapper";
 import {BooksService} from "@/features/books/books.service";
 import {DashBoardGuard} from "@/features/books/dash-board-guard";
-import {BookSearchParams} from "@/features/books/model/book-search.params";
 import {CreateBookDto} from "@/features/books/model/create-book.dto";
 import {UpdateBookDto} from "@/features/books/model/update-book.dto";
-import {PublishedBookGuard} from "@/features/books/published-book.guard";
 import {LocksService} from "@/features/locks/locks.service";
 import {PaginationParams} from "@/features/shared/model/pagination.params";
 import {PaginationMapper} from "@/features/shared/pagination.mapper";
@@ -20,7 +18,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
   Req,
   Res,
@@ -41,16 +38,20 @@ export class BooksController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createBook(@Req() req: Request, @Body() createBookDto: CreateBookDto) {
-    const book = await this.booksService.createBook(req["member"].id, createBookDto);
-    return this.bookMapper.toResponse(book);
+    const bookWithStatistics = await this.booksService.createBook(req["member"].id, createBookDto);
+    return this.bookMapper.toResponseFromBookWithStatistics(bookWithStatistics);
   }
 
   @Get("members/:memberId/books")
   @UseGuards(AuthGuard, DashBoardGuard)
   async findMyBooks(@Param("memberId") memberId: number, @Query() {page, limit}: PaginationParams) {
-    const {books, totalCount} = await this.booksService.findBooksByAuthorId(memberId, page, limit);
+    const {booksWithStatistics, totalCount} = await this.booksService.findBooks(
+      memberId,
+      page,
+      limit,
+    );
     return {
-      data: books.map(book => this.bookMapper.toResponse(book)),
+      data: booksWithStatistics.map(book => this.bookMapper.toResponseFromBookWithStatistics(book)),
       ...this.paginationMapper.toPagination(page, limit, totalCount),
     };
   }
@@ -58,28 +59,8 @@ export class BooksController {
   @Get("members/:memberId/books/:bookId")
   @UseGuards(AuthGuard, BookAuthorGuard)
   async findMyBook(@Param("bookId") bookId: number) {
-    return this.findBook(bookId);
-  }
-
-  @Get("books")
-  async findPublishedBooks(@Query() searchParams: BookSearchParams) {
-    const {books, totalCount} = await this.booksService.findPublishedBooks(searchParams);
-    return {
-      data: books.map(book => this.bookMapper.toResponse(book)),
-      ...this.paginationMapper.toPagination(searchParams.page, searchParams.limit, totalCount),
-    };
-  }
-
-  @Get("books/weekly-most-viewed")
-  async findWeeklyMostViewedBooks(@Query() {limit}: PaginationParams) {
-    const books = await this.booksService.findWeeklyMostViewedBooks(limit);
-    return books.map(book => this.bookMapper.rawToResponse(book));
-  }
-
-  @Get("books/:bookId")
-  async findBook(@Param("bookId") bookId: number) {
     const book = await this.booksService.findBookById(bookId);
-    return this.bookMapper.toResponse(book);
+    return this.bookMapper.toResponseFromBookWithStatistics(book);
   }
 
   @Get("books/:bookId/flow-chart")
@@ -94,23 +75,16 @@ export class BooksController {
   }
 
   @Patch("books/:bookId")
-  @UseGuards(AuthGuard, BookAuthorGuard, PublishedBookGuard)
+  @UseGuards(AuthGuard, BookAuthorGuard)
   async updateBook(@Param("bookId") bookId: number, @Body() updateBookDto: UpdateBookDto) {
-    const book = await this.booksService.updateBookById(bookId, updateBookDto);
-    return this.bookMapper.toResponse(book);
-  }
-
-  @Put("books/:bookId/publish")
-  @UseGuards(AuthGuard, BookAuthorGuard, PublishedBookGuard)
-  async publishBook(@Param("bookId") bookId: number) {
-    const book = await this.booksService.publishBookById(bookId);
-    return this.bookMapper.toResponse(book);
+    const bookWithStatistics = await this.booksService.updateBookById(bookId, updateBookDto);
+    return this.bookMapper.toResponseFromBookWithStatistics(bookWithStatistics);
   }
 
   @Delete("books/:bookId")
   @UseGuards(AuthGuard, BookAuthorGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBook(@Param("bookId") bookId: number) {
-    return await this.booksService.deleteBookById(bookId);
+    await this.booksService.deleteBookById(bookId);
   }
 }

@@ -1,4 +1,5 @@
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Member} from "@/features/members/model/member.entity";
+import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
 export class Auth {
@@ -6,13 +7,16 @@ export class Auth {
   id: number;
 
   @Column()
-  memberId: number;
-
-  @Column()
   refreshToken: string;
 
   @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
+
+  @Column()
+  memberId: number;
+
+  @ManyToOne(() => Member, member => member.authTokens, {onDelete: "CASCADE"})
+  member: Member;
 
   constructor(memberId: number, refreshToken: string) {
     this.memberId = memberId;

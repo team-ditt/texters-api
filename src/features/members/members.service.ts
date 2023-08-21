@@ -1,17 +1,12 @@
-import {AuthService} from "@/features/auth/auth.service";
-import {BookLikedService} from "@/features/book-liked/book-liked.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {Member} from "@/features/members/model/member.entity";
-import {Inject, Injectable, forwardRef} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {FindOptionsWhere, Repository} from "typeorm";
 
 @Injectable()
 export class MembersService {
   constructor(
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService,
-    private readonly bookLikedService: BookLikedService,
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
   ) {}
@@ -41,10 +36,6 @@ export class MembersService {
     if (!member) throw new TextersHttpException("MEMBER_NOT_FOUND");
     if (member.books.length) throw new TextersHttpException("CANNOT_WITHDRAW_NOT_EMPTY_DASHBOARD");
 
-    await Promise.all([
-      this.memberRepository.remove(member),
-      this.authService.signOut(id),
-      this.bookLikedService.removeAllByMemberId(id),
-    ]);
+    await this.memberRepository.remove(member);
   }
 }

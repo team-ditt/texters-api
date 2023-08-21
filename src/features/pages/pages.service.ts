@@ -1,5 +1,4 @@
 import {BooksService} from "@/features/books/books.service";
-import {ChoicesService} from "@/features/choices/choices.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {LanesService} from "@/features/lanes/lanes.service";
@@ -19,8 +18,6 @@ export class PagesService {
     private readonly booksService: BooksService,
     @Inject(forwardRef(() => LanesService))
     private readonly lanesService: LanesService,
-    @Inject(forwardRef(() => ChoicesService))
-    private readonly choicesService: ChoicesService,
     @InjectRepository(Page) private readonly pageRepository: Repository<Page>,
     private readonly dataSource: DataSource,
   ) {}
@@ -35,8 +32,9 @@ export class PagesService {
     if (pagesInLane < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("increase", laneId, order);
-    const page = Page.of(bookId, laneId, title, pagesInLane);
-    return await this.pageRepository.save(page);
+    const page = await this.pageRepository.save(Page.of(bookId, laneId, title, pagesInLane));
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return page;
   }
 
   async findIntroPage(bookId: number) {
@@ -48,7 +46,7 @@ export class PagesService {
     if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     const book = await this.booksService.findBookById(bookId);
-    if (book.isPublished()) this.booksService.logBookViewed(bookId);
+    // if (book.isPublished()) this.booksService.logBookViewed(bookId);
 
     return introPage;
   }
@@ -63,16 +61,18 @@ export class PagesService {
     return page;
   }
 
-  async updatePageById(id: number, updatePageDto: UpdatePageDto) {
-    const page = await this.pageRepository.findOne({where: {id}});
+  async updatePage(bookId: number, pageId: number, updatePageDto: UpdatePageDto) {
+    const page = await this.pageRepository.findOne({where: {id: pageId}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     Object.assign(page, updatePageDto);
-    return this.pageRepository.save(page);
+    await this.pageRepository.save(page);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return page;
   }
 
-  async updatePageOrder(id: number, order: number) {
-    const page = await this.pageRepository.findOne({where: {id}});
+  async updatePageOrder(bookId: number, pageId: number, order: number) {
+    const page = await this.pageRepository.findOne({where: {id: pageId}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     const pagesInLane = await this.pageRepository.count({where: {laneId: page.laneId}});
@@ -82,11 +82,13 @@ export class PagesService {
     await this.reorder("increase", page.laneId, order);
     Object.assign(page, {order});
 
-    return this.pageRepository.save(page);
+    await this.pageRepository.save(page);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return page;
   }
 
-  async updatePageLane(id: number, {laneId, order}: UpdatePageLaneDto) {
-    const page = await this.pageRepository.findOne({where: {id}, relations: {lane: true}});
+  async updatePageLane(bookId: number, pageId: number, {laneId, order}: UpdatePageLaneDto) {
+    const page = await this.pageRepository.findOne({where: {id: pageId}, relations: {lane: true}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
     if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_MOVE");
 
@@ -95,9 +97,9 @@ export class PagesService {
     if (targetLane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_MOVE_TO_INTRO_LANE");
     if (targetLane.pages.length < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
-    if (targetLane.order <= (await this.calculateMaxLaneOrderOfSourcePages(id)))
+    if (targetLane.order <= (await this.calculateMaxLaneOrderOfSourcePages(pageId)))
       throw new TextersHttpException("BAD_DESTINATION_PAGE_MOVE");
-    if (targetLane.order >= (await this.calculateMinLaneOrderOfDestinationPages(id)))
+    if (targetLane.order >= (await this.calculateMinLaneOrderOfDestinationPages(pageId)))
       throw new TextersHttpException("BAD_SOURCE_PAGE_MOVE");
 
     await Promise.all([
@@ -110,21 +112,22 @@ export class PagesService {
       R.assoc("order", order),
     )(page);
 
-    return await this.pageRepository.save(updatedPage);
+    await this.pageRepository.save(updatedPage);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return updatedPage;
   }
 
-  async deletePageById(id: number) {
-    const page = await this.pageRepository.findOne({where: {id}, relations: {lane: true}});
+  async deletePage(bookId: number, pageId: number) {
+    const page = await this.pageRepository.findOne({where: {id: pageId}, relations: {lane: true}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
     if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
 
+    await this.reorder("decrease", page.laneId, page.order);
     await Promise.all([
-      this.choicesService.deleteChoicesByPageId(id),
-      this.choicesService.deleteDestinationsByPageId(id),
-      this.reorder("decrease", page.laneId, page.order),
+      this.pageRepository.remove(page),
+      this.booksService.updateBookUpdatedAtToNow(bookId),
     ]);
-    await this.pageRepository.remove(page);
   }
 
   async isAuthor(memberId: number, pageId: number) {
