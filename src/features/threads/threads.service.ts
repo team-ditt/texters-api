@@ -145,7 +145,7 @@ export class ThreadsService {
       throw new TextersHttpException("NOT_AUTHOR_OF_THREAD");
     if (updateThreadDto.isFixed) throw new TextersHttpException("NOT_AUTHORIZED_MEMBER");
 
-    Object.assign(thread, updateThreadDto);
+    Object.assign(thread, R.omit(["password"], updateThreadDto));
     await this.threadsRepository.save(thread);
     return thread;
   }
