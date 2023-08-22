@@ -24,6 +24,7 @@ export class ThreadLiked {
   memberId: number;
 
   @ManyToOne(() => Member, member => member.threadLikedRecords, {onDelete: "SET NULL"})
+  @JoinColumn({name: "memberId"})
   member: Member;
 
   @Column()

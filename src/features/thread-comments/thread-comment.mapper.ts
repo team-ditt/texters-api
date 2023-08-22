@@ -6,7 +6,7 @@ import * as R from "ramda";
 @Injectable()
 export class ThreadCommentMapper {
   toResponse(entity: ThreadComment, member?: MemberReqPayload) {
-    const isThreadAuthor = entity.thread.authorId ? entity.thread.authorId === member?.id : false;
+    const isThreadAuthor = entity.thread.authorId === entity.commenterId;
     const isCommenter = entity.commenterId ? entity.commenterId === member?.id : false;
 
     return R.pipe(
