@@ -83,7 +83,7 @@ export class PublishedBooksService {
   async publishBookById(id: number) {
     const book = await this.booksRepository.findOne({
       where: {id},
-      relations: {author: true, coverImage: true, lanes: {pages: {choices: true}}},
+      relations: {author: true, coverImage: true, pages: {choices: true}},
     });
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 

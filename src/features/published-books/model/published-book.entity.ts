@@ -55,13 +55,10 @@ export class PublishedBook {
     publishedBook.description = book.description;
     publishedBook.authorId = book.authorId;
     publishedBook.coverImageId = book.coverImageId;
-    publishedBook.pages = book.lanes.flatMap(lane =>
-      lane.pages.map(page => {
-        const isIntro = lane.order === 0;
-        const isEnding = page.choices.length === 0;
-        return PublishedPage.from(page, isIntro, isEnding);
-      }),
-    );
+    publishedBook.pages = book.pages.flatMap(page => {
+      const isEnding = page.choices.length === 0;
+      return PublishedPage.from(page, isEnding);
+    });
     return publishedBook;
   }
 }

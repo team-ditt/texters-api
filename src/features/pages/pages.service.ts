@@ -1,5 +1,4 @@
 import {BooksService} from "@/features/books/books.service";
-import {Choice} from "@/features/choices/model/choice.entity";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
 import {LanesService} from "@/features/lanes/lanes.service";
 import {CreatePageDto} from "@/features/pages/model/create-page.dto";
@@ -32,21 +31,18 @@ export class PagesService {
     if (pagesInLane < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("increase", laneId, order);
-    const page = await this.pageRepository.save(Page.of(bookId, laneId, title, pagesInLane));
+    const page = await this.pageRepository.save(Page.of(bookId, laneId, title, pagesInLane, true));
     await this.booksService.updateBookUpdatedAtToNow(bookId);
     return page;
   }
 
   async findIntroPage(bookId: number) {
     const introPage = await this.pageRepository.findOne({
-      where: {bookId, lane: {order: 0}, order: 0},
-      relations: {lane: true, choices: true},
+      where: {bookId, isIntro: true},
+      relations: {choices: true},
       order: {choices: {order: "ASC"}},
     });
     if (!introPage) throw new TextersHttpException("PAGE_NOT_FOUND");
-
-    const book = await this.booksService.findBookById(bookId);
-    // if (book.isPublished()) this.booksService.logBookViewed(bookId);
 
     return introPage;
   }
@@ -90,17 +86,10 @@ export class PagesService {
   async updatePageLane(bookId: number, pageId: number, {laneId, order}: UpdatePageLaneDto) {
     const page = await this.pageRepository.findOne({where: {id: pageId}, relations: {lane: true}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-    if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_MOVE");
 
     const targetLane = await this.lanesService.findLaneWithPagesById(laneId);
     if (!targetLane) throw new TextersHttpException("LANE_NOT_FOUND");
-    if (targetLane.isIntro()) throw new TextersHttpException("NO_EXPLICIT_MOVE_TO_INTRO_LANE");
     if (targetLane.pages.length < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
-
-    if (targetLane.order <= (await this.calculateMaxLaneOrderOfSourcePages(pageId)))
-      throw new TextersHttpException("BAD_DESTINATION_PAGE_MOVE");
-    if (targetLane.order >= (await this.calculateMinLaneOrderOfDestinationPages(pageId)))
-      throw new TextersHttpException("BAD_SOURCE_PAGE_MOVE");
 
     await Promise.all([
       this.reorder("decrease", page.laneId, page.order + 1),
@@ -121,7 +110,7 @@ export class PagesService {
     const page = await this.pageRepository.findOne({where: {id: pageId}, relations: {lane: true}});
     if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
 
-    if (page.isIntro()) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
+    if (page.isIntro) throw new TextersHttpException("NO_EXPLICIT_INTRO_PAGE_DELETION");
 
     await this.reorder("decrease", page.laneId, page.order);
     await Promise.all([
@@ -141,36 +130,6 @@ export class PagesService {
 
   async hasAnyPages(laneId: number) {
     return await this.pageRepository.exist({where: {laneId}});
-  }
-
-  async findLaneOrderById(id: number) {
-    const page = await this.pageRepository.findOne({where: {id}, relations: {lane: true}});
-    if (!page) throw new TextersHttpException("PAGE_NOT_FOUND");
-    return page.lane.order;
-  }
-
-  private async calculateMaxLaneOrderOfSourcePages(pageId: number) {
-    const {max} = await this.dataSource
-      .createQueryBuilder()
-      .select("MAX(lane.order)")
-      .from(Choice, "choice")
-      .leftJoin("choice.sourcePage", "page")
-      .leftJoin("page.lane", "lane")
-      .where("choice.destinationPage = :pageId", {pageId})
-      .getRawOne();
-    return max ?? Number.MIN_SAFE_INTEGER;
-  }
-
-  private async calculateMinLaneOrderOfDestinationPages(pageId: number) {
-    const {min} = await this.dataSource
-      .createQueryBuilder()
-      .select("MIN(lane.order)")
-      .from(Choice, "choice")
-      .leftJoin("choice.destinationPage", "page")
-      .leftJoin("page.lane", "lane")
-      .where("choice.sourcePage = :pageId", {pageId})
-      .getRawOne();
-    return min ?? Number.MAX_SAFE_INTEGER;
   }
 
   private async reorder(type: "increase" | "decrease", laneId: number, from: number) {
