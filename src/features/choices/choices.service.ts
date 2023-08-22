@@ -2,7 +2,6 @@ import {BooksService} from "@/features/books/books.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
-import {PagesService} from "@/features/pages/pages.service";
 import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -12,8 +11,6 @@ export class ChoicesService {
   constructor(
     @Inject(forwardRef(() => BooksService))
     private readonly booksService: BooksService,
-    @Inject(forwardRef(() => PagesService))
-    private readonly pagesService: PagesService,
     @InjectRepository(Choice) private readonly choiceRepository: Repository<Choice>,
   ) {}
 
@@ -46,10 +43,6 @@ export class ChoicesService {
       relations: {sourcePage: {lane: true}},
     });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
-
-    const destinationLaneOrder = await this.pagesService.findLaneOrderById(destinationPageId);
-    if (destinationLaneOrder && choice.sourcePage.lane.order >= destinationLaneOrder)
-      throw new TextersHttpException("BAD_CHOICE_DESTINATION");
 
     choice.destinationPageId = destinationPageId;
     await this.choiceRepository.save(choice);

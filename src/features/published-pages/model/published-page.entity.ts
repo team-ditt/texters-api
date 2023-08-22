@@ -33,12 +33,12 @@ export class PublishedPage {
   @OneToMany(() => PublishedChoice, choice => choice.destinationPage)
   sourceChoices: PublishedChoice[];
 
-  static from(page: Page, isIntro: boolean, isEnding: boolean) {
+  static from(page: Page, isEnding: boolean) {
     const publishedPage = new PublishedPage();
     publishedPage.id = page.id;
     publishedPage.title = page.title;
     publishedPage.content = page.content;
-    publishedPage.isIntro = isIntro;
+    publishedPage.isIntro = page.isIntro;
     publishedPage.isEnding = isEnding;
     publishedPage.choices = page.choices.map(choice => PublishedChoice.from(choice));
     return publishedPage;

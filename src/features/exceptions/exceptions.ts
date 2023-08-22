@@ -83,30 +83,10 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "인트로 페이지는 임의로 삭제할 수 없습니다.",
   },
-  BAD_CHOICE_DESTINATION: {
-    code: 1017,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택지는 오른쪽으로만 연결할 수 있습니다.",
-  },
   NO_EXPLICIT_INTRO_PAGE_MOVE: {
     code: 1018,
     statusCode: HttpStatus.BAD_REQUEST,
     message: "인트로 페이지는 이동할 수 없습니다.",
-  },
-  NO_EXPLICIT_MOVE_TO_INTRO_LANE: {
-    code: 1019,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "인트로 레인으로 페이지를 이동시킬 수 없습니다.",
-  },
-  BAD_DESTINATION_PAGE_MOVE: {
-    code: 1020,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지에 연결된 앞선 선택지들보다 왼쪽으로 움직일 수 없습니다.",
-  },
-  BAD_SOURCE_PAGE_MOVE: {
-    code: 1021,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지에서 연결되는 선택지들보다 오른쪽으로 움직일 수 없습니다.",
   },
   LOCKED_FLOW_CHART: {
     code: 1022,
@@ -118,40 +98,15 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.FORBIDDEN,
     message: "작업을 수행할 권한이 없어요!",
   },
-  NOT_ALL_PAGES_HAVE_CONTENT: {
-    code: 1024,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지엔 내용이 필요해요, 뭐라도 써주세요!",
-  },
-  NOT_ALL_CHOICES_HAVE_DESTINATION: {
-    code: 1025,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택에는 결과가 따르는 법, 선택지를 다른 페이지와 연결해주세요!",
-  },
-  NOT_ALL_PAGES_CONNECTED: {
-    code: 1026,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택없는 결과는 없다! 페이지에 선택지를 연결해주세요!",
-  },
   INVALID_PAGE_PARAM: {
     code: 1027,
     statusCode: HttpStatus.BAD_REQUEST,
     message: "잘못된 페이지 번호입니다.",
   },
-  CANNOT_PUBLISH: {
-    code: 1028,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "공개할 수 없는 작품입니다.",
-  },
   INTERNAL_SERVER_ERROR: {
     code: 1029,
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     message: "작업 도중 서버에서 오류가 발생했습니다.",
-  },
-  ALREADY_PUBLISHED: {
-    code: 1030,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "이미 공개된 작품입니다.",
   },
   INVALID_REFRESH_TOKEN: {
     code: 1031,
