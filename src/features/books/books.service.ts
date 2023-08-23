@@ -76,7 +76,7 @@ export class BooksService {
   }
 
   async loadFlowChart(id: number) {
-    return await this.booksRepository
+    const flowChart = await this.booksRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
       .leftJoinAndSelect("book.coverImage", "coverImage")
@@ -90,6 +90,8 @@ export class BooksService {
         "choice.order": "ASC",
       })
       .getOne();
+    if (!flowChart) throw new TextersHttpException("BOOK_NOT_FOUND");
+    return flowChart;
   }
 
   async updateBookById(id: number, updateBookDto: UpdateBookDto) {
