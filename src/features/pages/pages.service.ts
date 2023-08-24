@@ -8,7 +8,7 @@ import {UpdatePageDto} from "@/features/pages/model/update-page.dto";
 import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as R from "ramda";
-import {DataSource, Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class PagesService {
@@ -18,12 +18,11 @@ export class PagesService {
     @Inject(forwardRef(() => LanesService))
     private readonly lanesService: LanesService,
     @InjectRepository(Page) private readonly pageRepository: Repository<Page>,
-    private readonly dataSource: DataSource,
   ) {}
 
   async createIntroPage(bookId: number, laneId: number) {
     const INTRO_PAGE_TITLE = "페이지 제목을 입력해 주세요";
-    return await this.pageRepository.save(Page.of(bookId, laneId, INTRO_PAGE_TITLE, 0));
+    return await this.pageRepository.save(Page.of(bookId, laneId, INTRO_PAGE_TITLE, 0, true));
   }
 
   async createPage(bookId: number, laneId: number, {title, order}: CreatePageDto) {
@@ -31,7 +30,7 @@ export class PagesService {
     if (pagesInLane < order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
     await this.reorder("increase", laneId, order);
-    const page = await this.pageRepository.save(Page.of(bookId, laneId, title, pagesInLane, true));
+    const page = await this.pageRepository.save(Page.of(bookId, laneId, title, pagesInLane));
     await this.booksService.updateBookUpdatedAtToNow(bookId);
     return page;
   }
