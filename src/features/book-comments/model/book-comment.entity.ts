@@ -18,7 +18,7 @@ export class BookComment {
   @Column()
   commenterName: string;
 
-  @Column()
+  @Column({default: "ROLE_USER"})
   commenterRole: string;
 
   @Column()
