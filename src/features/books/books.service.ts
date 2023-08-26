@@ -117,11 +117,11 @@ export class BooksService {
     if (!book) throw new TextersHttpException("BOOK_NOT_FOUND");
 
     const publishedBook = await this.publishedBooksRepository.findOne({where: {id}});
+    if (publishedBook) await this.publishedBooksRepository.remove(publishedBook);
 
     await Promise.all([
       book.coverImageId ? this.filesService.deleteById(book.coverImageId) : null,
       this.booksRepository.remove(book),
-      this.publishedBooksRepository.remove(publishedBook),
     ]);
   }
 
