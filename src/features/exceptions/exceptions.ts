@@ -38,7 +38,7 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "누락되거나 잘못된 항목이 있습니다.",
   },
-  NOT_AUTHOR: {
+  NOT_AUTHOR_OF_BOOK: {
     code: 1007,
     statusCode: HttpStatus.FORBIDDEN,
     message: "작가 본인이 아니면 작품을 수정할 수 없습니다.",
@@ -83,30 +83,10 @@ export const EXCEPTIONS = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: "인트로 페이지는 임의로 삭제할 수 없습니다.",
   },
-  BAD_CHOICE_DESTINATION: {
-    code: 1017,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택지는 오른쪽으로만 연결할 수 있습니다.",
-  },
   NO_EXPLICIT_INTRO_PAGE_MOVE: {
     code: 1018,
     statusCode: HttpStatus.BAD_REQUEST,
     message: "인트로 페이지는 이동할 수 없습니다.",
-  },
-  NO_EXPLICIT_MOVE_TO_INTRO_LANE: {
-    code: 1019,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "인트로 레인으로 페이지를 이동시킬 수 없습니다.",
-  },
-  BAD_DESTINATION_PAGE_MOVE: {
-    code: 1020,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지에 연결된 앞선 선택지들보다 왼쪽으로 움직일 수 없습니다.",
-  },
-  BAD_SOURCE_PAGE_MOVE: {
-    code: 1021,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지에서 연결되는 선택지들보다 오른쪽으로 움직일 수 없습니다.",
   },
   LOCKED_FLOW_CHART: {
     code: 1022,
@@ -116,42 +96,17 @@ export const EXCEPTIONS = {
   NOT_AUTHORIZED_MEMBER: {
     code: 1023,
     statusCode: HttpStatus.FORBIDDEN,
-    message: "작업을 수행할 권한이 없습니다.",
-  },
-  NOT_ALL_PAGES_HAVE_CONTENT: {
-    code: 1024,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "페이지엔 내용이 필요해요, 뭐라도 써주세요!",
-  },
-  NOT_ALL_CHOICES_HAVE_DESTINATION: {
-    code: 1025,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택에는 결과가 따르는 법, 선택지를 다른 페이지와 연결해주세요!",
-  },
-  NOT_ALL_PAGES_CONNECTED: {
-    code: 1026,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "선택없는 결과는 없다! 페이지에 선택지를 연결해주세요!",
+    message: "작업을 수행할 권한이 없어요!",
   },
   INVALID_PAGE_PARAM: {
     code: 1027,
     statusCode: HttpStatus.BAD_REQUEST,
     message: "잘못된 페이지 번호입니다.",
   },
-  CANNOT_PUBLISH: {
-    code: 1028,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "공개할 수 없는 작품입니다.",
-  },
   INTERNAL_SERVER_ERROR: {
     code: 1029,
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     message: "작업 도중 서버에서 오류가 발생했습니다.",
-  },
-  ALREADY_PUBLISHED: {
-    code: 1030,
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: "이미 공개된 작품입니다.",
   },
   INVALID_REFRESH_TOKEN: {
     code: 1031,
@@ -182,6 +137,56 @@ export const EXCEPTIONS = {
     code: 1036,
     statusCode: HttpStatus.NOT_FOUND,
     message: "댓글을 찾을 수 없어요!",
+  },
+  DUPLICATE_BOARD_ID: {
+    code: 1037,
+    statusCode: HttpStatus.CONFLICT,
+    message: "이미 존재하는 게시판 ID에요!",
+  },
+  BOARD_NOT_FOUND: {
+    code: 1038,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "게시판을 찾을 수 없어요!",
+  },
+  NO_UNAUTHENTICATED_HIDDEN_THREAD_CREATION: {
+    code: 1039,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    message: "비회원은 비공개 스레드를 작성할 수 없어요!",
+  },
+  NOT_AUTHORIZED_TO_VIEW_HIDDEN_THREAD: {
+    code: 1040,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "비공개 스레드는 작성자 본인과 운영진만 확인할 수 있어요!",
+  },
+  THREAD_NOT_FOUND: {
+    code: 1041,
+    statusCode: HttpStatus.NOT_FOUND,
+    message: "스레드를 찾을 수 없어요!",
+  },
+  WRONG_THREAD_PASSWORD: {
+    code: 1042,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "올바른 스레드 비밀번호를 입력해주세요!",
+  },
+  NOT_AUTHOR_OF_THREAD: {
+    code: 1043,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "스레드를 수정/삭제할 권한이 없어요!",
+  },
+  WRONG_COMMENT_PASSWORD: {
+    code: 1044,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "올바른 댓글 비밀번호를 입력해주세요!",
+  },
+  NOT_AUTHOR_OF_THREAD_COMMENT: {
+    code: 1045,
+    statusCode: HttpStatus.FORBIDDEN,
+    message: "댓글을 수정/삭제할 권한이 없어요!",
+  },
+  THREAD_LIKED_IN_PAST_24_HOURS: {
+    code: 1046,
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: "추천은 24시간에 1번만 누를 수 있어요!",
   },
 };
 

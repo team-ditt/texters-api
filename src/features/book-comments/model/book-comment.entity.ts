@@ -18,6 +18,9 @@ export class BookComment {
   @Column()
   commenterName: string;
 
+  @Column({default: "ROLE_USER"})
+  commenterRole: string;
+
   @Column()
   isSpoiler: boolean;
 
@@ -40,7 +43,7 @@ export class BookComment {
   @Column({nullable: true})
   commenterId: number;
 
-  @ManyToOne(() => Member, member => member.comments, {onDelete: "SET NULL"})
+  @ManyToOne(() => Member, member => member.bookComments, {onDelete: "SET NULL"})
   @JoinColumn({name: "commenterId"})
   commenter: Member;
 
@@ -48,12 +51,14 @@ export class BookComment {
     bookId: number,
     commenterId: number,
     commenterName: string,
+    commenterRole: string,
     isSpoiler: boolean,
     content: string,
   ) {
     this.bookId = bookId;
     this.commenterId = commenterId;
     this.commenterName = commenterName;
+    this.commenterRole = commenterRole;
     this.isSpoiler = isSpoiler;
     this.content = content;
   }
@@ -62,9 +67,10 @@ export class BookComment {
     bookId: number,
     commenterId: number,
     commenterName: string,
+    commenterRole: string,
     isSpoiler: boolean,
     content: string,
   ) {
-    return new BookComment(bookId, commenterId, commenterName, isSpoiler, content);
+    return new BookComment(bookId, commenterId, commenterName, commenterRole, isSpoiler, content);
   }
 }

@@ -1,6 +1,6 @@
+import {AuthGuard} from "@/features/auth/auth.guard";
 import {CoverImageInterceptor} from "@/features/files/files.interceptor";
 import {FilesService} from "@/features/files/files.service";
-import {AuthGuard} from "@/features/shared/auth.guard";
 import {
   Controller,
   HttpCode,

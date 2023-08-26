@@ -26,6 +26,9 @@ export class Page {
   @Column()
   order: number;
 
+  @Column({default: false})
+  isIntro: boolean;
+
   @CreateDateColumn({type: "timestamptz"})
   createdAt: Date;
 
@@ -52,18 +55,27 @@ export class Page {
   @OneToMany(() => Choice, choice => choice.destinationPage)
   sourceChoices: Choice[];
 
-  constructor(bookId: number, laneId: number, title: string, order: number) {
+  constructor(
+    bookId: number,
+    laneId: number,
+    title: string,
+    order: number,
+    isIntro: boolean = false,
+  ) {
     this.bookId = bookId;
     this.laneId = laneId;
     this.title = title;
     this.order = order;
+    this.isIntro = isIntro;
   }
 
-  static of(bookId: number, laneId: number, title: string, order: number) {
-    return new Page(bookId, laneId, title, order);
-  }
-
-  isIntro() {
-    return this.lane.isIntro() && this.order === 0;
+  static of(
+    bookId: number,
+    laneId: number,
+    title: string,
+    order: number,
+    isIntro: boolean = false,
+  ) {
+    return new Page(bookId, laneId, title, order, isIntro);
   }
 }

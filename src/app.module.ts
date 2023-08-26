@@ -1,5 +1,6 @@
 import {AuthModule} from "@/features/auth/auth.module";
 import {BackdoorModule} from "@/features/backdoor/backdoor.module";
+import {BoardsModule} from "@/features/boards/boards.module";
 import {BookCommentsModule} from "@/features/book-comments/book-comments.module";
 import {BookLikedModule} from "@/features/book-liked/book-liked.module";
 import {BooksModule} from "@/features/books/books.module";
@@ -9,6 +10,11 @@ import {LanesModule} from "@/features/lanes/lanes.module";
 import {LocksModule} from "@/features/locks/locks.module";
 import {MembersModule} from "@/features/members/members.module";
 import {PagesModule} from "@/features/pages/pages.module";
+import {PublishedBooksModule} from "@/features/published-books/published-books.module";
+import {PublishedPagesModule} from "@/features/published-pages/published-pages.module";
+import {ThreadCommentsModule} from "@/features/thread-comments/thread-comments.module";
+import {ThreadLikedModule} from "@/features/thread-liked/thread-liked.module";
+import {ThreadsModule} from "@/features/threads/threads.module";
 import {Module} from "@nestjs/common";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
@@ -20,12 +26,18 @@ function featureModules() {
     MembersModule,
     FilesModule,
     BooksModule,
+    PublishedBooksModule,
     LanesModule,
     PagesModule,
+    PublishedPagesModule,
     ChoicesModule,
     LocksModule,
     BookLikedModule,
     BookCommentsModule,
+    BoardsModule,
+    ThreadsModule,
+    ThreadCommentsModule,
+    ThreadLikedModule,
   ];
   const developmentModules = [BackdoorModule];
   return process.env.NODE_ENV === "PRODUCTION"

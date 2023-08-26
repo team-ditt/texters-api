@@ -2,6 +2,7 @@ import {BookComment} from "@/features/book-comments/model/book-comment.entity";
 import {CreateBookCommentDto} from "@/features/book-comments/model/create-book-comment.dto";
 import {BooksService} from "@/features/books/books.service";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
+import {MemberReqPayload} from "@/features/members/model/member.entity";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -15,17 +16,14 @@ export class BookCommentsService {
 
   async createComment(
     bookId: number,
-    commenterId: number,
-    commenterName: string,
     createBookCommentDto: CreateBookCommentDto,
+    member: MemberReqPayload,
   ) {
-    const book = await this.booksService.findBookById(bookId);
-    if (!book.isPublished()) throw new TextersHttpException("CANNOT_COMMENT_ON_UNPUBLISHED_BOOK");
-
     const comment = BookComment.of(
-      book.id,
-      commenterId,
-      commenterName,
+      bookId,
+      member.id,
+      member.penName,
+      member.role,
       createBookCommentDto.isSpoiler,
       createBookCommentDto.content,
     );

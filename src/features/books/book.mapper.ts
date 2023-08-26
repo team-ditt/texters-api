@@ -1,9 +1,9 @@
-import {BookView} from "@/features/books/model/book-view.entity";
+import {BookStatisticsView} from "@/features/books/model/book-statistics-view.entity";
 import {Book} from "@/features/books/model/book.entity";
-import {PublishedBookView} from "@/features/books/model/published-book-view.entity";
 import {File} from "@/features/files/model/file.entity";
 import {MemberMapper} from "@/features/members/member.mapper";
 import {Member} from "@/features/members/model/member.entity";
+import {ObjectUtils} from "@/utils";
 import {Injectable} from "@nestjs/common";
 import * as R from "ramda";
 
@@ -11,43 +11,37 @@ import * as R from "ramda";
 export class BookMapper {
   constructor(private readonly memberMapper: MemberMapper) {}
 
-  toResponse(entity: Book | BookView | PublishedBookView) {
+  toResponse(entity: Book) {
     const toAuthor = (member: Member) => this.memberMapper.toAuthor(member);
     const coverImageUrl = entity.coverImage?.toUrl() ?? null;
     return R.pipe(
       R.evolve({author: toAuthor}),
-      R.omit(["authorId", "coverImage", "coverImageId", "deletedAt"]),
+      R.omit(["authorId", "coverImage", "coverImageId"]),
       R.assoc("coverImageUrl", coverImageUrl),
     )(entity);
   }
 
-  rawToResponse(raw: PublishedBookView) {
-    const author = this.memberMapper.toAuthor({
-      id: raw["author_id"],
-      penName: raw["author_penName"],
-      createdAt: raw["author_createdAt"],
-    } as Member);
-    const coverImageUrl = raw["coverImageId"]
+  toResponseFromBookWithStatistics(raw: any) {
+    const book = ObjectUtils.filterPropsBy("book_")(raw) as Book;
+    const author = this.memberMapper.toAuthor(ObjectUtils.filterPropsBy("author_")(raw) as Member);
+    const coverImageUrl = book.coverImageId
       ? File.toUrl({
-          uuid: raw["coverImageId"],
+          uuid: book.coverImageId,
           directory: raw["coverImage_directory"],
           extension: raw["coverImage_extension"],
         } as File)
       : null;
+    const statistics = ObjectUtils.filterPropsBy("bookStatistics_")(raw) as BookStatisticsView;
 
     return R.pipe(
-      R.omit([
-        "authorId",
-        "author_id",
-        "author_penName",
-        "author_createdAt",
-        "coverImage",
-        "coverImageId",
-        "coverImage_directory",
-        "coverImage_extension",
-      ]),
+      R.omit(["authorId", "coverImageId"]),
       R.assoc("author", author),
       R.assoc("coverImageUrl", coverImageUrl),
-    )(raw);
+      R.assoc("viewed", statistics.viewed),
+      R.assoc("liked", statistics.liked),
+      R.assoc("commentsCount", statistics.commentsCount),
+      R.assoc("isPublished", raw.isPublished),
+      R.assoc("canUpdate", raw.canUpdate),
+    )(book);
   }
 }

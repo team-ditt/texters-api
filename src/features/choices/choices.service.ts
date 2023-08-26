@@ -1,7 +1,7 @@
+import {BooksService} from "@/features/books/books.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
-import {PagesService} from "@/features/pages/pages.service";
 import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -9,44 +9,49 @@ import {Repository} from "typeorm";
 @Injectable()
 export class ChoicesService {
   constructor(
-    @Inject(forwardRef(() => PagesService))
-    private readonly pagesService: PagesService,
+    @Inject(forwardRef(() => BooksService))
+    private readonly booksService: BooksService,
     @InjectRepository(Choice) private readonly choiceRepository: Repository<Choice>,
   ) {}
 
-  async createChoice(pageId: number, content: string) {
+  async createChoice(bookId: number, pageId: number, content: string) {
     const choicesInPage = await this.choiceRepository.count({where: {sourcePageId: pageId}});
     if (choicesInPage >= 5) throw new TextersHttpException("TOO_MANY_CHOICES");
 
-    const choice = Choice.of(pageId, content, choicesInPage);
-    return await this.choiceRepository.save(choice);
+    const choice = await this.choiceRepository.save(Choice.of(pageId, content, choicesInPage));
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return choice;
   }
 
-  async updateChoiceById(id: number, updateChoiceDto: UpdateChoiceDto) {
-    const choice = await this.choiceRepository.findOne({where: {id}});
+  async updateChoiceById(bookId: number, choiceId: number, updateChoiceDto: UpdateChoiceDto) {
+    const choice = await this.choiceRepository.findOne({where: {id: choiceId}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     Object.assign(choice, updateChoiceDto);
-    return await this.choiceRepository.save(choice);
+    await this.choiceRepository.save(choice);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return choice;
   }
 
-  async updateChoiceDestination(id: number, destinationPageId: number | null) {
+  async updateChoiceDestination(
+    bookId: number,
+    choiceId: number,
+    destinationPageId: number | null,
+  ) {
     const choice = await this.choiceRepository.findOne({
-      where: {id},
+      where: {id: choiceId},
       relations: {sourcePage: {lane: true}},
     });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
-    const destinationLaneOrder = await this.pagesService.findLaneOrderById(destinationPageId);
-    if (destinationLaneOrder && choice.sourcePage.lane.order >= destinationLaneOrder)
-      throw new TextersHttpException("BAD_CHOICE_DESTINATION");
-
     choice.destinationPageId = destinationPageId;
-    return await this.choiceRepository.save(choice);
+    await this.choiceRepository.save(choice);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return choice;
   }
 
-  async updateChoiceOrder(id: number, order: number) {
-    const choice = await this.choiceRepository.findOne({where: {id}});
+  async updateChoiceOrder(bookId: number, choiceId: number, order: number) {
+    const choice = await this.choiceRepository.findOne({where: {id: choiceId}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     const choicesInPages = await this.choiceRepository.count({
@@ -56,34 +61,22 @@ export class ChoicesService {
 
     await this.reorder("decrease", choice.sourcePageId, choice.order + 1);
     await this.reorder("increase", choice.sourcePageId, order);
-    Object.assign(choice, {order});
 
-    return this.choiceRepository.save(choice);
+    Object.assign(choice, {order});
+    await this.choiceRepository.save(choice);
+    await this.booksService.updateBookUpdatedAtToNow(bookId);
+    return choice;
   }
 
-  async deleteChoiceById(id: number) {
-    const choice = await this.choiceRepository.findOne({where: {id}});
+  async deleteChoice(bookId: number, choiceId: number) {
+    const choice = await this.choiceRepository.findOne({where: {id: choiceId}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
     await Promise.all([
       this.reorder("decrease", choice.sourcePageId, choice.order + 1),
       this.choiceRepository.remove(choice),
+      this.booksService.updateBookUpdatedAtToNow(bookId),
     ]);
-  }
-
-  async deleteChoicesByPageId(sourcePageId: number) {
-    const choices = await this.choiceRepository.find({where: {sourcePageId}});
-    await Promise.all(choices.map(choice => this.choiceRepository.remove(choice)));
-  }
-
-  async deleteDestinationsByPageId(destinationPageId: number) {
-    const choices = await this.choiceRepository.find({where: {destinationPageId}});
-    await Promise.all(
-      choices.map(choice => {
-        choice.destinationPageId = null;
-        return this.choiceRepository.save(choice);
-      }),
-    );
   }
 
   async isAuthor(memberId: number, choiceId: number) {

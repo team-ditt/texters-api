@@ -20,7 +20,7 @@ export class FlowChartGuard implements CanActivate {
     if (!canEdit) throw new TextersHttpException("LOCKED_FLOW_CHART");
 
     const isAuthor = await this.booksService.isAuthor(memberId, bookId);
-    if (!isAuthor) throw new TextersHttpException("NOT_AUTHOR");
+    if (!isAuthor) throw new TextersHttpException("NOT_AUTHOR_OF_BOOK");
 
     return canEdit && isAuthor;
   }
