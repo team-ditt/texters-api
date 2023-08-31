@@ -2,14 +2,10 @@ import {TextersHttpException} from "@/features/exceptions/texters-http.exception
 import {MemberRole} from "@/features/members/model/member.entity";
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {Reflector} from "@nestjs/core";
-import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get<string[]>("roles", context.getHandler());
