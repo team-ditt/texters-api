@@ -56,7 +56,11 @@ export class LanesService {
   }
 
   async findLaneWithPagesById(id: number) {
-    return this.laneRepository.findOne({where: {id}, relations: {pages: true}});
+    return this.laneRepository.findOne({
+      where: {id},
+      relations: {pages: true},
+      order: {pages: {order: "ASC"}},
+    });
   }
 
   private async reorder(type: "increase" | "decrease", bookId: number, from: number) {
