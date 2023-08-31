@@ -1,3 +1,4 @@
+import {AdminModule} from "@/features/admin/admin.module";
 import {AuthModule} from "@/features/auth/auth.module";
 import {BackdoorModule} from "@/features/backdoor/backdoor.module";
 import {BoardsModule} from "@/features/boards/boards.module";
@@ -22,6 +23,7 @@ import {DataSource} from "typeorm";
 
 function featureModules() {
   const productionModules = [
+    AdminModule,
     AuthModule,
     MembersModule,
     FilesModule,
