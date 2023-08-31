@@ -12,7 +12,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api/v1");
   app.enableCors({
-    origin: "https://www.texters.io",
+    origin: configService.get<string>("CLIENT_URL"),
     credentials: true,
     exposedHeaders: ["X-Flow-Chart-Lock-Key"],
   });
