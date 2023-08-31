@@ -39,6 +39,7 @@ export class PublishedBooksService {
       .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
       .getCount();
 
+    console.log(page, limit);
     const booksWithStatistics = await this.publishedBooksRepository
       .createQueryBuilder("book")
       .leftJoinAndSelect("book.author", "author")
@@ -48,9 +49,10 @@ export class PublishedBooksService {
       .where("bookTitleSearch.index LIKE :likeQuery", {likeQuery: `%${refinedQuery}%`})
       .orderBy(orderBy, "DESC")
       .addOrderBy("book.title")
-      .take(limit)
-      .skip((page - 1) * limit)
+      .offset((page - 1) * limit)
+      .limit(limit)
       .getRawMany();
+    console.log(booksWithStatistics.length);
 
     return {booksWithStatistics, totalCount};
   }
