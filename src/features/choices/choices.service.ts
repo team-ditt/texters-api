@@ -2,6 +2,7 @@ import {BooksService} from "@/features/books/books.service";
 import {Choice} from "@/features/choices/model/choice.entity";
 import {UpdateChoiceDto} from "@/features/choices/model/update-choice.dto";
 import {TextersHttpException} from "@/features/exceptions/texters-http.exception";
+import {PagesService} from "@/features/pages/pages.service";
 import {Inject, Injectable, forwardRef} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -11,6 +12,7 @@ export class ChoicesService {
   constructor(
     @Inject(forwardRef(() => BooksService))
     private readonly booksService: BooksService,
+    private readonly pagesService: PagesService,
     @InjectRepository(Choice) private readonly choiceRepository: Repository<Choice>,
   ) {}
 
@@ -54,26 +56,27 @@ export class ChoicesService {
     const choice = await this.choiceRepository.findOne({where: {id: choiceId}});
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
-    const choicesInPages = await this.choiceRepository.count({
-      where: {sourcePageId: choice.sourcePageId},
-    });
-    if (choicesInPages <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
+    const page = await this.pagesService.findPageById(choice.sourcePageId);
+    if (page.choices.length <= order) throw new TextersHttpException("ORDER_INDEX_OUT_OF_BOUND");
 
-    await this.reorder("decrease", choice.sourcePageId, choice.order + 1);
-    await this.reorder("increase", choice.sourcePageId, order);
+    page.choices.splice(choice.order, 1);
+    page.choices.splice(order, 0, choice);
+    const choices = await this.reorder(page.choices);
 
-    Object.assign(choice, {order});
-    await this.choiceRepository.save(choice);
     await this.booksService.updateBookUpdatedAtToNow(bookId);
-    return choice;
+    return choices[order];
   }
 
   async deleteChoice(bookId: number, choiceId: number) {
-    const choice = await this.choiceRepository.findOne({where: {id: choiceId}});
+    const choice = await this.choiceRepository.findOne({
+      where: {id: choiceId},
+      relations: {sourcePage: {choices: true}},
+    });
     if (!choice) throw new TextersHttpException("CHOICE_NOT_FOUND");
 
+    choice.sourcePage.choices.splice(choice.order, 1);
     await Promise.all([
-      this.reorder("decrease", choice.sourcePageId, choice.order + 1),
+      this.reorder(choice.sourcePage.choices),
       this.choiceRepository.remove(choice),
       this.booksService.updateBookUpdatedAtToNow(bookId),
     ]);
@@ -88,14 +91,12 @@ export class ChoicesService {
     return choice.sourcePage.book.authorId === memberId;
   }
 
-  private async reorder(type: "increase" | "decrease", sourcePageId: number, from: number) {
-    const setOrderQuery = () => (type === "increase" ? "order + 1" : "order - 1");
-    await this.choiceRepository
-      .createQueryBuilder()
-      .update()
-      .set({order: setOrderQuery})
-      .where({sourcePageId})
-      .andWhere("choice.order >= :from", {from})
-      .execute();
+  private async reorder(choices: Choice[]) {
+    return await Promise.all(
+      choices.map((choice, order) => {
+        choice.order = order;
+        return this.choiceRepository.save(choice);
+      }),
+    );
   }
 }
