@@ -52,8 +52,8 @@ export class BooksService {
       .addSelect("COALESCE(book.updatedAt > published.publishedAt, false)", "canUpdate")
       .where("book.authorId = :authorId", {authorId})
       .orderBy("book.updatedAt", "DESC")
-      .take(limit)
-      .skip((page - 1) * limit)
+      .offset((page - 1) * limit)
+      .limit(limit)
       .getRawMany();
 
     return {booksWithStatistics, totalCount};
